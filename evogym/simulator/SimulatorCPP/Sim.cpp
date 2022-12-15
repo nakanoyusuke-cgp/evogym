@@ -219,19 +219,19 @@ py::array_t<int> Sim::object_boxels_type(string object_name) {
 }
 
 MatrixXd Sim::object_boxels_pos_eigen(string object_name) {
-    SimObject* obj = environment.get_object(object_name);
-    if (obj == nullptr){
-        MatrixXd empty = MatrixXd::Zero(2, 1);
-        empty << 0.0, 0.0;
-        return empty;
-    }
-    int num_boxels = obj->boxels.size();
-
-    // boxels -> std::vector<Boxel>
-    // objの全てのボクセルのindexのリスト concat(obj.boxels.select(x => x.points.astype(int)))
-    // posをスライス -> 4, nにリサイズ
-    VectorXi idc{};
-    MatrixXd pos(2);
+//    SimObject* obj = environment.get_object(object_name);
+//    if (obj == nullptr){
+//        MatrixXd empty = MatrixXd::Zero(2, 1);
+//        empty << 0.0, 0.0;
+//        return empty;
+//    }
+//    int num_boxels = obj->boxels.size();
+//
+//    // boxels -> std::vector<Boxel>
+//    // objの全てのボクセルのindexのリスト concat(obj.boxels.select(x => x.points.astype(int)))
+//    // posをスライス -> 4, nにリサイズ
+//    VectorXi idc{};
+//    MatrixXd pos(2);
 
     return Eigen::MatrixXd();
 }
