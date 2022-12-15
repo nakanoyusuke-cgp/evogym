@@ -7,6 +7,7 @@
 #include <tuple>
 #include <Eigen/Dense>
 #include <Eigen/Core>
+#include <pybind11/numpy.h>
 
 #include "PhysicsEngine.h"
 #include "SimObject.h"
@@ -16,6 +17,7 @@
 
 using namespace std;
 using namespace Eigen;
+namespace py = pybind11;
 
 class Environment
 {
@@ -106,6 +108,11 @@ public:
 	//vector<Vector2d_old>* getPointsPos();
 	//vector<bool>* getPointsFixed();
 	//vector<double>* getMasses();
+
+    SimObject* get_object(string object_name);
+//    Ref <MatrixXd> object_boxels_pos(string object_name);
+//    Ref <MatrixXi> object_boxels_type(string object_name);
+
 };
 
 #endif // !ENVIRONMENT_H

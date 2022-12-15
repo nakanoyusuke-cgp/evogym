@@ -175,6 +175,68 @@ Ref <MatrixXi> Sim::get_actuator_indices(string robot_name) {
 //	return Sim::interface.get_debug_window_pos();
 //}
 
+py::array_t<double> Sim::object_boxels_pos(string object_name) {
+    SimObject* obj = environment.get_object(object_name);
+    Matrix<double, 2, Dynamic>* posptr = environment.get_pos();
+    if (obj == nullptr){
+        cout << "Error! No named object" << object_name << "¥n" << endl;
+        py::array_t<double> empty({2, 1});
+        *empty.mutable_data(0, 0) = 0.0;
+        *empty.mutable_data(1, 0) = 0.0;
+        return empty;
+    }
+    int num_boxels = obj->boxels.size();
+    py::array_t<double> boxels_pos({2, num_boxels});
+    for (int i = 0; i < num_boxels; i++){
+        Boxel boxel = obj->boxels[i];
+
+        auto bl = (*posptr).col(boxel.point_bot_left_index);
+        auto br = (*posptr).col(boxel.point_bot_right_index);
+        auto tl = (*posptr).col(boxel.point_top_left_index);
+        auto tr = (*posptr).col(boxel.point_top_right_index);
+        auto center = (bl + br + tl + tr) / 4;
+
+        *boxels_pos.mutable_data(0, i) = center(0);
+        *boxels_pos.mutable_data(1, i) = center(1);
+
+    }
+    return boxels_pos;
+}
+
+py::array_t<int> Sim::object_boxels_type(string object_name) {
+    SimObject* obj = environment.get_object(object_name);
+    if (obj == nullptr){
+        py::array_t<int> empty({1, 1});
+        *empty.mutable_data(0, 0) = 0;
+        return empty;
+    }
+    int num_boxels = obj->boxels.size();
+    py::array_t<int> tmp_object_types({1, num_boxels});
+    for (int i = 0; i < num_boxels; i++){
+        *tmp_object_types.mutable_data(0, i) = obj->boxels[i].cell_type;
+    }
+    return tmp_object_types;
+}
+
+MatrixXd Sim::object_boxels_pos_eigen(string object_name) {
+    SimObject* obj = environment.get_object(object_name);
+    if (obj == nullptr){
+        MatrixXd empty = MatrixXd::Zero(2, 1);
+        empty << 0.0, 0.0;
+        return empty;
+    }
+    int num_boxels = obj->boxels.size();
+
+    // boxels -> std::vector<Boxel>
+    // objの全てのボクセルのindexのリスト concat(obj.boxels.select(x => x.points.astype(int)))
+    // posをスライス -> 4, nにリサイズ
+    VectorXi idc{};
+    MatrixXd pos(2);
+
+    return Eigen::MatrixXd();
+}
+
 Sim::~Sim()
 {
 }
+

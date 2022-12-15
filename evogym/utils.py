@@ -12,6 +12,8 @@ VOXEL_TYPES = {
     'H_ACT': 3,
     'V_ACT': 4,
     'FIXED': 5,
+    'PRED': 6,
+    'PREY': 7
 }
 
 BASELINE_ENV_NAMES = [
@@ -104,7 +106,8 @@ def sample_robot(
     while (not done):
 
         if pd is None:
-            pd = get_uniform(5)
+            pd = get_uniform(8)
+            pd[5] = 0.0
             pd[0] = 0.6
 
         robot = np.zeros(robot_shape)

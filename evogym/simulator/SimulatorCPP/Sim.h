@@ -1,6 +1,8 @@
 #ifndef SIM_H
 #define SIM_H
 
+//#include <pybind11/numpy.h>
+
 #include <fstream>
 
 #include "main.h"
@@ -9,9 +11,9 @@
 #include "ObjectCreator.h"
 #include "Camera.h"
 
+
 class Sim
 {
-
 public:
 
 	//STATIC FUNCTIONS
@@ -53,6 +55,11 @@ public:
 	//void show_debug_window();
 	//void hide_debug_window();
 	//vector<int> get_debug_window_pos();
+
+    py::array_t<double> object_boxels_pos(string object_name);
+    py::array_t<int> object_boxels_type(string object_name);
+    MatrixXd object_boxels_pos_eigen(string object_name);
+
 
 	~Sim();
 };

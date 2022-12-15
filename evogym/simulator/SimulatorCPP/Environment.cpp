@@ -444,7 +444,62 @@ Robot* Environment::get_robot(string robot_name) {
 //	return &points_mass_old;
 //}
 
+SimObject* Environment::get_object(string object_name){
+    if (object_name_to_index.count(object_name) <= 0){
+        cout << "Error: No object named " << object_name << ".\n";
+        return nullptr;
+    }
+    return objects[object_name_to_index[object_name]];
+}
 
+//Ref <MatrixXd> Environment::object_boxels_pos(string object_name) {
+//    if (object_name_to_index.count(object_name) <= 0)
+//    {
+//        cout << "Error: No object named " << object_name << ".\n";
+//        Matrix <double, 2, Dynamic> empty;
+//        empty.resize(2, 4);
+//        empty << 0,0,0,0,0,0,0,0;
+//        return empty;
+//    }
+//    int obj_idx = object_name_to_index[object_name];
+//    SimObject* obj = objects[obj_idx];
+//    int num_boxels = obj->boxels.size();
+//
+//    Matrix <float, 4, Dynamic> result;
+//    result.resize(4, num_boxels);
+//
+//    for (int i = 0; i < num_boxels; i++){
+//        result.col(i) = obj->boxels[i].points;
+//    }
+//
+//    MatrixXd a = result.cast<double>();
+//    return a;
+//}
+//
+//Ref <MatrixXi> Environment::object_boxels_type(string object_name) {
+//    if (object_name_to_index.count(object_name) <= 0)
+//    {
+//        cout << "Error: No object named " << object_name << ".\n";
+//        Matrix <int, 1, 8> empty;
+//        empty.resize(1, 8);
+//        empty << 0,0,0,0,0,0,0,0;
+//        return empty;
+//    }
+//    int obj_idx = object_name_to_index[object_name];
+//    SimObject* obj = objects[obj_idx];
+//    int num_boxels = obj->boxels.size();
+//
+//    MatrixXi result = MatrixXi::Ones(1, num_boxels);
+////    for (int i = 0; i < num_boxels; i++){
+//////        result(0, i) = i;
+////        result(0, i) = obj->boxels[i].cell_type;
+////    }
+//
+//    cout << result << endl;
+//    cout << result << endl;
+//
+//    return result;
+//}
 
 Environment::~Environment(){
 
