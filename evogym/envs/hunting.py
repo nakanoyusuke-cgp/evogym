@@ -79,7 +79,8 @@ class Hunting(BenchmarkBase):
             self.get_relative_pos_obs('robot')
         ))
 
-        reward = 0
+        prey_pred_diffs = self.get_prey_pred_diffs()
+        reward = self.get_reward(prey_pred_diffs=prey_pred_diffs)
         # # compute reward
         # com_1 = np.mean(pos_1, 1)
         # com_2 = np.mean(pos_2, 1)
@@ -130,19 +131,21 @@ class Hunting(BenchmarkBase):
 
         return obs
 
-    def get_reward(self):
+    def get_reward(self, prey_pred_diffs):
         # 捕食器官のうち、最も捕食対象に近いブロックを取り上げる
         #  - ボクセルインデックスとボクセルの種類の紐付けが必要
         # 距離が1.8以下の時捕食しているとみなす
         # print()
+
+        sqr_dist = np.min(np.sum((prey_pred_diffs * prey_pred_diffs), axis=1))
+        return 1 / (10 * sqr_dist)
+
+    def get_prey_pred_diffs(self):
         robot_boxels_pos = self.sim.object_boxels_pos('robot')
         robot_boxels_type = self.sim.object_boxels_type('robot')
         prey_boxels_pos = self.sim.object_boxels_pos('prey')
         pred_boxels_pos = robot_boxels_pos[:, robot_boxels_type == VOXEL_TYPES['PRED']].T
-
-
-        pass
-
+        return prey_boxels_pos - pred_boxels_pos
 
     def prey_behave(self):
         self.sim.translate_object(0.002, 0.001, 'prey')
