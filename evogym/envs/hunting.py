@@ -135,6 +135,11 @@ class Hunting(BenchmarkBase):
         #  - ボクセルインデックスとボクセルの種類の紐付けが必要
         # 距離が1.8以下の時捕食しているとみなす
         # print()
+        robot_boxels_pos = self.sim.object_boxels_pos('robot')
+        robot_boxels_type = self.sim.object_boxels_type('robot')
+        prey_boxels_pos = self.sim.object_boxels_pos('prey')
+        pred_boxels_pos = robot_boxels_pos[:, robot_boxels_type == VOXEL_TYPES['PRED']].T
+
 
         pass
 

@@ -43,7 +43,8 @@ PYBIND11_MODULE(simulator_cpp, m) {
 		.def("translate_object", &Sim::translate_object)
 		.def("get_indices_of_actuators", &Sim::get_actuator_indices, py::return_value_policy::reference_internal)
         .def("object_boxels_pos", &Sim::object_boxels_pos, py::return_value_policy::copy)
-        .def("object_boxels_type", &Sim::object_boxels_type, py::return_value_policy::copy);
+        .def("object_boxels_type", &Sim::object_boxels_type, py::return_value_policy::copy)
+        .def("object_boxels_pos_eigen", &Sim::object_boxels_pos_eigen, "");
 
 	py::class_<Camera>(m, "Camera")
 		.def(py::init<bool>())
