@@ -18,7 +18,7 @@ class Hunting(BenchmarkBase):
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
         self.world.add_from_array('robot', body, 1, 1, connections=connections)
-        self.world.add_from_array('prey', np.array([[7]]), 8, 1)
+        self.world.add_from_array('prey', np.array([[7]]), 3, 1)
         # robotであるか否かをどこで判断しているか
         # actuator >= 1
 
@@ -97,7 +97,9 @@ class Hunting(BenchmarkBase):
         #     reward += 1.0
 
         # observation, reward, has simulation met termination conditions, debugging info
-        return obs, reward, done, {}
+        return obs, reward, done, {
+            'prey_pred_diffs': prey_pred_diffs,
+        }
 
     def reset(self):
         super().reset()
@@ -138,14 +140,14 @@ class Hunting(BenchmarkBase):
         # print()
 
         sqr_dist = np.min(np.sum((prey_pred_diffs * prey_pred_diffs), axis=1))
-        return 1 / (10 * sqr_dist)
+        return 0.01 / sqr_dist
 
     def get_prey_pred_diffs(self):
         robot_boxels_pos = self.sim.object_boxels_pos('robot')
         robot_boxels_type = self.sim.object_boxels_type('robot')
         prey_boxels_pos = self.sim.object_boxels_pos('prey')
-        pred_boxels_pos = robot_boxels_pos[:, robot_boxels_type == VOXEL_TYPES['PRED']].T
-        return prey_boxels_pos - pred_boxels_pos
+        pred_boxels_pos = robot_boxels_pos[:, robot_boxels_type == VOXEL_TYPES['PRED']]
+        return prey_boxels_pos.T - pred_boxels_pos
 
     def prey_behave(self):
         self.sim.translate_object(0.002, 0.001, 'prey')

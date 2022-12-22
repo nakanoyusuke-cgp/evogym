@@ -10,17 +10,28 @@ import random
 # random.seed(seed)
 # np.random.seed(seed)
 
-pd = [3./6, 1/6, 1/6, 1/6, 1/6, 0., 1/6, 0.]
+pd = np.array([3./6, 1/6, 1/6, 1/6, 1/6, 0., 1/6, 0.])
 body, connections = sample_robot((5, 5), pd=pd)
+
+body = np.array([
+    [6, 3, 3, 3, 6],
+    [3, 3, 3, 3, 3],
+    [3, 3, 0, 3, 3],
+    [3, 0, 0, 0, 3],
+    [3, 0, 0, 0, 3],
+])
 
 env = gym.make('Hunting-v0', body=body)
 env.reset()
 
 
-def step(n=1):
+def step(n=1, verbose=False):
     for i in range(n):
         action = env.action_space.sample() - 1
         ob, reward, done, info = env.step(action)
+        if verbose:
+            print("reward:", reward)
+            print("info:", info)
         env.render()
         if done:
             env.reset()
@@ -35,9 +46,6 @@ def print_state():
     print(tmp2)
     print(tmp1[:, tmp2 == 6])
 
-
-print_state()
-step(50)
 
 
 
