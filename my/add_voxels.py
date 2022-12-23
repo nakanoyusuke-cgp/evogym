@@ -20,12 +20,21 @@ body = np.array([
     [3, 0, 0, 0, 3],
     [3, 0, 0, 0, 3],
 ])
+print(body)
 
-env = gym.make('Hunting-v0', body=body)
-env.reset()
+env_walker = gym.make('Walker-v0', body=body)
+env_hunting = gym.make('Hunting-v0', body=body)
+obs_walker = env_walker.reset()
+obs_hunting = env_hunting.reset()
+env_walker.render()
+env_hunting.render()
+print(obs_walker)
+print(obs_walker.size)
+print(obs_hunting)
+print(obs_hunting.size)
 
 
-def step(n=1, verbose=False):
+def step(env, n=1, verbose=False):
     for i in range(n):
         action = env.action_space.sample() - 1
         ob, reward, done, info = env.step(action)
@@ -39,22 +48,9 @@ def step(n=1, verbose=False):
     return ob
 
 
-def print_state():
+def print_state(env):
     tmp1 = env.sim.object_boxels_pos('robot')
     tmp2 = env.sim.object_boxels_type('robot')
     print(tmp1)
     print(tmp2)
     print(tmp1[:, tmp2 == 6])
-
-
-
-
-# while True:
-#     action = env.action_space.sample()-1
-#     ob, reward, done, info = env.step(action)
-#     env.render()
-#
-#     if done:
-#         env.reset()
-#
-# env.close()

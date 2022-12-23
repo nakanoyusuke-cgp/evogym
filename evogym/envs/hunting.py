@@ -12,13 +12,18 @@ import numpy as np
 import os
 
 
+SENSING_RANGE = 0.5
+ESCAPE_VELOCITY = 0.002
+HOPPING = 0.001
+
+
 class Hunting(BenchmarkBase):
     def __init__(self, body, connections=None):
 
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
         self.world.add_from_array('robot', body, 1, 1, connections=connections)
-        self.world.add_from_array('prey', np.array([[7]]), 3, 1)
+        self.world.add_from_array('prey', np.array([[7]]), 8, 1)
         # robotであるか否かをどこで判断しているか
         # actuator >= 1
 
@@ -29,107 +34,66 @@ class Hunting(BenchmarkBase):
         # set action space and observation space
         num_actuators = self.get_actuator_indices('robot').size
         num_robot_points = self.object_pos_at_time(self.get_time(), "robot").size
+        num_pred_voxels = np.sum((self.object_voxels_type('robot') == VOXEL_TYPES['PRED']), dtype=np.int)
 
         self.action_space = spaces.Box(low=0.6, high=1.6, shape=(num_actuators, ), dtype=np.float)
-        self.observation_space = spaces.Box(low=-100, high=100.0, shape=(6 + num_robot_points, ), dtype=np.float)
-
-    # def _get_obs(self):
-    #     robot_pos_final = self.object_pos_at_time(self.get_time(), "robot")
-    #     robot_vel_final = self.object_vel_at_time(self.get_time(), "robot")
-    #     prey_pos_final = self.object_pos_at_time(self.get_time(), "prey")
-    #     prey_vel_final = self.object_vel_at_time(self.get_time(), "prey")
-    #
-    #     robot_com_pos = np.mean(robot_pos_final, axis=1)
-    #     robot_com_vel = np.mean(robot_vel_final, axis=1)
-    #     prey_com_pos = np.mean(prey_pos_final, axis=1)
-    #     prey_com_vel = np.mean(prey_vel_final, axis=1)
-    #
-    #     # observation
-    #     obs = np.array([
-    #         robot_com_vel[0], robot_com_vel[1],
-    #         prey_com_pos[0] - robot_com_pos[0],
-    #         prey_com_pos[1] - robot_com_pos[1],
-    #         prey_com_pos[0], prey_com_vel[1],
-    #     ])
-    #
-    #     return obs
+        # robot vel: 2, diffs: 2 * num_pred_voxels, prey vel: 2, relative pos: num_robot_points
+        self.observation_space = spaces.Box(
+            low=-100, high=100.0, shape=(2 + 2 * num_pred_voxels + 2 + num_robot_points, ), dtype=np.float)
 
     def step(self, action: np.ndarray):
-
-        # collect pre step information
-        pos_1 = self.object_pos_at_time(self.get_time(), 'robot')
-
         # step
         done = super().step({'robot': action})
 
+        # prey behave
         self.prey_behave()
 
-        # collect post step information
-        pos_2 = self.object_pos_at_time(self.get_time(), 'robot')
+        # get prey pred diffs
+        prey_pred_diffs = self.get_prey_pred_diffs()
 
+        # compute reward
+        reward = self.get_reward(prey_pred_diffs=prey_pred_diffs)
 
-        robot_pos_final = self.object_pos_at_time(self.get_time(), "robot")
-        robot_vel_final = self.object_vel_at_time(self.get_time(), "robot")
-        prey_pos_final = self.object_pos_at_time(self.get_time(), "prey")
-        prey_vel_final = self.object_vel_at_time(self.get_time(), "prey")
-
-        # observation
+        # generate observation
         obs = np.concatenate((
-            self.get_obs(robot_pos_final, robot_vel_final, prey_pos_final, prey_vel_final),
-            self.get_relative_pos_obs('robot')
+            np.mean(self.object_vel_at_time(self.get_time(), 'robot'), axis=1),
+            self.get_prey_pred_diffs().reshape(-1),
+            np.mean(self.object_vel_at_time(self.get_time(), 'prey'), axis=1),
+            self.get_relative_pos_obs('robot'),
         ))
 
-        prey_pred_diffs = self.get_prey_pred_diffs()
-        reward = self.get_reward(prey_pred_diffs=prey_pred_diffs)
-        # # compute reward
-        # com_1 = np.mean(pos_1, 1)
-        # com_2 = np.mean(pos_2, 1)
-        # reward = (com_2[0] - com_1[0])
+        done_info = ''
 
         # error check unstable simulation
         if done:
             print("SIMULATION UNSTABLE... TERMINATING")
             reward -= 3.0
-        #
-        # # check goal met
-        # if com_2[0] > 99*self.VOXEL_SIZE:
-        #     done = True
-        #     reward += 1.0
+            done_info = 'The simulation was terminated because it became unstable.'
+
+        # the prey completely escaped from predatory robot
+        prey_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'prey'), axis=1)
+        if prey_com_pos[0] > 99*self.VOXEL_SIZE:
+            done = True
+            reward = -1
+            done_info = 'The simulation was terminated because the prey completely escaped from the predatory robot.'
 
         # observation, reward, has simulation met termination conditions, debugging info
         return obs, reward, done, {
             'prey_pred_diffs': prey_pred_diffs,
+            'done_info': done_info,
         }
 
     def reset(self):
         super().reset()
 
-        robot_pos_final = self.object_pos_at_time(self.get_time(), "robot")
-        robot_vel_final = self.object_vel_at_time(self.get_time(), "robot")
-        prey_pos_final = self.object_pos_at_time(self.get_time(), "prey")
-        prey_vel_final = self.object_vel_at_time(self.get_time(), "prey")
-
         # observation
+        # robot_velocity 2, prey_pred_diffs num_pred_voxels * 2, prey_velocity, relative_pos num_points
         obs = np.concatenate((
-            self.get_obs(robot_pos_final, robot_vel_final, prey_pos_final, prey_vel_final),
-            self.get_relative_pos_obs('robot')
+            np.mean(self.object_vel_at_time(self.get_time(), 'robot'), axis=1),
+            self.get_prey_pred_diffs().reshape(-1),
+            np.mean(self.object_vel_at_time(self.get_time(), 'prey'), axis=1),
+            self.get_relative_pos_obs('robot'),
         ))
-
-        return obs
-
-    def get_obs(self, robot_pos_final, robot_vel_final, prey_pos_final, prey_vel_final):
-
-        robot_com_pos = np.mean(robot_pos_final, axis=1)
-        robot_com_vel = np.mean(robot_vel_final, axis=1)
-        prey_com_pos = np.mean(prey_pos_final, axis=1)
-        prey_com_vel = np.mean(prey_vel_final, axis=1)
-
-        obs = np.array([
-            robot_com_vel[0], robot_com_vel[1],
-            prey_com_pos[0]-robot_com_pos[0],
-            prey_com_pos[1]-robot_com_pos[1],
-            prey_com_vel[0], prey_com_vel[1],
-        ])
 
         return obs
 
@@ -143,11 +107,17 @@ class Hunting(BenchmarkBase):
         return 0.01 / sqr_dist
 
     def get_prey_pred_diffs(self):
-        robot_boxels_pos = self.sim.object_boxels_pos('robot')
-        robot_boxels_type = self.sim.object_boxels_type('robot')
-        prey_boxels_pos = self.sim.object_boxels_pos('prey')
+        robot_boxels_pos = self.object_voxels_pos('robot')
+        robot_boxels_type = self.object_voxels_type('robot')
+        prey_boxels_pos = self.object_voxels_pos('prey')
         pred_boxels_pos = robot_boxels_pos[:, robot_boxels_type == VOXEL_TYPES['PRED']]
         return prey_boxels_pos.T - pred_boxels_pos
 
     def prey_behave(self):
-        self.sim.translate_object(0.002, 0.001, 'prey')
+        robot_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'robot'), axis=1)
+        prey_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'prey'), axis=1)
+        diff = prey_com_pos - robot_com_pos
+        if np.sum(diff ** 2) < SENSING_RANGE ** 2:
+            self.sim.translate_object(
+                ESCAPE_VELOCITY * ((diff[0] >= 0.0) * 2 - 1),
+                HOPPING, 'prey')
