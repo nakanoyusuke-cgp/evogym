@@ -90,30 +90,35 @@ def draw(pd: np.ndarray) -> int:
 
 def sample_robot(
     robot_shape: Tuple[int, int], 
-    pd: np.ndarray = None) -> Tuple[np.ndarray, np.ndarray]:
+    pd: np.ndarray = None,
+    limits: np.ndarray = None) -> Tuple[np.ndarray, np.ndarray]:
     """
     Return a randomly sampled robot of a particular size.
 
     Args:
         robot_shape (Tuple(int, int)): robot shape to sample `(h, w)`.
-        pd (np.ndarray): `(5,)` array representing the probability of sampling each robot voxel (empty, rigid, soft, h_act, v_act). Defaults to a custom distribution. (default = None)
-    
+        pd (np.ndarray): `(len(VOXEL_TYPES),)` array representing the probability of sampling each robot voxel (empty, rigid, soft, h_act, v_act). Defaults to a custom distribution. (default = None)
+        limits (np.ndarray): `(len(VOXEL_TYPES), )` array representing the limit number of each robot voxels. the value of index of unlimited kind of voxels are -1.
+
     Returns:
         Tuple[np.ndarray, np.ndarray]: randomly sampled (valid) robot voxel array and its associated connections array.
     """
     done = False
 
     while (not done):
-
         if pd is None:
-            pd = get_uniform(8)
-            pd[5] = 0.0
-            pd[0] = 0.6
+            pd = get_uniform(len(VOXEL_TYPES))
+            pd[VOXEL_TYPES['FIXED']] = 0.0
+            pd[VOXEL_TYPES['EMPTY']] = 0.6
+        if limits is None:
+            limits = -1 * np.ones(len(VOXEL_TYPES), dtype=np.int)
 
         robot = np.zeros(robot_shape)
         for i in range(robot.shape[0]):
             for j in range(robot.shape[1]):
+                pd[limits == 0] = 0
                 robot[i][j] = draw(pd)
+                limits[robot[i][j]] -= 1
 
         if is_connected(robot) and has_actuator(robot):
             done = True

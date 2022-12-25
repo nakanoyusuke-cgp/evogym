@@ -1,6 +1,9 @@
 import math
 from os import name
 from evogym import is_connected, has_actuator, get_full_connectivity, draw, get_uniform
+from evogym import VOXEL_TYPES
+import numpy as np
+
 
 class Structure():
 
@@ -43,7 +46,9 @@ class TerminationCondition():
     def change_target(self, max_iters):
         self.max_iters = max_iters
 
-def mutate(child, mutation_rate=0.1, num_attempts=10):
+def mutate(child, mutation_rate=0.1, num_attempts=10, limits=None):
+    if limits is None:
+        limits = -1 * np.ones()
     
     pd = get_uniform(5)  
     pd[0] = 0.6 #it is 3X more likely for a cell to become empty
