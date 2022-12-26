@@ -61,7 +61,7 @@ def mutate(child, mutation_rate=0.1, num_attempts=10, limits=None):
     # pd[0] = 0.6 #it is 3X more likely for a cell to become empty
 
     # subtract the numbers of voxels from limits
-    limits_copy[limits_copy > 0] -= np.bincount(child.reshape(-1))[limits_copy > 0]
+    limits_copy[limits_copy > 0] -= np.bincount(child.reshape(-1).astype(np.int64), minlength=len(VOXEL_TYPES))[limits_copy > 0]
     # limits -= np.bincount(child.reshape(-1))
 
     # iterate until valid robot found
@@ -72,8 +72,9 @@ def mutate(child, mutation_rate=0.1, num_attempts=10, limits=None):
                 mutation = [mutation_rate, 1-mutation_rate]
                 if draw(mutation) == 0: # mutation
                     pd[limits_copy == 0] = 0.0
-                    child[i][j] = draw(pd)
-                    limits_copy[child[i][j]] -= 1
+                    voxel = draw(pd)
+                    child[i][j] = voxel
+                    limits_copy[voxel] -= 1
         
         if is_connected(child) and has_actuator(child):
             return (child, get_full_connectivity(child))

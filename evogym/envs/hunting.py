@@ -34,7 +34,7 @@ class Hunting(BenchmarkBase):
         # set action space and observation space
         num_actuators = self.get_actuator_indices('robot').size
         num_robot_points = self.object_pos_at_time(self.get_time(), "robot").size
-        num_pred_voxels = np.sum((self.object_voxels_type('robot') == VOXEL_TYPES['PRED']), dtype=np.int)
+        num_pred_voxels = np.sum((self.object_voxels_type('robot') == VOXEL_TYPES['PRED']), dtype=np.int64)
 
         self.action_space = spaces.Box(low=0.6, high=1.6, shape=(num_actuators, ), dtype=np.float)
         # robot vel: 2, diffs: 2 * num_pred_voxels, prey vel: 2, relative pos: num_robot_points
@@ -111,7 +111,7 @@ class Hunting(BenchmarkBase):
         robot_boxels_type = self.object_voxels_type('robot')
         prey_boxels_pos = self.object_voxels_pos('prey')
         pred_boxels_pos = robot_boxels_pos[:, robot_boxels_type == VOXEL_TYPES['PRED']]
-        return prey_boxels_pos.T - pred_boxels_pos
+        return prey_boxels_pos - pred_boxels_pos
 
     def prey_behave(self):
         robot_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'robot'), axis=1)

@@ -114,7 +114,7 @@ def sample_robot(
             pd_copy = pd.copy()
 
         if limits is None:
-            limits_copy = -1 * np.ones(len(VOXEL_TYPES), dtype=np.int)
+            limits_copy = -1 * np.ones(len(VOXEL_TYPES), dtype=np.int64)
         else:
             limits_copy = limits.copy()
 
@@ -122,8 +122,9 @@ def sample_robot(
         for i in range(robot.shape[0]):
             for j in range(robot.shape[1]):
                 pd_copy[limits_copy == 0] = 0
-                robot[i][j] = draw(pd_copy)
-                limits_copy[robot[i][j]] -= 1
+                voxel = draw(pd_copy)
+                robot[i][j] = voxel
+                limits_copy[voxel] -= 1
 
         if is_connected(robot) and has_actuator(robot):
             done = True

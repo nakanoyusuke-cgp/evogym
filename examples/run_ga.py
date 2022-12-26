@@ -15,5 +15,5 @@ if __name__ == "__main__":
         max_evaluations = 6,
         train_iters = 50,
         num_cores = 3,
-        voxels_limits=np.array([-1, -1, -1, -1, -1, 0, 3, 0], np.int)
+        voxels_limits=np.array([-1, -1, -1, -1, -1, 0, 3, 0], np.int64)
     )
