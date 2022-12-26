@@ -11,8 +11,9 @@ if __name__ == "__main__":
     run_ga(
         pop_size = 3,
         structure_shape = (5,5),
-        experiment_name = "test_ga",
+        experiment_name = "test_hunting_ga",
         max_evaluations = 6,
         train_iters = 50,
         num_cores = 3,
+        voxels_limits=np.array([-1, -1, -1, -1, -1, 0, 3, 0], np.int)
     )
