@@ -12,8 +12,9 @@ import numpy as np
 import os
 
 
-SENSING_RANGE = 0.5
-ESCAPE_VELOCITY = 0.002
+SENSING_RANGE = 1.0
+REWARD_RANGE = 0.7
+ESCAPE_VELOCITY = 0.0015
 HOPPING = 0.001
 
 
@@ -22,7 +23,7 @@ class Hunting(BenchmarkBase):
 
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
-        self.world.add_from_array('robot', body, 1, 1, connections=connections)
+        self.world.add_from_array('robot', body, 15, 1, connections=connections)
         self.world.add_from_array('prey', np.array([[7]]), 8, 1)
         # robotであるか否かをどこで判断しているか
         # actuator >= 1
@@ -41,6 +42,8 @@ class Hunting(BenchmarkBase):
         self.observation_space = spaces.Box(
             low=-100, high=100.0, shape=(2 + 2 * num_pred_voxels + 2 + num_robot_points, ), dtype=np.float)
 
+        self._sqr_dist_prev = None
+
     def step(self, action: np.ndarray):
         # step
         done = super().step({'robot': action})
@@ -52,7 +55,8 @@ class Hunting(BenchmarkBase):
         prey_pred_diffs = self.get_prey_pred_diffs()
 
         # compute reward
-        reward = self.get_reward(prey_pred_diffs=prey_pred_diffs)
+        reward, sqr_dist = self.get_reward(prey_pred_diffs=prey_pred_diffs, sqr_dist_prev=self._sqr_dist_prev)
+        self._sqr_dist_prev = sqr_dist
 
         # generate observation
         obs = np.concatenate((
@@ -95,16 +99,20 @@ class Hunting(BenchmarkBase):
             self.get_relative_pos_obs('robot'),
         ))
 
+        prey_pred_diffs = self.get_prey_pred_diffs()
+        self._sqr_dist_prev = np.min(np.sum((prey_pred_diffs * prey_pred_diffs), axis=0))
+
         return obs
 
-    def get_reward(self, prey_pred_diffs):
-        # 捕食器官のうち、最も捕食対象に近いブロックを取り上げる
-        #  - ボクセルインデックスとボクセルの種類の紐付けが必要
-        # 距離が1.8以下の時捕食しているとみなす
-        # print()
+    def get_reward(self, prey_pred_diffs, sqr_dist_prev):
+        reward = 0
+        sqr_dist = np.min(np.sum((prey_pred_diffs * prey_pred_diffs), axis=0))
+        if sqr_dist < (REWARD_RANGE ** 2):
+            reward += 0.01 / sqr_dist
+        if sqr_dist < sqr_dist_prev:
+            reward += 0.1
 
-        sqr_dist = np.min(np.sum((prey_pred_diffs * prey_pred_diffs), axis=1))
-        return 0.01 / sqr_dist
+        return np.clip(reward, 0., 1.), sqr_dist
 
     def get_prey_pred_diffs(self):
         robot_boxels_pos = self.object_voxels_pos('robot')
@@ -117,7 +125,8 @@ class Hunting(BenchmarkBase):
         robot_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'robot'), axis=1)
         prey_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'prey'), axis=1)
         diff = prey_com_pos - robot_com_pos
-        if np.sum(diff ** 2) < SENSING_RANGE ** 2:
-            self.sim.translate_object(
-                ESCAPE_VELOCITY * ((diff[0] >= 0.0) * 2 - 1),
-                HOPPING, 'prey')
+        if np.sum(diff ** 2) < (SENSING_RANGE ** 2):
+            if diff[0] >= 0.0:
+                self.sim.translate_object(ESCAPE_VELOCITY, HOPPING, 'prey')
+            else:
+                self.sim.translate_object(-1 * ESCAPE_VELOCITY, HOPPING, 'prey')
