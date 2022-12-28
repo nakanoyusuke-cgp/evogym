@@ -91,7 +91,8 @@ def draw(pd: np.ndarray) -> int:
 def sample_robot(
     robot_shape: Tuple[int, int], 
     pd: np.ndarray = None,
-    limits: np.ndarray = None) -> Tuple[np.ndarray, np.ndarray]:
+    limits: np.ndarray = None,
+    structure_requirement = None) -> Tuple[np.ndarray, np.ndarray]:
     """
     Return a randomly sampled robot of a particular size.
 
@@ -99,10 +100,14 @@ def sample_robot(
         robot_shape (Tuple(int, int)): robot shape to sample `(h, w)`.
         pd (np.ndarray): `(len(VOXEL_TYPES),)` array representing the probability of sampling each robot voxel (empty, rigid, soft, h_act, v_act). Defaults to a custom distribution. (default = None)
         limits (np.ndarray): `(len(VOXEL_TYPES), )` array representing the limit number of each robot voxels. the value of index of unlimited kind of voxels are -1.
+        structure_requirement (lambda np.ndarray: boolean): function to configure requirement of robot structures.
 
     Returns:
         Tuple[np.ndarray, np.ndarray]: randomly sampled (valid) robot voxel array and its associated connections array.
     """
+    if structure_requirement is None:
+        structure_requirement = lambda robot: True
+
     done = False
 
     while (not done):
@@ -126,7 +131,7 @@ def sample_robot(
                 robot[i][j] = voxel
                 limits_copy[voxel] -= 1
 
-        if is_connected(robot) and has_actuator(robot):
+        if is_connected(robot) and has_actuator(robot) and structure_requirement(robot):
             done = True
 
     return robot, get_full_connectivity(robot)

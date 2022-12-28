@@ -46,11 +46,14 @@ class TerminationCondition():
     def change_target(self, max_iters):
         self.max_iters = max_iters
 
-def mutate(child, mutation_rate=0.1, num_attempts=10, limits=None):
+def mutate(child, mutation_rate=0.1, num_attempts=10, limits=None, structure_requirement=None):
     if limits is None:
         limits_copy = -1 * np.ones(len(VOXEL_TYPES))
     else:
         limits_copy = limits.copy()
+
+    if structure_requirement is None:
+        structure_requirement = lambda robot: True
 
     # generate pd/ FIXED_BOXEL
     pd = get_uniform(len(VOXEL_TYPES))
@@ -71,12 +74,16 @@ def mutate(child, mutation_rate=0.1, num_attempts=10, limits=None):
             for j in range(child.shape[1]):
                 mutation = [mutation_rate, 1-mutation_rate]
                 if draw(mutation) == 0: # mutation
+                    voxel_prev = child[i][j].astype(np.int64)
+                    if limits_copy[voxel_prev] >= 0:
+                        limits_copy[voxel_prev] += 1
+                        
                     pd[limits_copy == 0] = 0.0
                     voxel = draw(pd)
                     child[i][j] = voxel
                     limits_copy[voxel] -= 1
         
-        if is_connected(child) and has_actuator(child):
+        if is_connected(child) and has_actuator(child) and structure_requirement(child):
             return (child, get_full_connectivity(child))
 
     # no valid robot found after num_attempts
