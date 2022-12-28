@@ -14,6 +14,7 @@ import os
 
 SENSING_RANGE = 1.0
 REWARD_RANGE = 0.7
+PROGRESSIVE_REWARD = 0.05
 ESCAPE_VELOCITY = 0.0015
 HOPPING = 0.001
 
@@ -23,7 +24,7 @@ class Hunting(BenchmarkBase):
 
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
-        self.world.add_from_array('robot', body, 15, 1, connections=connections)
+        self.world.add_from_array('robot', body, 1, 1, connections=connections)
         self.world.add_from_array('prey', np.array([[7]]), 8, 1)
         # robotであるか否かをどこで判断しているか
         # actuator >= 1
@@ -110,7 +111,7 @@ class Hunting(BenchmarkBase):
         if sqr_dist < (REWARD_RANGE ** 2):
             reward += 0.01 / sqr_dist
         if sqr_dist < sqr_dist_prev:
-            reward += 0.1
+            reward += PROGRESSIVE_REWARD
 
         return np.clip(reward, 0., 1.), sqr_dist
 
