@@ -208,3 +208,10 @@ register(
     entry_point = 'evogym.envs.multi_goal:BiWalk',
     max_episode_steps=1000
 )
+
+### MY IMPLEMENTATIONS ###
+register(
+    id = 'Hunting-v0',
+    entry_point = 'evogym.envs.hunting:Hunting',
+    max_episode_steps=1000,
+)

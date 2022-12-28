@@ -152,6 +152,9 @@ def visualize_codesign(args, exp_name):
 
                 env.render('screen')
 
+                if (total_steps + 1) % 10 == 0:
+                    print("reward:", reward)
+
                 total_steps += 1
             
             env.venv.close()

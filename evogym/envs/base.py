@@ -355,6 +355,33 @@ class EvoGymBase(gym.Env):
 
         return elevations
 
+    def object_voxels_pos(self, object_name):
+        """
+        Computes current x-y position of the voxels of selected object.
+
+        Args:
+            object_name: name of object
+
+        Returns:
+            np.ndarray: `(2, num_voxels)` current x-y positions of selected object's voxels.
+
+        """
+        return self.sim.object_boxels_pos(object_name)
+
+    def object_voxels_type(self, object_name):
+        """
+        Get voxel types of selected object.
+
+        Args:
+            object_name: name of object
+
+        Returns:
+            np.ndarray: `(num_voxels, )` voxel types of selected object.
+
+        """
+        return self.sim.object_boxels_type(object_name)
+
+
 class BenchmarkBase(EvoGymBase):
 
     DATA_PATH = pkg_resources.resource_filename('evogym.envs', os.path.join('sim_files'))
