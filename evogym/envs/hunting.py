@@ -1,4 +1,3 @@
-from evogym import world
 import gym
 from gym import error, spaces
 from gym import utils
@@ -13,15 +12,14 @@ import numpy as np
 import os
 
 
-
 class HuntingBase(BenchmarkBase):
     REWARD_RANGE = 0.7
     PROGRESSIVE_REWARD = 0.05
 
     def __init__(self, world):
         # init sim
-        BenchmarkBase.__init__(self, self.world)
-        self.default_viewer.track_objects('robot', 'prey')
+        BenchmarkBase.__init__(self, world)
+        self.default_viewer.track_objects(('robot',), ('prey',))
 
         # set action space and observation space
         num_actuators = self.get_actuator_indices('robot').size
@@ -69,6 +67,7 @@ class HuntingBase(BenchmarkBase):
         pred_boxels_pos = robot_boxels_pos[:, robot_boxels_type == VOXEL_TYPES['PRED']]
         return prey_boxels_pos - pred_boxels_pos
 
+
 class HuntCreeper(HuntingBase):
     SENSING_RANGE = 1.0
     ESCAPE_VELOCITY = 0.0015
@@ -80,7 +79,7 @@ class HuntCreeper(HuntingBase):
         self.world.add_from_array('robot', body, 1, 1, connections=connections)
         self.world.add_from_array('prey', np.array([[7]]), 8, 1)
 
-        HuntingBase.__init__(self, world=world)
+        HuntingBase.__init__(self, world=self.world)
 
     def step(self, action: np.ndarray):
         # step
@@ -134,3 +133,64 @@ class HuntCreeper(HuntingBase):
                 self.sim.translate_object(self.ESCAPE_VELOCITY, self.HOPPING, 'prey')
             else:
                 self.sim.translate_object(-1 * self.ESCAPE_VELOCITY, self.HOPPING, 'prey')
+
+
+class HuntHopper(HuntingBase):
+    SENSING_RANGE = 1.0
+    X_INIT_VELOCITY = 1.0
+    Y_INIT_VELOCITY = 1.0
+    JUMP_INTERVAL_SEC = 1.0
+
+    def __init__(self, body: np.ndarray, connections=None):
+        # make world
+        self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
+        self.world.add_from_array('robot', body, 1, 1, connections=connections)
+        self.world.add_from_array('prey', np.array([[7]]), 8, 1)
+
+        HuntingBase.__init__(self, world=self.world)
+
+    def step(self, action: np.ndarray):
+        # step
+        done = super().step({'robot': action})
+
+        # prey behave
+        self.prey_behave()
+
+        # get prey pred diffs
+        prey_pred_diffs = self.get_prey_pred_diffs()
+
+        # compute reward
+        reward, sqr_dist = self.get_reward(prey_pred_diffs=prey_pred_diffs, sqr_dist_prev=self._sqr_dist_prev)
+        self._sqr_dist_prev = sqr_dist
+
+        # generate observation
+        obs = np.concatenate((
+            np.mean(self.object_vel_at_time(self.get_time(), 'robot'), axis=1),
+            self.get_prey_pred_diffs().reshape(-1),
+            np.mean(self.object_vel_at_time(self.get_time(), 'prey'), axis=1),
+            self.get_relative_pos_obs('robot'),
+        ))
+
+        done_info = ''
+
+        # error check unstable simulation
+        if done:
+            print("SIMULATION UNSTABLE... TERMINATING")
+            reward -= 3.0
+            done_info = 'The simulation was terminated because it became unstable.'
+
+        # the prey completely escaped from predatory robot
+        prey_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'prey'), axis=1)
+        if prey_com_pos[0] > 99*self.VOXEL_SIZE:
+            done = True
+            reward = -1
+            done_info = 'The simulation was terminated because the prey completely escaped from the predatory robot.'
+
+        # observation, reward, has simulation met termination conditions, debugging info
+        return obs, reward, done, {
+            'prey_pred_diffs': prey_pred_diffs,
+            'done_info': done_info,
+        }
+
+    def prey_behave(self):
+        pass

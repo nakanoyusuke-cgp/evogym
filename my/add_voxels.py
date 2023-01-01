@@ -13,17 +13,17 @@ import random
 pd = np.array([3./6, 1/6, 1/6, 1/6, 1/6, 0., 1/6, 0.])
 body, connections = sample_robot((5, 5), pd=pd)
 
-body = np.array([
-    [6, 3, 3, 3, 6],
-    [3, 3, 3, 3, 3],
-    [3, 3, 0, 3, 3],
-    [3, 0, 0, 0, 3],
-    [3, 0, 0, 0, 3],
-])
-print(body)
+# body = np.array([
+#     [6, 3, 3, 3, 6],
+#     [3, 3, 3, 3, 3],
+#     [3, 3, 0, 3, 3],
+#     [3, 0, 0, 0, 3],
+#     [3, 0, 0, 0, 3],
+# ])
+# print(body)
 
 # env_walker = gym.make('Walker-v0', body=body)
-env_hunting = gym.make('Hunting-v0', body=body)
+env_hunting = gym.make('HuntCreeper-v0', body=body)
 # obs_walker = env_walker.reset()
 obs_hunting = env_hunting.reset()
 # env_walker.render()
