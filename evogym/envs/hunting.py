@@ -19,7 +19,8 @@ class HuntingBase(BenchmarkBase):
     def __init__(self, world):
         # init sim
         BenchmarkBase.__init__(self, world)
-        self.default_viewer.track_objects(('robot',), ('prey',))
+        self.default_viewer.track_objects('robot', 'prey')
+        # self.default_viewer.track_objects(('robot',), ('prey',))
 
         # set action space and observation space
         num_actuators = self.get_actuator_indices('robot').size
@@ -137,15 +138,22 @@ class HuntCreeper(HuntingBase):
 
 class HuntHopper(HuntingBase):
     SENSING_RANGE = 1.0
-    X_INIT_VELOCITY = 1.0
-    Y_INIT_VELOCITY = 1.0
-    JUMP_INTERVAL_SEC = 1.0
+    X_INIT_VELOCITY = 4.0
+    Y_INIT_VELOCITY = 10.0
+    JUMP_INTERVAL_STEPS = 1.0
+    STATES = {
+        "out_of_sensing_range": 0,
+        'jumping': 1,
+        'after_landing': 2,
+    }
 
     def __init__(self, body: np.ndarray, connections=None):
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
         self.world.add_from_array('robot', body, 1, 1, connections=connections)
         self.world.add_from_array('prey', np.array([[7]]), 8, 1)
+        self.state = self.STATES['out_of_sensing_range']
+        self.state_time = 0
 
         HuntingBase.__init__(self, world=self.world)
 
@@ -192,5 +200,59 @@ class HuntHopper(HuntingBase):
             'done_info': done_info,
         }
 
+    def get_robot_prey_diff(self):
+        robot_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'robot'), axis=1)
+        prey_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'prey'), axis=1)
+        return prey_com_pos - robot_com_pos
+
+    def is_on_grounding(self):
+        prey_pos = self.object_pos_at_time(self.get_time(), 'prey')
+        robot_pos = self.object_pos_at_time(self.get_time(), 'robot')
+
+        print('prey_pos', prey_pos)
+        print('robot_pos', robot_pos)
+        return False
+
     def prey_behave(self):
-        pass
+        # ### state of 'out_of_sensing_range' ###
+        if self.state == self.STATES['out_of_sensing_range']:
+            # センサ範囲外
+            if np.sum(self.get_robot_prey_diff() ** 2) < (self.SENSING_RANGE ** 2):
+                self.state = self.STATES['jumping']
+                self.state_time = 0
+            else:
+                self.state_time += 1
+
+        # ### state of 'jumping' ###
+        elif self.state == self.STATES['jumping']:
+            # ジャンプ中の状態
+            if self.state_time == 0:
+                self.sim.add_object_velocity(self.X_INIT_VELOCITY, self.Y_INIT_VELOCITY, 'prey')
+                self.state_time += 1
+            else:
+                if self.is_on_grounding():  # 着地
+                    # 着地硬直に移行
+                    self.state = self.STATES['after_landing']
+                    self.state_time = 0
+                else:
+                    self.state_time += 1
+
+        # ### state of after_landing ###
+        elif self.state == self.STATES['after_landing']:
+            # ジャンプ後の硬直状態
+            if self.state_time >= self.JUMP_INTERVAL_STEPS:
+                if np.sum(self.get_robot_prey_diff() ** 2) < (self.SENSING_RANGE ** 2):
+                    # ジャンプ中状態への移行
+                    self.state = self.STATES['jumping']
+                    self.state_time = 0
+                else:
+                    # センサ範囲外状態へ移行
+                    self.state = self.STATES['out_of_sensing_range']
+                    self.state_time = 0
+            else:
+                self.state_time += 1
+
+        # ### error of illegal state ###
+        else:
+            print('The prey_hopper has illegal state number:', self.STATES)
+            exit(1)
