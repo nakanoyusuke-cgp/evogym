@@ -111,6 +111,7 @@ public:
 
     SimObject* get_object(string object_name);
     void add_object_velocity(double x, double y, string object_name);
+    void set_object_velocity(double x, double y, string object_name);
     py::array_t<int> get_surface_edges(string object_name);
 //    Matrix<int, 2, Dynamic> get_surface_edges(string object_name);
 
