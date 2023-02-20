@@ -142,6 +142,7 @@ class HuntHopper(HuntingBase):
     Y_INIT_VELOCITY = 10.0
     JUMP_INTERVAL_STEPS = 60.0
     GROUND_THRESHOLD = 0.0075
+    AIR_CONTROL_HEIGHT = 0.2
     STATES = {
         "out_of_sensing_range": 0,
         'jumping': 1,
@@ -217,6 +218,19 @@ class HuntHopper(HuntingBase):
         # print(self.object_pos_at_time(self.get_time(), 'prey')[1], self.sim.ground_on_robot('prey', 'robot'))
         return is_on_robot or is_on_floor
 
+    def in_range_air_control(self):
+        prey_pos_y = self.object_pos_at_time(self.get_time(), 'prey')[1]
+        ground_on_robot = self.sim.ground_on_robot('prey', 'robot')
+        is_not_on_floor = np.any((0.1 + self.GROUND_THRESHOLD < prey_pos_y))
+        is_not_on_robot = self.GROUND_THRESHOLD < ground_on_robot
+        under_air_control_height_floor = np.mean(prey_pos_y) < 0.1 + self.AIR_CONTROL_HEIGHT
+        under_air_control_height_robot = 
+        return (is_not_on_robot and under_air_control_height_robot) or (is_not_on_floor and under_air_control_height_floor)
+
+    def under_air_control_height(self):
+        prey_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'prey'), axis=1)
+        return prey_com_pos[1] < self.AIR_CONTROL_HEIGHT
+
     def prey_behave(self):
         # ### state of 'out_of_sensing_range' ###
         if self.state == self.STATES['out_of_sensing_range']:
@@ -256,7 +270,7 @@ class HuntHopper(HuntingBase):
                     self.state = self.STATES['out_of_sensing_range']
                     self.state_time = 0
             else:
-                if not self.is_on_grounding():
+                if (not self.is_on_grounding()) and self.under_air_control_height():
                     self.sim.set_object_velocity(0.0, 0.0, 'prey')
                 self.state_time += 1
 
