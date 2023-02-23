@@ -63,10 +63,11 @@ class CMakeBuild(build_ext):
 
 setup(
     name="evogym",
-    packages=['evogym', 'evogym.envs'],
+    packages=['evogym', 'evogym.envs', 'evogym.envs.hunting'],
     package_dir={
         'evogym': 'evogym',
-        'evogym.envs': 'evogym/envs'},
+        'evogym.envs': 'evogym/envs',
+        'evogym.envs.hunting': 'evogym/envs/hunting'},
     package_data={
         "evogym.envs": [os.path.join('sim_files', '*.json')] #["*.json", "*.sob"],
     },
