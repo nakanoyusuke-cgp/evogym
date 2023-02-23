@@ -10,6 +10,8 @@ from evogym.envs.change_shape import *
 from evogym.envs.traverse import *
 from evogym.envs.walk import *
 
+from evogym.envs.hunting import *
+
 from gym.envs.registration import register
 
 ## SIMPLE ##
