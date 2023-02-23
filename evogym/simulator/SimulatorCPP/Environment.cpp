@@ -452,55 +452,134 @@ SimObject* Environment::get_object(string object_name){
     return objects[object_name_to_index[object_name]];
 }
 
-//Ref <MatrixXd> Environment::object_boxels_pos(string object_name) {
-//    if (object_name_to_index.count(object_name) <= 0)
-//    {
-//        cout << "Error: No object named " << object_name << ".\n";
-//        Matrix <double, 2, Dynamic> empty;
-//        empty.resize(2, 4);
-//        empty << 0,0,0,0,0,0,0,0;
-//        return empty;
-//    }
-//    int obj_idx = object_name_to_index[object_name];
-//    SimObject* obj = objects[obj_idx];
-//    int num_boxels = obj->boxels.size();
-//
-//    Matrix <float, 4, Dynamic> result;
-//    result.resize(4, num_boxels);
-//
-//    for (int i = 0; i < num_boxels; i++){
-//        result.col(i) = obj->boxels[i].points;
-//    }
-//
-//    MatrixXd a = result.cast<double>();
-//    return a;
-//}
-//
-//Ref <MatrixXi> Environment::object_boxels_type(string object_name) {
-//    if (object_name_to_index.count(object_name) <= 0)
-//    {
-//        cout << "Error: No object named " << object_name << ".\n";
-//        Matrix <int, 1, 8> empty;
-//        empty.resize(1, 8);
-//        empty << 0,0,0,0,0,0,0,0;
-//        return empty;
-//    }
-//    int obj_idx = object_name_to_index[object_name];
-//    SimObject* obj = objects[obj_idx];
-//    int num_boxels = obj->boxels.size();
-//
-//    MatrixXi result = MatrixXi::Ones(1, num_boxels);
-////    for (int i = 0; i < num_boxels; i++){
-//////        result(0, i) = i;
-////        result(0, i) = obj->boxels[i].cell_type;
-////    }
-//
-//    cout << result << endl;
-//    cout << result << endl;
-//
-//    return result;
-//}
+void Environment::add_object_velocity(double x, double y, string object_name) {
+    if (object_name_to_index.count(object_name) <= 0)
+        return;
+
+    int object_index = object_name_to_index[object_name];
+    int min_index = objects[object_index]->min_point_index;
+    int max_index = objects[object_index]->max_point_index;
+
+    Vector2d dx = Vector2d(x, y);
+    points_vel(Eigen::all, Eigen::seq(min_index, max_index)).colwise() += dx;
+}
+
+void Environment::mul_object_velocity(double m, string object_name) {
+    if (object_name_to_index.count(object_name) <= 0)
+        return;
+
+    int object_index = object_name_to_index[object_name];
+    int min_index = objects[object_index]->min_point_index;
+    int max_index = objects[object_index]->max_point_index;
+
+//    Vector2d dx = Vector2d(m, m);
+
+//    auto vel = points_vel(Eigen::all, Eigen::seq(min_index, max_index)).colwise();
+
+//    std::cout << points_vel(Eigen::all, Eigen::seq(min_index, max_index)) << std::endl;
+    points_vel(Eigen::all, Eigen::seq(min_index, max_index)) *= m;
+}
+
+void Environment::set_object_velocity(double x, double y, string object_name){
+    if (object_name_to_index.count(object_name) <= 0)
+        return;
+
+    int object_index = object_name_to_index[object_name];
+    int min_index = objects[object_index]->min_point_index;
+    int max_index = objects[object_index]->max_point_index;
+
+    Vector2d v = Vector2d(x, y);
+    points_vel(Eigen::all, Eigen::seq(min_index, max_index)).colwise() = v;
+}
 
 Environment::~Environment(){
 
+}
+
+//Matrix<int, 2, Dynamic> Environment::get_surface_edges(string object_name) {
+py::array_t<int> Environment::get_surface_edges(string object_name) {
+    if (object_name_to_index.count(object_name) <= 0){
+//        Matrix<int, 2, Dynamic> empty;
+//        empty.resize(2, 1);
+//        empty << -1, -1;
+        py::array_t<int> empty({2, 1});
+        *empty.mutable_data(0, 0) = 0;
+        *empty.mutable_data(1, 0) = 0;
+        return empty;
+    }
+
+    SimObject* simObject = get_object(object_name);
+    Matrix<double, 1, Dynamic> surface_edge_idc = simObject->surface_edges_index;
+    int n_surface_edges = (int)surface_edge_idc.size();
+
+//    py::array_t<double> empty({2, 2, n_surface_edges});
+    py::array_t<int> result({2, n_surface_edges});
+
+    for (int i = 0; i < n_surface_edges; i++){
+        Edge &e = edges.at(i);
+        *result.mutable_data(0, i) = e.a_index;
+        *result.mutable_data(1, i) = e.b_index;
+    }
+
+    return result;
+}
+
+double Environment::ground_on_robot(string above, string under) {
+    if (object_name_to_index.count(above) <= 0 || object_name_to_index.count(under) <= 0){
+        return -1.0;
+    }
+
+    SimObject* objAbove = get_object(above);
+    SimObject* objUnder = get_object(under);
+
+    Matrix<double, 1, Dynamic> &above_surface_edge_idc = objAbove->surface_edges_index;
+//    map<int, int> &above_surface_edge_dir = objAbove->surface_edge_directions;
+    Matrix<double, 1, Dynamic> &above_surface_point_idc = objAbove->surface_points_index;
+    Matrix<double, 1, Dynamic> &under_surface_edge_idc = objUnder->surface_edges_index;
+//    map<int, int> &under_surface_edge_dir = objUnder->surface_edge_directions;
+//    Matrix<double, 1, Dynamic> &under_surface_point_idc = objUnder->surface_points_index;
+
+//    int n_above_surface_edges = (int)above_surface_edge_idc.size();
+    int n_above_surface_points = (int)above_surface_point_idc.size();
+    int n_under_surface_edges = (int)under_surface_edge_idc.size();
+//    int n_under_surface_points = (int)under_surface_point_idc.size();
+
+    double result_min = 100.0;
+
+    for (int i = 0; i < n_above_surface_points; i++){
+        auto p = points_pos(all, (int)above_surface_point_idc(i));
+        for (int j = 0; j < n_under_surface_edges; j++){
+            auto &s = edges.at((int)under_surface_edge_idc(j));
+            auto a = points_pos(all, s.a_index);
+            auto b = points_pos(all, s.b_index);
+            if (((a(0) - p(0)) * (b(0) - p(0))) <= 0.0) {
+                // pxが線分ax-bxを内分する
+                auto div = b(0) - a(0);
+                if (div > 1e-8){
+                    // 0割りにならない場合
+                    auto hy = (((b(0)-p(0))*a(1)+(p(0)-a(0))*b(1))/div);
+                    double len_pl = p(1) - hy;
+                    if (len_pl >= 0.0 && len_pl < result_min){
+                        result_min = len_pl;
+                    }
+                }
+                else{
+                    // 0割りになる場合
+                    if (a(1) > b(1)){
+                        double len_pl = p(1) - a(1);
+                        if (len_pl >= 0.0 && len_pl < result_min){
+                            result_min = len_pl;
+                        }
+                    }
+                    else{
+                        double len_pl = p(1) - b(1);
+                        if (len_pl >= 0.0 && len_pl < result_min){
+                            result_min = len_pl;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return result_min;
 }

@@ -22,26 +22,40 @@ body, connections = sample_robot((5, 5), pd=pd)
 # ])
 # print(body)
 
-# env_walker = gym.make('Walker-v0', body=body)
-env_hunting = gym.make('HuntCreeper-v0', body=body)
-# obs_walker = env_walker.reset()
-obs_hunting = env_hunting.reset()
-# env_walker.render()
-env_hunting.render()
-# print(obs_walker)
-# print(obs_walker.size)
-# print(obs_hunting)
-# print(obs_hunting.size)
+env = gym.make('HuntHopper-v0', body=body)
+obs = env.reset()
+env.render()
+
+print(obs)
+print(obs.size)
+
+
+state = None
 
 
 def step(env, n=1, verbose=False, verbose_interval=1):
+    global state
     for i in range(n):
         action = env.action_space.sample() - 1
         ob, reward, done, info = env.step(action)
+        env.render()
+
+        # d = env.sim.ground_on_robot("prey", "robot")
+        # print(d)
+        # if 0.0 <= d < 0.1:
+        #     return ob
+
+        # if state != info['state']:
+        #     state = info['state']
+        #     print(state)
+        #     # if state == 'after_landing':
+        #     #     return obs
+        #     if state == 'jumping':
+        #         print(env.object_pos_at_time(env.get_time(), 'prey')[1], env.sim.ground_on_robot('prey', 'robot'))
+
         if verbose and ((i + 1) % verbose_interval == 0):
             print("reward:", reward)
             print("info:", info)
-        env.render()
         if done:
             env.reset()
 

@@ -251,6 +251,25 @@ MatrixXd Sim::object_boxels_pos_eigen(string object_name) {
     return res;
 }
 
+void Sim::add_object_velocity(double x, double y, string object_name){
+    environment.add_object_velocity(x, y, object_name);
+}
+
+void Sim::mul_object_velocity(double m, string object_name) {
+    environment.mul_object_velocity(m, object_name);
+}
+
+void Sim::set_object_velocity(double x, double y, string object_name) {
+    environment.set_object_velocity(x, y, object_name);
+}
+
+py::array_t<int> Sim::get_surface_edges(string object_name){
+    return environment.get_surface_edges(object_name);
+}
+
+double Sim::ground_on_robot(string above, string under) {
+    return environment.ground_on_robot(above, under);
+}
 
 Sim::~Sim()
 {

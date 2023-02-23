@@ -59,7 +59,11 @@ public:
     py::array_t<double> object_boxels_pos(string object_name);
     py::array_t<int> object_boxels_type(string object_name);
     MatrixXd object_boxels_pos_eigen(string object_name);
-
+    void add_object_velocity(double x, double y, string object_name);
+    void mul_object_velocity(double m, string object_name);
+    void set_object_velocity(double x, double y, string object_name);
+    py::array_t<int> get_surface_edges(string object_name);
+    double ground_on_robot(string above, string under);
 
 	~Sim();
 };

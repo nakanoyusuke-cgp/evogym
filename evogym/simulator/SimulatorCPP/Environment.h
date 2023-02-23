@@ -110,9 +110,13 @@ public:
 	//vector<double>* getMasses();
 
     SimObject* get_object(string object_name);
-//    Ref <MatrixXd> object_boxels_pos(string object_name);
-//    Ref <MatrixXi> object_boxels_type(string object_name);
+    void add_object_velocity(double x, double y, string object_name);
+    void mul_object_velocity(double m, string object_name);
+    void set_object_velocity(double x, double y, string object_name);
+    py::array_t<int> get_surface_edges(string object_name);
+//    Matrix<int, 2, Dynamic> get_surface_edges(string object_name);
 
+    double ground_on_robot(string above, string under);
 };
 
 #endif // !ENVIRONMENT_H
