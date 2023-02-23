@@ -464,6 +464,22 @@ void Environment::add_object_velocity(double x, double y, string object_name) {
     points_vel(Eigen::all, Eigen::seq(min_index, max_index)).colwise() += dx;
 }
 
+void Environment::mul_object_velocity(double m, string object_name) {
+    if (object_name_to_index.count(object_name) <= 0)
+        return;
+
+    int object_index = object_name_to_index[object_name];
+    int min_index = objects[object_index]->min_point_index;
+    int max_index = objects[object_index]->max_point_index;
+
+//    Vector2d dx = Vector2d(m, m);
+
+//    auto vel = points_vel(Eigen::all, Eigen::seq(min_index, max_index)).colwise();
+
+//    std::cout << points_vel(Eigen::all, Eigen::seq(min_index, max_index)) << std::endl;
+    points_vel(Eigen::all, Eigen::seq(min_index, max_index)) *= m;
+}
+
 void Environment::set_object_velocity(double x, double y, string object_name){
     if (object_name_to_index.count(object_name) <= 0)
         return;

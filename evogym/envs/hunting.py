@@ -5,6 +5,7 @@ from gym.utils import seeding
 
 from evogym import *
 from evogym.envs import BenchmarkBase, PackageBase
+from evogym.envs.state_handler import StateHandler
 
 import random
 import math
@@ -140,16 +141,11 @@ class HuntHopper(HuntingBase):
     SENSING_RANGE = 20.0
     X_INIT_VELOCITY = 4.0
     Y_INIT_VELOCITY = 10.0
+    INIT_WAIT_STEPS = 60.0
     JUMP_INTERVAL_STEPS = 60.0
+    JUMP_ACCELERATION_STEPS = 10.0
+    LANDING_CONTROL_STEPS = 5.0
     GROUND_THRESHOLD = 0.0075
-    AIR_CONTROL_HEIGHT = 0.2
-    STATES = {
-        "out_of_sensing_range": 0,
-        'jumping': 1,
-        'after_landing': 2,
-    }
-
-    STATES_INV = {v: k for k, v in STATES.items()}
 
     def __init__(self, body: np.ndarray, connections=None):
         # make world
@@ -157,17 +153,51 @@ class HuntHopper(HuntingBase):
         self.world.add_from_array('robot', body, 1, 1, connections=connections)
         self.world.add_from_array('prey', np.array([[7]]), 8, 1)
         # self.world.add_from_array('prey', np.array([[7]]), 3, 10)
-        self.state = self.STATES['out_of_sensing_range']
-        self.state_time = 0
 
         HuntingBase.__init__(self, world=self.world)
+
+        self.state_handler = StateHandler()
+
+        # ### ステートマシンの設定 ###
+        def initial_callback(s):
+            # エピソード開始後の待機時間
+            if s > self.INIT_WAIT_STEPS:
+                return "search"
+
+        def search_callback(s):
+            # ロボットを探知
+            if np.sum(self.get_robot_prey_diff() ** 2) < (self.SENSING_RANGE ** 2) and self.is_on_grounding():
+                return "jumping"
+
+        def jumping_callback(s):
+            # ジャンプ
+            if s == 0:
+                self.sim.add_object_velocity(self.X_INIT_VELOCITY, self.Y_INIT_VELOCITY, 'prey')
+            else:
+                if s > self.JUMP_ACCELERATION_STEPS and self.is_on_grounding():  # 着地
+                    # 着地硬直に移行
+                    return "landing"
+
+        def landing_callback(s):
+            # 着地と着地硬直
+            if s < self.JUMP_INTERVAL_STEPS:
+                if s < self.LANDING_CONTROL_STEPS:
+                    self.sim.mul_object_velocity(0.1, 'prey')
+            else:
+                return "search"
+
+        self.state_handler.add_state(name="initial", callback=initial_callback)
+        self.state_handler.add_state(name="search", callback=search_callback)
+        self.state_handler.add_state(name="jumping", callback=jumping_callback)
+        self.state_handler.add_state(name="landing", callback=landing_callback)
+        self.state_handler.set_state(name="initial")
 
     def step(self, action: np.ndarray):
         # step
         done = super().step({'robot': action})
 
         # prey behave
-        self.prey_behave()
+        self.state_handler.step()
 
         # get prey pred diffs
         prey_pred_diffs = self.get_prey_pred_diffs()
@@ -203,8 +233,8 @@ class HuntHopper(HuntingBase):
         return obs, reward, done, {
             'prey_pred_diffs': prey_pred_diffs,
             'done_info': done_info,
-            'state': self.STATES_INV[self.state],
-            'state_time': self.state_time,
+            'state': self.state_handler.state,
+            'state_time': self.state_handler.state_step,
         }
 
     def get_robot_prey_diff(self):
@@ -215,66 +245,4 @@ class HuntHopper(HuntingBase):
     def is_on_grounding(self):
         is_on_floor = np.any(self.object_pos_at_time(self.get_time(), 'prey')[1] < 0.1 + self.GROUND_THRESHOLD)
         is_on_robot = self.sim.ground_on_robot('prey', 'robot') < self.GROUND_THRESHOLD
-        # print(self.object_pos_at_time(self.get_time(), 'prey')[1], self.sim.ground_on_robot('prey', 'robot'))
         return is_on_robot or is_on_floor
-
-    def in_range_air_control(self):
-        prey_pos_y = self.object_pos_at_time(self.get_time(), 'prey')[1]
-        ground_on_robot = self.sim.ground_on_robot('prey', 'robot')
-        is_not_on_floor = np.any((0.1 + self.GROUND_THRESHOLD < prey_pos_y))
-        is_not_on_robot = self.GROUND_THRESHOLD < ground_on_robot
-        under_air_control_height_floor = np.mean(prey_pos_y) < 0.1 + self.AIR_CONTROL_HEIGHT
-        under_air_control_height_robot = 
-        return (is_not_on_robot and under_air_control_height_robot) or (is_not_on_floor and under_air_control_height_floor)
-
-    def under_air_control_height(self):
-        prey_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'prey'), axis=1)
-        return prey_com_pos[1] < self.AIR_CONTROL_HEIGHT
-
-    def prey_behave(self):
-        # ### state of 'out_of_sensing_range' ###
-        if self.state == self.STATES['out_of_sensing_range']:
-            # センサ範囲外
-            if np.sum(self.get_robot_prey_diff() ** 2) < (self.SENSING_RANGE ** 2) and self.is_on_grounding():
-                self.state = self.STATES['jumping']
-                self.state_time = 0
-            else:
-                self.state_time += 1
-
-        # ### state of 'jumping' ###
-        elif self.state == self.STATES['jumping']:
-            # ジャンプ中の状態
-            if self.state_time == 0:
-                self.sim.add_object_velocity(self.X_INIT_VELOCITY, self.Y_INIT_VELOCITY, 'prey')
-                self.state_time += 1
-            else:
-                if self.is_on_grounding():  # 着地
-                    # 着地硬直に移行
-                    self.state = self.STATES['after_landing']
-                    # self.sim.add_object_velocity(0.0, -self.get_vel_com_obs('prey').mean(), 'prey')
-                    self.sim.set_object_velocity(0.0, 0.0, 'prey')
-                    self.state_time = 0
-                else:
-                    self.state_time += 1
-
-        # ### state of after_landing ###
-        elif self.state == self.STATES['after_landing']:
-            # ジャンプ後の硬直状態
-            if self.state_time >= self.JUMP_INTERVAL_STEPS:
-                if np.sum(self.get_robot_prey_diff() ** 2) < (self.SENSING_RANGE ** 2):
-                    # ジャンプ中状態への移行
-                    self.state = self.STATES['jumping']
-                    self.state_time = 0
-                else:
-                    # センサ範囲外状態へ移行
-                    self.state = self.STATES['out_of_sensing_range']
-                    self.state_time = 0
-            else:
-                if (not self.is_on_grounding()) and self.under_air_control_height():
-                    self.sim.set_object_velocity(0.0, 0.0, 'prey')
-                self.state_time += 1
-
-        # ### error of illegal state ###
-        else:
-            print('The prey_hopper has illegal state number:', self.STATES)
-            exit(1)

@@ -46,6 +46,7 @@ PYBIND11_MODULE(simulator_cpp, m) {
         .def("object_boxels_type", &Sim::object_boxels_type, py::return_value_policy::copy)
         .def("object_boxels_pos_eigen", &Sim::object_boxels_pos_eigen, "")
         .def("add_object_velocity", &Sim::add_object_velocity, "")
+        .def("mul_object_velocity", &Sim::mul_object_velocity, "")
         .def("set_object_velocity", &Sim::set_object_velocity, "")
         .def("get_surface_edges", &Sim::get_surface_edges, "")
         .def("ground_on_robot", &Sim::ground_on_robot, "");

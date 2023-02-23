@@ -45,13 +45,13 @@ def step(env, n=1, verbose=False, verbose_interval=1):
         # if 0.0 <= d < 0.1:
         #     return ob
 
-        if state != info['state']:
-            state = info['state']
-            print(state)
-            # if state == 'after_landing':
-            #     return obs
-            if state == 'jumping':
-                print(env.object_pos_at_time(env.get_time(), 'prey')[1], env.sim.ground_on_robot('prey', 'robot'))
+        # if state != info['state']:
+        #     state = info['state']
+        #     print(state)
+        #     # if state == 'after_landing':
+        #     #     return obs
+        #     if state == 'jumping':
+        #         print(env.object_pos_at_time(env.get_time(), 'prey')[1], env.sim.ground_on_robot('prey', 'robot'))
 
         if verbose and ((i + 1) % verbose_interval == 0):
             print("reward:", reward)
