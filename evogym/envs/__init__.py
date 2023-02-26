@@ -223,3 +223,9 @@ register(
     entry_point = 'evogym.envs.hunting:HuntHopper',
     max_episode_steps=1000,
 )
+
+register(
+    id = 'HuntFlyer-v0',
+    entry_point = 'evogym.envs.hunting:HuntFlyer',
+    max_episode_steps=1000,
+)
