@@ -89,8 +89,6 @@ class HuntFlyer(HuntingBase):
                     self.acc_x = -acc_x_abs / self.ACCELERATION_STEP
                 self.acc_y = acc_y_abs / self.ACCELERATION_STEP
 
-                print(self.acc_y)
-
             if s < self.ACCELERATION_STEP:
                 self.sim.add_object_velocity(self.acc_x, self.acc_y, 'prey')
 
@@ -114,7 +112,6 @@ class HuntFlyer(HuntingBase):
                     self.acc_x = (self.rng.randint(0, 1) * 2 - 1) * acc_x_abs / self.ACCELERATION_STEP
 
                 self.acc_y = acc_y_abs / self.ACCELERATION_STEP
-                print(self.acc_y)
 
             if s < self.ACCELERATION_STEP:
                 self.sim.add_object_velocity(self.acc_x, self.acc_y, 'prey')
