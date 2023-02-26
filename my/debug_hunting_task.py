@@ -22,7 +22,7 @@ body, connections = sample_robot((5, 5), pd=pd)
 # ])
 # print(body)
 
-env = gym.make('HuntHopper-v0', body=body)
+env = gym.make('HuntFlyer-v0', body=body)
 obs = env.reset()
 env.render()
 
@@ -31,6 +31,10 @@ print(obs.size)
 
 
 state = None
+
+
+def tmp_debug(env):
+    print(env.get_robot_prey_diff())
 
 
 def step(env, n=1, verbose=False, verbose_interval=1):
