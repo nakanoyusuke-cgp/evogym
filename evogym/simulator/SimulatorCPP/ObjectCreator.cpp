@@ -447,18 +447,37 @@ bool ObjectCreator::read_object_from_array(string object_name, Matrix <double, 1
 				continue;
 			}
 
-			if (current->cell_type == CELL_SOFT) {
+            if (current->cell_type == CELL_SOFT) {
 
-				get_edge(current->edge_top_index)->spring_const = soft_main_edge_spring_const;
-				get_edge(current->edge_bot_index)->spring_const = soft_main_edge_spring_const;
-				get_edge(current->edge_left_index)->spring_const = soft_main_edge_spring_const;
-				get_edge(current->edge_right_index)->spring_const = soft_main_edge_spring_const;
+                get_edge(current->edge_top_index)->spring_const = soft_main_edge_spring_const;
+                get_edge(current->edge_bot_index)->spring_const = soft_main_edge_spring_const;
+                get_edge(current->edge_left_index)->spring_const = soft_main_edge_spring_const;
+                get_edge(current->edge_right_index)->spring_const = soft_main_edge_spring_const;
 
-				make_edge(current->point_top_right_index, current->point_bot_left_index, diagonal_edge_length, soft_structural_edge_spring_const);
-				make_edge(current->point_top_left_index, current->point_bot_right_index, diagonal_edge_length, soft_structural_edge_spring_const);
-				continue;
-			}
+                make_edge(current->point_top_right_index, current->point_bot_left_index, diagonal_edge_length, soft_structural_edge_spring_const);
+                make_edge(current->point_top_left_index, current->point_bot_right_index, diagonal_edge_length, soft_structural_edge_spring_const);
+                continue;
+            }
 
+            // Additional Voxel
+            if (current->cell_type == CELL_PRED) {
+
+                get_edge(current->edge_top_index)->spring_const = soft_main_edge_spring_const;
+                get_edge(current->edge_bot_index)->spring_const = soft_main_edge_spring_const;
+                get_edge(current->edge_left_index)->spring_const = soft_main_edge_spring_const;
+                get_edge(current->edge_right_index)->spring_const = soft_main_edge_spring_const;
+
+                make_edge(current->point_top_right_index, current->point_bot_left_index, diagonal_edge_length, soft_structural_edge_spring_const);
+                make_edge(current->point_top_left_index, current->point_bot_right_index, diagonal_edge_length, soft_structural_edge_spring_const);
+                continue;
+            }
+
+            if (current->cell_type == CELL_PREY) {
+
+                make_edge(current->point_top_right_index, current->point_bot_left_index, diagonal_edge_length, rigid_structural_edge_spring_const);
+                make_edge(current->point_top_left_index, current->point_bot_right_index, diagonal_edge_length, rigid_structural_edge_spring_const);
+                continue;
+            }
 
 			if (current->cell_type == CELL_ACT_H) {
 

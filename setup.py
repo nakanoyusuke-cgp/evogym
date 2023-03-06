@@ -49,6 +49,9 @@ class CMakeBuild(build_ext):
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j8']
 
+        if platform.system() == "Darwin":
+            cmake_args += ["-DCMAKE_CXX_COMPILER=g++"]
+
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
                                                               self.distribution.get_version())
@@ -60,10 +63,11 @@ class CMakeBuild(build_ext):
 
 setup(
     name="evogym",
-    packages=['evogym', 'evogym.envs'],
+    packages=['evogym', 'evogym.envs', 'evogym.envs.hunting'],
     package_dir={
         'evogym': 'evogym',
-        'evogym.envs': 'evogym/envs'},
+        'evogym.envs': 'evogym/envs',
+        'evogym.envs.hunting': 'evogym/envs/hunting'},
     package_data={
         "evogym.envs": [os.path.join('sim_files', '*.json')] #["*.json", "*.sob"],
     },

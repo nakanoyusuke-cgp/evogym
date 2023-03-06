@@ -10,6 +10,8 @@ from evogym.envs.change_shape import *
 from evogym.envs.traverse import *
 from evogym.envs.walk import *
 
+from evogym.envs.hunting import *
+
 from gym.envs.registration import register
 
 ## SIMPLE ##
@@ -207,4 +209,23 @@ register(
     id = 'BidirectionalWalker-v0',
     entry_point = 'evogym.envs.multi_goal:BiWalk',
     max_episode_steps=1000
+)
+
+### MY IMPLEMENTATIONS ###
+register(
+    id = 'HuntCreeper-v0',
+    entry_point = 'evogym.envs.hunting:HuntCreeper',
+    max_episode_steps=1000,
+)
+
+register(
+    id = 'HuntHopper-v0',
+    entry_point = 'evogym.envs.hunting:HuntHopper',
+    max_episode_steps=1000,
+)
+
+register(
+    id = 'HuntFlyer-v0',
+    entry_point = 'evogym.envs.hunting:HuntFlyer',
+    max_episode_steps=1000,
 )

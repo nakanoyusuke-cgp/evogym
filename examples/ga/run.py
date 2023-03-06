@@ -16,7 +16,7 @@ from evogym import sample_robot, hashable
 import utils.mp_group as mp
 from utils.algo_utils import get_percent_survival_evals, mutate, TerminationCondition, Structure
 
-def run_ga(experiment_name, structure_shape, pop_size, max_evaluations, train_iters, num_cores):
+def run_ga(experiment_name, structure_shape, pop_size, max_evaluations, train_iters, num_cores, voxels_limits=None, structure_requirement=None):
     print()
 
     ### STARTUP: MANAGE DIRECTORIES ###
@@ -91,9 +91,9 @@ def run_ga(experiment_name, structure_shape, pop_size, max_evaluations, train_it
     if not is_continuing: 
         for i in range (pop_size):
             
-            temp_structure = sample_robot(structure_shape)
+            temp_structure = sample_robot(structure_shape, limits=voxels_limits, structure_requirement=structure_requirement,)
             while (hashable(temp_structure[0]) in population_structure_hashes):
-                temp_structure = sample_robot(structure_shape)
+                temp_structure = sample_robot(structure_shape, limits=voxels_limits, structure_requirement=structure_requirement)
 
             structures.append(Structure(*temp_structure, i))
             population_structure_hashes[hashable(temp_structure[0])] = True
@@ -209,7 +209,7 @@ def run_ga(experiment_name, structure_shape, pop_size, max_evaluations, train_it
         while num_children < (pop_size - num_survivors) and num_evaluations < max_evaluations:
 
             parent_index = random.sample(range(num_survivors), 1)
-            child = mutate(survivors[parent_index[0]].body.copy(), mutation_rate = 0.1, num_attempts=50)
+            child = mutate(survivors[parent_index[0]].body.copy(), mutation_rate = 0.1, num_attempts=50, limits=voxels_limits, structure_requirement=structure_requirement)
 
             if child != None and hashable(child[0]) not in population_structure_hashes:
                 

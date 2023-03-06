@@ -677,7 +677,7 @@ void PhysicsEngine::resolve_edge_constraints() {
 
 			Boxel* current = &objects->at(i)->boxels.at(j);
 
-			if (current->cell_type != CELL_RIGID)
+			if (current->cell_type != CELL_RIGID && current->cell_type != CELL_PREY)
 				continue;
 
 			for (int k = 0; k < current->edges.size(); k++) {

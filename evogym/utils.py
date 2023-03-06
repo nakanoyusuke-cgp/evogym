@@ -12,6 +12,8 @@ VOXEL_TYPES = {
     'H_ACT': 3,
     'V_ACT': 4,
     'FIXED': 5,
+    'PRED': 6,
+    'PREY': 7
 }
 
 BASELINE_ENV_NAMES = [
@@ -88,31 +90,50 @@ def draw(pd: np.ndarray) -> int:
 
 def sample_robot(
     robot_shape: Tuple[int, int], 
-    pd: np.ndarray = None) -> Tuple[np.ndarray, np.ndarray]:
+    pd: np.ndarray = None,
+    limits: np.ndarray = None,
+    structure_requirement = None) -> Tuple[np.ndarray, np.ndarray]:
     """
     Return a randomly sampled robot of a particular size.
 
     Args:
         robot_shape (Tuple(int, int)): robot shape to sample `(h, w)`.
-        pd (np.ndarray): `(5,)` array representing the probability of sampling each robot voxel (empty, rigid, soft, h_act, v_act). Defaults to a custom distribution. (default = None)
-    
+        pd (np.ndarray): `(len(VOXEL_TYPES),)` array representing the probability of sampling each robot voxel (empty, rigid, soft, h_act, v_act). Defaults to a custom distribution. (default = None)
+        limits (np.ndarray): `(len(VOXEL_TYPES), )` array representing the limit number of each robot voxels. the value of index of unlimited kind of voxels are -1.
+        structure_requirement (lambda np.ndarray: boolean): function to configure requirement of robot structures.
+
     Returns:
         Tuple[np.ndarray, np.ndarray]: randomly sampled (valid) robot voxel array and its associated connections array.
     """
+    if structure_requirement is None:
+        structure_requirement = lambda robot: True
+
     done = False
 
     while (not done):
-
         if pd is None:
-            pd = get_uniform(5)
-            pd[0] = 0.6
+            pd_copy = get_uniform(len(VOXEL_TYPES))
+            pd_copy[VOXEL_TYPES['FIXED']] = 0.0
+            pd_copy[VOXEL_TYPES['PREY']] = 0.0
+            pd_copy[VOXEL_TYPES['PRED']] = 0.0
+            pd_copy[VOXEL_TYPES['EMPTY']] = 3.0 / (len(VOXEL_TYPES) - 1)
+        else:
+            pd_copy = pd.copy()
+
+        if limits is None:
+            limits_copy = -1 * np.ones(len(VOXEL_TYPES), dtype=np.int64)
+        else:
+            limits_copy = limits.copy()
 
         robot = np.zeros(robot_shape)
         for i in range(robot.shape[0]):
             for j in range(robot.shape[1]):
-                robot[i][j] = draw(pd)
+                pd_copy[limits_copy == 0] = 0
+                voxel = draw(pd_copy)
+                robot[i][j] = voxel
+                limits_copy[voxel] -= 1
 
-        if is_connected(robot) and has_actuator(robot):
+        if is_connected(robot) and has_actuator(robot) and structure_requirement(robot):
             done = True
 
     return robot, get_full_connectivity(robot)
