@@ -14,13 +14,21 @@ class HuntCreeper(HuntingBase):
     ESCAPE_VELOCITY = 0.0015
     HOPPING = 0.001
 
-    def __init__(self, body: np.ndarray, connections=None):
+    def __init__(self, body: np.ndarray, connections=None, config=None):
+        if config is not None:
+            self.change_config(config)
+
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
         self.world.add_from_array('robot', body, 1, 1, connections=connections)
         self.world.add_from_array('prey', np.array([[7]]), 8, 1)
 
         HuntingBase.__init__(self, world=self.world)
+
+    def change_config(self, config: dict):
+        self.SENSING_RANGE = config["SENSING_RANGE"]
+        self.ESCAPE_VELOCITY = config["ESCAPE_VELOCITY"]
+        self.HOPPING = config["HOPPING"]
 
     def step(self, action: np.ndarray):
         # step

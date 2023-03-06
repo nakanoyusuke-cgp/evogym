@@ -30,7 +30,23 @@ class HuntFlyer(HuntingBase):
     X_RANDOM_FLAP_RANGE = 0.3
     ACCELERATION_STEP = 10
 
-    def __init__(self, body: np.ndarray, connections=None):
+    def change_config(self, config: dict):
+        self.SENSING_X_RANGE = config["SENSING_RANGE"]
+        self.X_ACCELERATION = config["X_ACCELERATION"]
+        self.Y_ACCELERATION = config["Y_ACCELERATION"]
+        self.X_ACCELERATION_DISPERSION = config["X_ACCELERATION_DISPERSION"]
+        self.Y_ACCELERATION_DISPERSION = config["Y_ACCELERATION_DIsPERSION"]
+        self.Y_FLAP_HEIGHT = config["Y_FLAP_HEIGHT"]
+        self.Y_FLAP_HEIGHT_DISPERSION = config["Y_FLAP_HEIGHT_DISPERSION"]
+        self.FLAP_MIN_INTERVAL = config["FLAP_MIN_INTERVAL"]
+        self.VELOCITY_SUPPRESSION_MULTIPLIER = config["VELOCITY_SUPPRESSION_MULTIPLIER"]
+        self.X_RANDOM_FLAP_RANGE = config["X_RANDOM_FLAP_RANGE"]
+        self.ACCELERATION_STEP = config["ACCELERATION_STEP"]
+
+    def __init__(self, body: np.ndarray, connections=None, config=None):
+        if config is not None:
+            self.change_config(config)
+        
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
         self.world.add_from_array('robot', body, 1, 1, connections=connections)
