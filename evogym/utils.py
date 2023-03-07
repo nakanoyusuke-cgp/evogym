@@ -136,6 +136,8 @@ def sample_robot(
         if is_connected(robot) and has_actuator(robot) and structure_requirement(robot):
             done = True
 
+        # print(pd, is_connected(robot), has_actuator(robot), structure_requirement(robot))
+
     return robot, get_full_connectivity(robot)
 
 # def prob(x):
