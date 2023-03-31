@@ -2,10 +2,12 @@ import gym
 import evogym.envs
 from evogym import sample_robot
 
+import numpy as np
+
 
 if __name__ == '__main__':
 
-    body, connections = sample_robot((5,5))
+    body, connections = sample_robot((5,5), limits=np.array([-1, -1, -1, -1, -1, 0, 0, 0]))
     env = gym.make('Walker-v0', body=body)
     env.reset()
 
