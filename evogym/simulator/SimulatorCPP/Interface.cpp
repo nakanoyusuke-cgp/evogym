@@ -432,6 +432,9 @@ void Interface::render_boxels(Camera camera) {
             if (current->cell_type == CELL_PREY)
                 glColor3f(0.70, 0.90, 0.10);
 
+            if (current->cell_type == CELL_VIS)
+                glColor3f(0.70, 0.10, 0.80);
+
 			if (current->cell_type == CELL_ACT_H) {
 				//glColor3f(0.55, 0.40, 0.25);
 				//glColor3f(255.0/255.0, 185.0/255.0, 56.0/255.0);

@@ -524,6 +524,27 @@ py::array_t<int> Environment::get_surface_edges(string object_name) {
     return result;
 }
 
+py::array_t<double> Environment::get_vision(int resolution, std::string object_name) {
+    // return shape : (resolution, num_vis_surfaces)
+    if (object_name_to_index.count(object_name) <= 0){
+        py::array_t<int> empty({2, 1});
+        *empty.mutable_data(0, 0) = 0;
+        *empty.mutable_data(1, 0) = 0;
+        return empty;
+    }
+
+    //
+    int num_vis_surfaces;
+
+
+    surface_edges = get_surface_edges(object_name);
+
+
+    for (int i = 0; i < num_vis_surfaces; i++){
+
+    }
+}
+
 double Environment::ground_on_robot(string above, string under) {
     if (object_name_to_index.count(above) <= 0 || object_name_to_index.count(under) <= 0){
         return -1.0;

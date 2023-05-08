@@ -115,6 +115,7 @@ public:
     void set_object_velocity(double x, double y, string object_name);
     py::array_t<int> get_surface_edges(string object_name);
 //    Matrix<int, 2, Dynamic> get_surface_edges(string object_name);
+    py::array_t<double> get_vision(int resolution, string object_name);
 
     double ground_on_robot(string above, string under);
 };
