@@ -524,7 +524,49 @@ py::array_t<int> Environment::get_surface_edges(string object_name) {
     return result;
 }
 
-py::array_t<double> Environment::get_vision(int resolution, std::string object_name) {
+py::tuple Environment::get_vis_type1(string object_name) {
+    // return shape : (resolution, num_vis_surfaces)
+    if (object_name_to_index.count(object_name) <= 0){
+		std::cout << "object named: " << object_name << "dose not exist" << std::endl;
+		return py::make_tuple(0, 0.0);
+    }
+
+    //
+    int num_vis_surfaces = 0;
+	int num_vis_voxels;
+    int num_voxels = (int)obj->boxels.size();
+    SimObject* obj = environment.get_object(std::move(object_name));
+
+	for (int i = 0; i < num_voxels; i++){
+		Boxel* voxel = obj->boxels[i];
+		if (voxel.cell_type == CELL_VIS){
+			for (int j = 0; j < 4; j++){
+				Edge* e = edges(voxel->edges(j));
+                if (e->isOnSurface){
+                    auto bl = (*posptr).col(voxel.point_bot_left_index);
+                    auto br = (*posptr).col(voxel.point_bot_right_index);
+                    auto tl = (*posptr).col(voxel.point_top_left_index);
+                    auto tr = (*posptr).col(voxel.point_top_right_index);
+                    auto c = (bl + br + tl + tr) / 4;
+                    auto p1 = (*points_pos).col(e->a_index);
+                    auto p2 = (*points_pos).col(e->b_index);
+                    // D(p1, p2, p3) > 0: left turn
+                    if (is_left_turn(p1, p2, c) == false){
+                        p1 = (*points_pos).col(e->b_index);
+                        p2 = (*points_pos).col(e->a_index);
+                    }
+
+                }
+			}
+		}
+	}
+
+    for (int i = 0; i < num_vis_surfaces; i++){
+
+    }
+}
+
+py::tuple Environment::get_vis_type2(string object_name, int resolution) {
     // return shape : (resolution, num_vis_surfaces)
     if (object_name_to_index.count(object_name) <= 0){
         py::array_t<int> empty({2, 1});
@@ -532,17 +574,10 @@ py::array_t<double> Environment::get_vision(int resolution, std::string object_n
         *empty.mutable_data(1, 0) = 0;
         return empty;
     }
-
-    //
-    int num_vis_surfaces;
-
-
-    surface_edges = get_surface_edges(object_name);
-
-
-    for (int i = 0; i < num_vis_surfaces; i++){
-
-    }
+	py::array_t<int> empty({2, 1});
+	*empty.mutable_data(0, 0) = 0;
+	*empty.mutable_data(1, 0) = 0;
+	return empty;
 }
 
 double Environment::ground_on_robot(string above, string under) {
@@ -604,3 +639,13 @@ double Environment::ground_on_robot(string above, string under) {
     }
     return result_min;
 }
+
+bool Environment::is_left_turn(int pi, int pj, int pk) {
+    return (pj(0) * pk(1)
+          + pk(0) * pi(1)
+          + pi(0) * pj(1)
+          - pj(0) * pi(1)
+          - pi(0) * pk(1)
+          - pk(0) * pj(1)) > 0
+}
+

@@ -115,9 +115,11 @@ public:
     void set_object_velocity(double x, double y, string object_name);
     py::array_t<int> get_surface_edges(string object_name);
 //    Matrix<int, 2, Dynamic> get_surface_edges(string object_name);
-    py::array_t<double> get_vision(int resolution, string object_name);
+	py::tuple get_vis_type1(string object_name);
+	py::tuple get_vis_type2(string object_name, int resolution);
 
     double ground_on_robot(string above, string under);
+    bool is_left_turn(Vector2f vi, Vector2f vj, Vector2f vk);
 };
 
 #endif // !ENVIRONMENT_H
