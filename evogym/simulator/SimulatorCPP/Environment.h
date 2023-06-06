@@ -119,7 +119,7 @@ public:
 	py::tuple get_vis_type2(string object_name, int resolution);
 
     double ground_on_robot(string above, string under);
-    bool is_left_turn(Vector2f vi, Vector2f vj, Vector2f vk);
+    static double calc_determinant(Vector2d pi, Vector2d pj, Vector2d pk);
 };
 
 #endif // !ENVIRONMENT_H

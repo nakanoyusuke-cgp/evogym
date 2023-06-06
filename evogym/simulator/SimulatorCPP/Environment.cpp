@@ -534,27 +534,48 @@ py::tuple Environment::get_vis_type1(string object_name) {
     //
     int num_vis_surfaces = 0;
 	int num_vis_voxels;
+    SimObject* obj = get_object(object_name);
     int num_voxels = (int)obj->boxels.size();
-    SimObject* obj = environment.get_object(std::move(object_name));
 
 	for (int i = 0; i < num_voxels; i++){
-		Boxel* voxel = obj->boxels[i];
+		auto voxel = obj->boxels[i];
 		if (voxel.cell_type == CELL_VIS){
 			for (int j = 0; j < 4; j++){
-				Edge* e = edges(voxel->edges(j));
-                if (e->isOnSurface){
-                    auto bl = (*posptr).col(voxel.point_bot_left_index);
-                    auto br = (*posptr).col(voxel.point_bot_right_index);
-                    auto tl = (*posptr).col(voxel.point_top_left_index);
-                    auto tr = (*posptr).col(voxel.point_top_right_index);
-                    auto c = (bl + br + tl + tr) / 4;
-                    auto p1 = (*points_pos).col(e->a_index);
-                    auto p2 = (*points_pos).col(e->b_index);
-                    // D(p1, p2, p3) > 0: left turn
-                    if (is_left_turn(p1, p2, c) == false){
-                        p1 = (*points_pos).col(e->b_index);
-                        p2 = (*points_pos).col(e->a_index);
+                int edge_idx = (int)voxel.edges(j);
+				Edge e_v = edges[edge_idx];
+                if (e_v.isOnSurface){
+//                    auto bl = points_pos.col(voxel.point_bot_left_index);
+//                    auto br = points_pos.col(voxel.point_bot_right_index);
+//                    auto tl = points_pos.col(voxel.point_top_left_index);
+//                    auto tr = points_pos.col(voxel.point_top_right_index);
+//                    auto c = (bl + br + tl + tr) / 4;
+                    auto c = points_pos(Eigen::all, voxel.points).rowwise() / 4;
+                    auto p1 = points_pos.col(e_v.a_index);
+                    auto p2 = points_pos.col(e_v.b_index);
+                    if (calc_determinant(p1, p2, c) < 0){
+                        // is not left turn
+                        p1 = points_pos.col(e_v.b_index);
+                        p2 = points_pos.col(e_v.a_index);
                     }
+
+                    // 法線ベクトル
+                    Vector2d n(p2(1) - p1(1), p1(0) - p2(0));
+                    // VISの表辺中点
+                    Vector2d m = (p1 + p2) / 2.0;
+
+
+                    for (int k = 0; k < edges.size(); k++){
+                        if (k == edge_idx) { continue; }
+                        Edge e = edges[k];
+
+                        auto e1 = points_pos.col(e.a_index);
+                        auto e2 = points_pos.col(e.b_index);
+                        if (calc_determinant(p1, p2, e1) * calc_determinant(p1, p2, e2) < 0 &&
+                                calc_determinant(e1, e2, p1) * calc_determinant(e1, e2, p2) < 0){
+                            
+                        }
+                    }
+
 
                 }
 			}
@@ -640,12 +661,12 @@ double Environment::ground_on_robot(string above, string under) {
     return result_min;
 }
 
-bool Environment::is_left_turn(int pi, int pj, int pk) {
+double Environment::calc_determinant(Vector2d pi, Vector2d pj, Vector2d pk) {
     return (pj(0) * pk(1)
           + pk(0) * pi(1)
           + pi(0) * pj(1)
           - pj(0) * pi(1)
           - pi(0) * pk(1)
-          - pk(0) * pj(1)) > 0
+          - pk(0) * pj(1));
 }
 
