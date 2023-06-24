@@ -36,6 +36,11 @@ private:
 
 	vector <bool>* point_is_colliding;
 
+    // - vision perception
+    vector <int>* vis_type;
+    vector <Vector2d>* vis_endpoint_a;
+    vector <Vector2d>* vis_endpoint_b;
+
 	//COLORS
 	struct color_byte {
 
@@ -56,6 +61,7 @@ private:
 	void render_boxels(Camera camera);
 	void render_grid(Camera camera);
 	void render_encoded_boxels(Camera camera);
+    void render_vis_lines(Camera camera);
 
 
 public:

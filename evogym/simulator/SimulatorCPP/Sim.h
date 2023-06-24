@@ -65,7 +65,9 @@ public:
     py::array_t<int> get_surface_edges(string object_name);
     double ground_on_robot(string above, string under);
 
-	py::tuple get_vis(string object_name, int vis_type, int resolution);
+//	py::tuple get_vis(string object_name, int vis_type, int resolution);
+    void get_objects_list();
+    void init_map_surface_to_type();
 
 	~Sim();
 };

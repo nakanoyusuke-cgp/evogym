@@ -271,17 +271,25 @@ double Sim::ground_on_robot(string above, string under) {
     return environment.ground_on_robot(above, under);
 }
 
-tuple Sim::get_vis(string object_name, int vis_type, int resolution=-1){
-	if (vis_type == 1){
-		return environment.get_vis_type1(object_name);
-	}
-	else if (vis_type == 2){
-		return environment.get_vis_type2(object_name, resolution);
-	}
-	else{
-		std::cout << "vis_type:" << vis_type << "dose not exist" << std::endl;
-		return py::none();
-	}
+//tuple Sim::get_vis(string object_name, int vis_type, int resolution=-1){
+//	if (vis_type == 1){
+//		return environment.get_vis_type1(object_name);
+//	}
+//	else if (vis_type == 2){
+//		return environment.get_vis_type2(object_name, resolution);
+//	}
+//	else{
+//		std::cout << "vis_type:" << vis_type << "dose not exist" << std::endl;
+//		return py::none();
+//	}
+//}
+
+void Sim::get_objects_list(){
+    environment.get_objects_list();
+}
+
+void Sim::init_map_surface_to_type() {
+    environment.init_surface_to_type();
 }
 
 Sim::~Sim()

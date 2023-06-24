@@ -38,6 +38,9 @@ class EvoSim(Sim):
 
         self._init_world_items(world)
 
+        # karijissou
+        self.init_map_surface_to_type()
+
     def _init_world_items(self, world: EvoWorld) -> None:
         """
         Initializes simulation from world voxel data.
