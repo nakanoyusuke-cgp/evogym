@@ -56,4 +56,4 @@ def print_state(env):
     print(tmp1[:, tmp2 == 6])
 
 
-step(env_hunting, n=300)
+# step(env_hunting, n=300)
