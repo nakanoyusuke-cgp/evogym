@@ -19,7 +19,11 @@ void Environment::init(){
 	physics_handler.point_is_colliding = &point_is_colliding;
 
     // perception
-    init_surface_to_type();
+    visualProcessor = VisualProcessor();
+    visualProcessor.init(
+
+        );
+    visualProcessor.update_configuration();
 
 	num_points = 0;
 }
@@ -71,7 +75,7 @@ void Environment::create_points(vector <Vector2d>* pos, vector <Vector2d>* vel, 
 	// 		if (points_fixed(i, j)){
 	// 			continue;
 	// 		}
-		
+
 	// 		double randn = ((double)rand() / (RAND_MAX))/ 1e7;
 	// 		for (int f = 0; f < 12; f++){
 	// 			randn = 2.0 * ((double)rand() / (RAND_MAX)) / 1e7;
@@ -168,7 +172,6 @@ void Environment::print_poses(){
 }
 bool Environment::step() {
 
-
 	// for (int i = 0; i < points_pos.rows(); i++){
 	// 	for(int j = 0; j < points_pos.cols(); j++){
 	// 		if (points_fixed(i, j)){
@@ -199,9 +202,7 @@ bool Environment::step() {
 	physics_handler.update_true_vel(0.0001);
 
     // perception handler process begin
-
-    update_vis_surfaces();
-    update_vis1(0.6);
+    visualProcessor.update_for_timestep();
 
     // perception handler process end
 
@@ -322,7 +323,8 @@ Ref <MatrixXd> Environment::object_vel_at_time(long int sim_time, string object_
 	int max_index = objects[object_index]->max_point_index;
 	return history[sim_time].points_vel(Eigen::all, Eigen::seq(min_index, max_index));
 
-}double Environment::object_orientation_at_time(long int sim_time, string object_name) {
+}
+double Environment::object_orientation_at_time(long int sim_time, string object_name) {
 
 	if (history.count(sim_time) <= 0 || object_name_to_index.count(object_name) <= 0) {
 		return 0;
@@ -532,238 +534,159 @@ py::array_t<int> Environment::get_surface_edges(string object_name) {
     return result;
 }
 
-void Environment::init_surface_to_type() {
-//    cout << "start surface_to_type/" << objects.size() << endl;
-
-    surface_to_type.clear();
-
-    for(const auto& s: objects){
-        for(const auto& v: s->boxels){
-            for(int e_idx: v.edges){
-                auto& e = edges[e_idx];
-                if (e.isOnSurface){
-                    surface_to_type[e_idx] = v.cell_type;
-//                    cout << "[" << e_idx << ":" << v.cell_type << "], ";
-                }
-            }
-        }
-    }
-
-//    cout << "" << endl;
-//    cout << "end surface_to_type/" << surface_to_type.size() << endl;
-}
-
-void Environment::update_vis_surfaces() {
-//    cout << "start update_vis_surfaces" << endl;
-
-    num_vis_surfaces = 0;
-    vis_surfaces_edge.clear();
-    vis_surfaces_edge_a.clear();
-    vis_surfaces_edge_b.clear();
-//    vis_surfaces_center_pos.clear();
-    vis_robot_own_idc.clear();
-
-    for (int s_idx = 0; s_idx < objects.size(); s_idx++){
-        auto& s = objects[s_idx];
-        for (const auto& v: s->boxels){
-            if (v.cell_type == CELL_VIS){
-                for (int e_idx: v.edges){
-                    auto& e = edges[e_idx];
-                    if (e.isOnSurface){
-                        auto a = points_pos.col(e.a_index);
-                        auto b = points_pos.col(e.b_index);
-                        auto c = points_pos(Eigen::all, v.points).rowwise().sum() / 4.0f;  // 視覚ボクセル重心
-
-                        if (calc_determinant(a, b, c) >= 0){
-                            // left turn
-                            vis_surfaces_edge_a.push_back(e.a_index);
-                            vis_surfaces_edge_b.push_back(e.b_index);
-                        }
-                        else{
-                            // right turn
-                            vis_surfaces_edge_a.push_back(e.b_index);
-                            vis_surfaces_edge_b.push_back(e.a_index);
-                        }
-                        vis_surfaces_edge.push_back(e_idx);
-                        vis_robot_own_idc.push_back(s_idx);
-                        num_vis_surfaces++;
-                    }
-                }
-            }
-        }
-    }
-
-//    cout << "end update_vis_surfaces" << endl;
-}
-
-void Environment::update_vis1(double vis_lim_len) {
-//    cout << "start update_vis1" << endl;
-
-//    cout << "num_vis_surfaces:" << num_vis_surfaces << endl;
-//    cout << "vis_surfaces_edge:" << vis_surfaces_edge.size() << endl;
-//    cout << "vis_surfaces_edge_a:" << vis_surfaces_edge_a.size() << endl;
-//    cout << "vis_surfaces_edge_b:" << vis_surfaces_edge_b.size() << endl;
-//    cout << "vis_robot_own_idc:" << vis_robot_own_idc.size() << endl;
-
-    vis1_types.clear();
-    vis1_sqr_dists.clear();
-    vis1_endpoints_a.clear();
-    vis1_endpoints_b.clear();
-
-    for (int i = 0; i < num_vis_surfaces; i++){
-        int min_d_e_idx = -1;
-        Vector2d min_d_ep;
-        double min_sq_depth = 1000;
-
-        auto a = points_pos.col(vis_surfaces_edge_a[i]);
-        auto b = points_pos.col(vis_surfaces_edge_b[i]);
-        auto e_idx = vis_surfaces_edge[i];
-
-        Vector2d n(b(1) - a(1), a(0) - b(0));  // 視覚ボクセル辺法線ベクトル
-        auto m = (a + b) / 2.0;  // 視覚ボクセル辺中点
-        auto v1 = m;  // 視線始点
-        auto v2 = n.normalized() * vis_lim_len + m;  // 視線終点
-
-        for (int k = 0; k < edges.size(); k++){  // 自身以外のボクセル辺に対する処理
-            if (k == e_idx) { continue; }
-            auto& e = edges[k];  // 観測対象の辺
-            if (!e.isOnSurface) { continue; }
-
-            auto e1 = points_pos.col(e.a_index);
-            auto e2 = points_pos.col(e.b_index);
-            if (calc_determinant(v1, v2, e1) * calc_determinant(v1, v2, e2) < 0 &&
-                calc_determinant(e1, e2, v1) * calc_determinant(e1, e2, v2) < 0){
-
-//                cout << e1 << ":" << e2 << endl;
-
-                Vector3d p1(1.0, v1(0), v1(1));
-                Vector3d p2(1.0, v2(0), v2(1));
-                Vector3d p3(1.0, e1(0), e1(1));
-                Vector3d p4(1.0, e2(0), e2(1));
-
-                auto cp = p1.cross(p2).cross(p3.cross(p4));
-                auto cp_x = cp(1) / cp(0);
-                auto cp_y = cp(2) / cp(0);
-
-                auto tmp_sq_depth =
-                        (v1(0) - cp_x) * (v1(0) - cp_x) +
-                        (v1(1) - cp_y) * (v1(1) - cp_y);
-                if (min_d_e_idx == -1 || (min_sq_depth > tmp_sq_depth)){
-                    min_d_e_idx = k;
-                    min_sq_depth = tmp_sq_depth;
-                    min_d_ep << cp_x, cp_y;
-                }
-            }
-        }
-
-        if (min_d_e_idx != -1){
-//            cout << "min_d_e_idx" << min_d_e_idx << endl;
-            vis1_types.push_back(surface_to_type.at(min_d_e_idx));
-            vis1_sqr_dists.push_back(min_sq_depth);
-            vis1_endpoints_a.push_back(v1);
-            vis1_endpoints_b.push_back(min_d_ep);
-        }
-        else{
-            vis1_types.push_back(-1);
-            vis1_sqr_dists.push_back(vis_lim_len * vis_lim_len);
-            vis1_endpoints_a.push_back(v1);
-            vis1_endpoints_b.push_back(v2);
-        }
-    }
-
-//    cout << "end update_vis1" << endl;
-}
-
-//void Environment::get_vis_type1(VectorXd sqr_dists, VectorXi voxel_types, MatrixX4d vis_end_points, const string object_name) {
-//    // オブジェクトの視線に関して、{ぶつかった物体の距離2乗, 種類, 視線の視点終点}
-//    // return shape : (sqr_dists<double>[num_vis_surfaces], voxel_types<int>[num_vis_surfaces], vis_end_points<MatrixX4d>[num_vis_surfaces, 4])
-//    if (object_name_to_index.count(object_name) <= 0){
-//		std::cout << "object named: " << object_name << "dose not exist" << std::endl;
-//		return py::make_tuple(0, 0.0);
+//void Environment::init_surface_to_type() {
+////    cout << "start surface_to_type/" << objects.size() << endl;
+//
+//    surface_to_type.clear();
+//
+//    for(const auto& s: objects){
+//        for(const auto& v: s->boxels){
+//            for(int e_idx: v.edges){
+//                auto& e = edges[e_idx];
+//                if (e.isOnSurface){
+//                    surface_to_type[e_idx] = v.cell_type;
+////                    cout << "[" << e_idx << ":" << v.cell_type << "], ";
+//                }
+//            }
+//        }
 //    }
 //
+////    cout << "" << endl;
+////    cout << "end surface_to_type/" << surface_to_type.size() << endl;
+//}
 //
+//void Environment::update_vis_surfaces() {
+////    cout << "start update_vis_surfaces" << endl;
 //
-//    int num_vis_surfaces = 0;
+//    num_vis_surfaces = 0;
+//    vis_surfaces_edge.clear();
+//    vis_surfaces_edge_a.clear();
+//    vis_surfaces_edge_b.clear();
+////    vis_surfaces_center_pos.clear();
+//    vis_robot_own_idc.clear();
 //
-//    // オブジェクトの取得
-//    SimObject* obj = get_object(object_name);
-//    int num_voxels = (int)obj->boxels.size();
+//    for (int s_idx = 0; s_idx < objects.size(); s_idx++){
+//        auto& s = objects[s_idx];
+//        for (const auto& v: s->boxels){
+//            if (v.cell_type == CELL_VIS){
+//                for (int e_idx: v.edges){
+//                    auto& e = edges[e_idx];
+//                    if (e.isOnSurface){
+//                        auto a = points_pos.col(e.a_index);
+//                        auto b = points_pos.col(e.b_index);
+//                        auto c = points_pos(Eigen::all, v.points).rowwise().sum() / 4.0f;  // 視覚ボクセル重心
 //
-//	for (int i = 0; i < num_voxels; i++){
-//		auto voxel = obj->boxels[i];
-//		if (voxel.cell_type == CELL_VIS){  // VIS typeのボクセル
-//			for (int j = 0; j < 4; j++){
-//                int edge_idx = (int)voxel.edges(j);
-//				Edge e_v = edges[edge_idx];  // 視点の辺
-//                if (e_v.isOnSurface){  // ロボット表面の辺を絞り込む
-////                    auto bl = points_pos.col(voxel.point_bot_left_index);
-////                    auto br = points_pos.col(voxel.point_bot_right_index);
-////                    auto tl = points_pos.col(voxel.point_top_left_index);
-////                    auto tr = points_pos.col(voxel.point_top_right_index);
-////                    auto c = (bl + br + tl + tr) / 4;
-//                    auto c = points_pos(Eigen::all, voxel.points).rowwise() / 4;  // 視覚ボクセル重心
-//                    auto p1 = points_pos.col(e_v.a_index);  // 視覚ボクセル辺の始点
-//                    auto p2 = points_pos.col(e_v.b_index);  // 視覚ボクセル辺の終点
-//
-//                    if (calc_determinant(p1, p2, c) < 0){  // 辺の向きを補正
-//                        // is not left turn
-//                        p1 = points_pos.col(e_v.b_index);
-//                        p2 = points_pos.col(e_v.a_index);
-//                    }
-//
-//                    Vector2d n(p2(1) - p1(1), p1(0) - p2(0)); // 視覚ボクセル辺法線ベクトル
-//                    Vector2d m = (p1 + p2) / 2.0;  // 視覚ボクセル辺中点
-//
-//                    for (int k = 0; k < edges.size(); k++){  // 自身以外のボクセル辺に対する処理
-//                        if (k == edge_idx) { continue; }
-//                        Edge e = edges[k];  // 観測対象の辺
-//
-//                        auto e1 = points_pos.col(e.a_index);
-//                        auto e2 = points_pos.col(e.b_index);
-//                        if (calc_determinant(p1, p2, e1) * calc_determinant(p1, p2, e2) < 0 &&
-//                                calc_determinant(e1, e2, p1) * calc_determinant(e1, e2, p2) < 0){
-//
+//                        if (calc_determinant(a, b, c) >= 0){
+//                            // left turn
+//                            vis_surfaces_edge_a.push_back(e.a_index);
+//                            vis_surfaces_edge_b.push_back(e.b_index);
 //                        }
+//                        else{
+//                            // right turn
+//                            vis_surfaces_edge_a.push_back(e.b_index);
+//                            vis_surfaces_edge_b.push_back(e.a_index);
+//                        }
+//                        vis_surfaces_edge.push_back(e_idx);
+//                        vis_robot_own_idc.push_back(s_idx);
+//                        num_vis_surfaces++;
 //                    }
-//
-//
 //                }
-//			}
-//		}
-//	}
+//            }
+//        }
+//    }
+//
+////    cout << "end update_vis_surfaces" << endl;
+//}
+//
+//void Environment::update_vis1(double vis_lim_len) {
+////    cout << "start update_vis1" << endl;
+//
+////    cout << "num_vis_surfaces:" << num_vis_surfaces << endl;
+////    cout << "vis_surfaces_edge:" << vis_surfaces_edge.size() << endl;
+////    cout << "vis_surfaces_edge_a:" << vis_surfaces_edge_a.size() << endl;
+////    cout << "vis_surfaces_edge_b:" << vis_surfaces_edge_b.size() << endl;
+////    cout << "vis_robot_own_idc:" << vis_robot_own_idc.size() << endl;
+//
+//    vis1_types.clear();
+//    vis1_sqr_dists.clear();
+//    vis1_endpoints_a.clear();
+//    vis1_endpoints_b.clear();
 //
 //    for (int i = 0; i < num_vis_surfaces; i++){
+//        int min_d_e_idx = -1;
+//        Vector2d min_d_ep;
+//        double min_sq_depth = 1000;
 //
+//        auto a = points_pos.col(vis_surfaces_edge_a[i]);
+//        auto b = points_pos.col(vis_surfaces_edge_b[i]);
+//        auto e_idx = vis_surfaces_edge[i];
+//
+//        Vector2d n(b(1) - a(1), a(0) - b(0));  // 視覚ボクセル辺法線ベクトル
+//        auto m = (a + b) / 2.0;  // 視覚ボクセル辺中点
+//        auto v1 = m;  // 視線始点
+//        auto v2 = n.normalized() * vis_lim_len + m;  // 視線終点
+//
+//        for (int k = 0; k < edges.size(); k++){  // 自身以外のボクセル辺に対する処理
+//            if (k == e_idx) { continue; }
+//            auto& e = edges[k];  // 観測対象の辺
+//            if (!e.isOnSurface) { continue; }
+//
+//            auto e1 = points_pos.col(e.a_index);
+//            auto e2 = points_pos.col(e.b_index);
+//            if (calc_determinant(v1, v2, e1) * calc_determinant(v1, v2, e2) < 0 &&
+//                calc_determinant(e1, e2, v1) * calc_determinant(e1, e2, v2) < 0){
+//
+////                cout << e1 << ":" << e2 << endl;
+//
+//                Vector3d p1(1.0, v1(0), v1(1));
+//                Vector3d p2(1.0, v2(0), v2(1));
+//                Vector3d p3(1.0, e1(0), e1(1));
+//                Vector3d p4(1.0, e2(0), e2(1));
+//
+//                auto cp = p1.cross(p2).cross(p3.cross(p4));
+//                auto cp_x = cp(1) / cp(0);
+//                auto cp_y = cp(2) / cp(0);
+//
+//                auto tmp_sq_depth =
+//                        (v1(0) - cp_x) * (v1(0) - cp_x) +
+//                        (v1(1) - cp_y) * (v1(1) - cp_y);
+//                if (min_d_e_idx == -1 || (min_sq_depth > tmp_sq_depth)){
+//                    min_d_e_idx = k;
+//                    min_sq_depth = tmp_sq_depth;
+//                    min_d_ep << cp_x, cp_y;
+//                }
+//            }
+//        }
+//
+//        if (min_d_e_idx != -1){
+////            cout << "min_d_e_idx" << min_d_e_idx << endl;
+//            vis1_types.push_back(surface_to_type.at(min_d_e_idx));
+//            vis1_sqr_dists.push_back(min_sq_depth);
+//            vis1_endpoints_a.push_back(v1);
+//            vis1_endpoints_b.push_back(min_d_ep);
+//        }
+//        else{
+//            vis1_types.push_back(-1);
+//            vis1_sqr_dists.push_back(vis_lim_len * vis_lim_len);
+//            vis1_endpoints_a.push_back(v1);
+//            vis1_endpoints_b.push_back(v2);
+//        }
 //    }
+//
+////    cout << "end update_vis1" << endl;
+//}
+
+//vector<int>* Environment::get_vis1_types(){
+//    return &vis1_types;
 //}
 //
-//py::tuple Environment::get_vis_type2(string object_name, int resolution) {
-//    // return shape : (resolution, num_vis_surfaces)
-//    if (object_name_to_index.count(object_name) <= 0){
-//        py::array_t<int> empty({2, 1});
-//        *empty.mutable_data(0, 0) = 0;
-//        *empty.mutable_data(1, 0) = 0;
-//        return empty;
-//    }
-//	py::array_t<int> empty({2, 1});
-//	*empty.mutable_data(0, 0) = 0;
-//	*empty.mutable_data(1, 0) = 0;
-//	return empty;
+//vector<Vector2d>* Environment::get_vis1_endpoints_a(){
+//    return &vis1_endpoints_a;
 //}
-
-
-vector<int>* Environment::get_vis1_types(){
-    return &vis1_types;
-}
-
-vector<Vector2d>* Environment::get_vis1_endpoints_a(){
-    return &vis1_endpoints_a;
-}
-
-vector<Vector2d>* Environment::get_vis1_endpoints_b(){
-    return &vis1_endpoints_b;
-}
+//
+//vector<Vector2d>* Environment::get_vis1_endpoints_b(){
+//    return &vis1_endpoints_b;
+//}
 
 double Environment::ground_on_robot(string above, string under) {
     if (object_name_to_index.count(above) <= 0 || object_name_to_index.count(under) <= 0){
@@ -825,11 +748,11 @@ double Environment::ground_on_robot(string above, string under) {
     return result_min;
 }
 
-void Environment::get_objects_list(){
-    for (auto& e: object_name_to_index){
-        cout << e.first << e.second << endl;
-    }
-}
+//void Environment::get_objects_list(){
+//    for (auto& e: object_name_to_index){
+//        cout << e.first << e.second << endl;
+//    }
+//}
 
 double Environment::calc_determinant(Vector2d pi, Vector2d pj, Vector2d pk) {
     return (pj(0) * pk(1)

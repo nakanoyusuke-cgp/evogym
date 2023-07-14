@@ -14,6 +14,7 @@
 #include "Robot.h"
 #include "Edge.h"
 #include "Snapshot.h"
+#include "VisualProcessor.h"
 
 using namespace std;
 using namespace Eigen;
@@ -58,19 +59,21 @@ private:
 	//HISTORY
 	map <long int, Snapshot> history;
 
-    // for vis perception
-    // vectors length = num_vis_perception
-    int num_vis_surfaces;
-    vector<int> vis_surfaces_edge;
-    vector<int> vis_surfaces_edge_a;
-    vector<int> vis_surfaces_edge_b;
-    map<int, int> surface_to_type;
-    vector<int> vis_robot_own_idc;
+    // VISUAL PERCEPTION
+    VisualProcessor visualProcessor;
 
-    vector<int> vis1_types;
-    vector<double> vis1_sqr_dists;
-    vector<Vector2d> vis1_endpoints_a;
-    vector<Vector2d> vis1_endpoints_b;
+    // vectors length = num_vis_perception
+//    int num_vis_surfaces;
+//    vector<int> vis_surfaces_edge;
+//    vector<int> vis_surfaces_edge_a;
+//    vector<int> vis_surfaces_edge_b;
+//    map<int, int> surface_to_type;
+//    vector<int> vis_robot_own_idc;
+//
+//    vector<int> vis1_types;
+//    vector<double> vis1_sqr_dists;
+//    vector<Vector2d> vis1_endpoints_a;
+//    vector<Vector2d> vis1_endpoints_b;
 
 public:
 	Environment();
@@ -132,17 +135,17 @@ public:
 //    void get_vis_type1(VectorXd sqr_dists, VectorXi voxel_types, MatrixX4d vis_end_points, const string object_name)
 //	  py::tuple get_vis_type2(string object_name, int resolution);
 
-    void init_surface_to_type();
-    void update_vis_surfaces();
-    void update_vis1(double vis_lim_len);
-    void get_objects_list();
-
-    vector<int>* get_vis1_types();
-    vector<Vector2d>* get_vis1_endpoints_a();
-    vector<Vector2d>* get_vis1_endpoints_b();
+//    void init_surface_to_type();
+//    void update_vis_surfaces();
+//    void update_vis1(double vis_lim_len);
+//    void get_objects_list();
+//
+//    vector<int>* get_vis1_types();
+//    vector<Vector2d>* get_vis1_endpoints_a();
+//    vector<Vector2d>* get_vis1_endpoints_b();
 
     double ground_on_robot(string above, string under);
-    static double calc_determinant(Vector2d pi, Vector2d pj, Vector2d pk);
+//    static double calc_determinant(Vector2d pi, Vector2d pj, Vector2d pk);
 };
 
 #endif // !ENVIRONMENT_H
