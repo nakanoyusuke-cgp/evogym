@@ -37,9 +37,10 @@ private:
 	vector <bool>* point_is_colliding;
 
     // - vision perception
-    vector <int>* vis_type;
-    vector <Vector2d>* vis_endpoint_a;
-    vector <Vector2d>* vis_endpoint_b;
+    int& vis_type;
+    vector <int>* vis1_cell_types;
+    vector <Vector2d>* vis1_endpoint_a;
+    vector <Vector2d>* vis1_endpoint_b;
 
 	//COLORS
 	struct color_byte {

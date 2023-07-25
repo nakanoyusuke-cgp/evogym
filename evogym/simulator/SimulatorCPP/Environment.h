@@ -62,19 +62,6 @@ private:
     // VISUAL PERCEPTION
     VisualProcessor visualProcessor;
 
-    // vectors length = num_vis_perception
-//    int num_vis_surfaces;
-//    vector<int> vis_surfaces_edge;
-//    vector<int> vis_surfaces_edge_a;
-//    vector<int> vis_surfaces_edge_b;
-//    map<int, int> surface_to_type;
-//    vector<int> vis_robot_own_idc;
-//
-//    vector<int> vis1_types;
-//    vector<double> vis1_sqr_dists;
-//    vector<Vector2d> vis1_endpoints_a;
-//    vector<Vector2d> vis1_endpoints_b;
-
 public:
 	Environment();
 	~Environment();
@@ -121,7 +108,6 @@ public:
 
 	void print_poses();
 
-
 	//vector<Vector2d_old>* getPointsPos();
 	//vector<bool>* getPointsFixed();
 	//vector<double>* getMasses();
@@ -132,20 +118,13 @@ public:
     void set_object_velocity(double x, double y, string object_name);
     py::array_t<int> get_surface_edges(string object_name);
 //    Matrix<int, 2, Dynamic> get_surface_edges(string object_name);
-//    void get_vis_type1(VectorXd sqr_dists, VectorXi voxel_types, MatrixX4d vis_end_points, const string object_name)
-//	  py::tuple get_vis_type2(string object_name, int resolution);
-
-//    void init_surface_to_type();
-//    void update_vis_surfaces();
-//    void update_vis1(double vis_lim_len);
-//    void get_objects_list();
-//
-//    vector<int>* get_vis1_types();
-//    vector<Vector2d>* get_vis1_endpoints_a();
-//    vector<Vector2d>* get_vis1_endpoints_b();
 
     double ground_on_robot(string above, string under);
-//    static double calc_determinant(Vector2d pi, Vector2d pj, Vector2d pk);
+
+    // visual perception
+    const int &get_vis_type();
+    vector<int> *get_vis1_cell_types();
+    vector<vector<Vector2d>*> get_vis1_endpoints();
 };
 
 #endif // !ENVIRONMENT_H

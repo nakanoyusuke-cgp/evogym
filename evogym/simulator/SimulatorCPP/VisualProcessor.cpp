@@ -242,7 +242,7 @@ vector<vector<Vector2d>*> VisualProcessor::get_vis1_endpoints() {
     return vis1_endpoints;
 }
 
-int VisualProcessor::get_vis_type() {
+const int &VisualProcessor::get_vis_type() {
     return VisualProcessor::vis_type;
 }
 

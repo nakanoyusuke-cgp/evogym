@@ -42,15 +42,16 @@ Interface::Interface(Sim* sim)
 
 	Interface::point_is_colliding = &(sim->environment.point_is_colliding);
 
-    Interface::vis_type = sim->environment.get_vis1_types();
-    Interface::vis_endpoint_a = sim->environment.get_vis1_endpoints_a();
-    Interface::vis_endpoint_b = sim->environment.get_vis1_endpoints_b();
-
+    // visual perception
+    Interface::vis_type = sim->environment.get_vis_type();
+    Interface::vis1_cell_types = sim->environment.get_vis1_cell_types();
+    auto vis1_endpoints = sim->environment.get_vis1_endpoints();
+    Interface::vis1_endpoint_a = vis1_endpoints[0];
+    Interface::vis1_endpoint_b = vis1_endpoints[1];
 }
 
 void Interface::init() {
 
-	
 }
 
 GLFWwindow* Interface::get_debug_window_ref(){
@@ -566,38 +567,26 @@ void Interface::render_encoded_boxels(Camera camera){
 }
 
 void Interface::render_vis_lines(Camera camera) {
-    cout << "start render vis line" << endl;
-    for (int i = 0; i < vis_type->size(); i++) {
-        cout << "vis line " << i << endl;
+    if (vis_type == 1){
+        for (int i = 0; i < vis1_cell_types->size(); i++) {
+            glBegin(GL_LINES);
 
-        glBegin(GL_LINES);
+            glColor3f(0.3, 0.3, 1);
 
-        glColor3f(0.3, 0.3, 1);
+            Vector2d start = camera.world_to_camera(vis1_endpoint_a->at(i));
+            Vector2d end = camera.world_to_camera(vis1_endpoint_b->at(i));
+            glVertex2f(start.x(), start.y());
+            glVertex2f(end.x(), end.y());
 
-//        int a_index = edges->at(i).a_index;
-//        int b_index = edges->at(i).b_index;
-//
-//        Vector2d start = (pos->col(a_index) + pos->col(b_index)) * 0.5;
-//
-//        Vector2d diff = pos->col(b_index) - pos->col(a_index);
-//        Vector2d norm = Vector2d(-diff.y(), diff.x()).normalized();
-//
-//        Vector2d end = start + norm * 0.1;
-//
-//        start = camera.world_to_camera(start);
-//        end = camera.world_to_camera(end);
-//
-//        glVertex2f(start.x(), start.y());
-//        glVertex2f(end.x(), end.y());
-
-        auto start = camera.world_to_camera(vis_endpoint_a->at(i));
-        auto end = camera.world_to_camera(vis_endpoint_b->at(i));
-        glVertex2f(start.x(), start.y());
-        glVertex2f(end.x(), end.y());
-
-        glEnd();
+            glEnd();
+        }
     }
-    cout << "end render vis line" << endl;
+    else if(vis_type == 2){
+        cout << "vis type 2 is not implemented" << endl;
+    }
+    else{
+        cout << "vis type is not exist:" << vis_type << endl;
+    }
 }
 
 Interface::color_byte Interface::get_encoded_color(int cell_type) {
