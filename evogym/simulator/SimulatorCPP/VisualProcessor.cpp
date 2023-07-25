@@ -18,15 +18,16 @@ void VisualProcessor::init(
         double vis_lim_len,
         vector<SimObject *> *objects,
         vector <Edge> *edges,
-        Matrix<double, 2, Dynamic>* pos,
-        bool is_enable_render) {
+        Matrix<double, 2, Dynamic>* pos
+//        ,bool is_enable_render
+        ) {
 
     VisualProcessor::vis_type = vis_type;
     VisualProcessor::vis_lim_len = vis_lim_len;
     VisualProcessor::objects = objects;
     VisualProcessor::edges = edges;
     VisualProcessor::pos = pos;
-    VisualProcessor::is_enable_renderer = is_enable_render;
+//    VisualProcessor::is_enable_renderer = is_enable_render;
 }
 
 
@@ -43,14 +44,14 @@ double VisualProcessor::calc_determinant(Vector2d pi, Vector2d pj, Vector2d pk) 
 // internal methods
 void VisualProcessor::init_surface_to_type()
 {
-    surface_to_type.clear();
+    surfaces_to_type.clear();
 
-    for(const auto& s: objects){
+    for(const auto& s: *objects){
         for(const auto& v: s->boxels){
             for(int e_idx: v.edges){
-                auto& e = edges[e_idx];
+                auto& e = (*edges)[e_idx];
                 if (e.isOnSurface){
-                    surface_to_type[e_idx] = v.cell_type;
+                    surfaces_to_type[e_idx] = v.cell_type;
                 }
             }
         }
@@ -65,16 +66,16 @@ void VisualProcessor::update_vis_surfaces()
     vis_surfaces_edge_b.clear();
     vis_robot_own_idc.clear();
 
-    for (int s_idx = 0; s_idx < objects.size(); s_idx++){
-        auto& s = objects[s_idx];
+    for (int s_idx = 0; s_idx < objects->size(); s_idx++){
+        auto& s = (*objects)[s_idx];
         for (const auto& v: s->boxels){
             if (v.cell_type == CELL_VIS){
                 for (int e_idx: v.edges){
-                    auto& e = edges[e_idx];
+                    auto& e = (*edges)[e_idx];
                     if (e.isOnSurface){
-                        auto a = pos.col(e.a_index);
-                        auto b = pos.col(e.b_index);
-                        auto c = pos(Eigen::all, v.points).rowwise().sum() / 4.0f;  // 視覚ボクセル重心
+                        auto a = pos->col(e.a_index);
+                        auto b = pos->col(e.b_index);
+                        auto c = (*pos)(Eigen::all, v.points).rowwise().sum() / 4.0f;  // 視覚ボクセル重心
 
                         if (calc_determinant(a, b, c) >= 0){
                             // left turn
@@ -108,22 +109,22 @@ void VisualProcessor::update_vis1()
         Vector2d min_d_ep;
         double min_sq_depth = 1000;
 
-        auto a = pos.col(vis_surfaces_edge_a[i]);
-        auto b = pos.col(vis_surfaces_edge_b[i]);
+        auto a = (*pos).col(vis_surfaces_edge_a[i]);
+        auto b = (*pos).col(vis_surfaces_edge_b[i]);
         auto e_idx = vis_surfaces_edge[i];
 
         Vector2d n(b(1) - a(1), a(0) - b(0));  // 視覚ボクセル辺法線ベクトル
-        auto m = (a + b) / 2.0;  // 視覚ボクセル辺中点
-        auto v1 = m;  // 視線始点
-        auto v2 = n.normalized() * vis_lim_len + m;  // 視線終点
+        Vector2d m = (a + b) / 2.0;  // 視覚ボクセル辺中点
+        Vector2d v1 = m;  // 視線始点
+        Vector2d v2 = n.normalized() * vis_lim_len + m;  // 視線終点
 
-        for (int k = 0; k < edges.size(); k++){  // 自身以外のボクセル辺に対する処理
+        for (int k = 0; k < edges->size(); k++){  // 自身以外のボクセル辺に対する処理
             if (k == e_idx) { continue; }
-            auto& e = edges[k];  // 観測対象の辺
+            auto& e = (*edges)[k];  // 観測対象の辺
             if (!e.isOnSurface) { continue; }
 
-            auto e1 = pos.col(e.a_index);
-            auto e2 = pos.col(e.b_index);
+            auto e1 = (*pos).col(e.a_index);
+            auto e2 = (*pos).col(e.b_index);
             if (calc_determinant(v1, v2, e1) * calc_determinant(v1, v2, e2) < 0 &&
                 calc_determinant(e1, e2, v1) * calc_determinant(e1, e2, v2) < 0){
 
@@ -148,7 +149,7 @@ void VisualProcessor::update_vis1()
         }
 
         if (min_d_e_idx != -1){
-            vis1_types.push_back(surface_to_type.at(min_d_e_idx));
+            vis1_types.push_back(surfaces_to_type.at(min_d_e_idx));
             vis1_sqr_dists.push_back(min_sq_depth);
             vis1_endpoints_a.push_back(v1);
             vis1_endpoints_b.push_back(min_d_ep);
@@ -187,48 +188,61 @@ void VisualProcessor::update_for_timestep()
     }
 }
 
-void VisualProcessor::render(Camera camera)
-{
-    if (is_enable_renderer){
-        if (vis_type == 1){
-            render_vis1(camera);
-        }
-        else if(vis_type == 2){
-            render_vis2(camera);
-        }
-        else{
-            cout << "[Error] unexpected vis_type:" << vis_type << endl;
-        }
-    }
+//void VisualProcessor::render(Camera camera)
+//{
+//    if (is_enable_renderer){
+//        if (vis_type == 1){
+//            render_vis1(camera);
+//        }
+//        else if(vis_type == 2){
+//            render_vis2(camera);
+//        }
+//        else{
+//            cout << "[Error] unexpected vis_type:" << vis_type << endl;
+//        }
+//    }
+//
+//}
 
-}
+//void VisualProcessor::render_vis1(Camera camera) {
+//    for (int i = 0; i < vis_type->size(); i++) {
+//        glBegin(GL_LINES);
+//
+//        glColor3f(0.3, 0.3, 1);
+//        auto start = camera.world_to_camera(vis_endpoint_a->at(i));
+//        auto end = camera.world_to_camera(vis_endpoint_b->at(i));
+//        glVertex2f(start.x(), start.y());
+//        glVertex2f(end.x(), end.y());
+//
+//        glEnd();
+//    }
+//}
 
-void VisualProcessor::render_vis1(Camera camera) {
-    for (int i = 0; i < vis_type->size(); i++) {
-        glBegin(GL_LINES);
-
-        glColor3f(0.3, 0.3, 1);
-        auto start = camera.world_to_camera(vis_endpoint_a->at(i));
-        auto end = camera.world_to_camera(vis_endpoint_b->at(i));
-        glVertex2f(start.x(), start.y());
-        glVertex2f(end.x(), end.y());
-
-        glEnd();
-    }
-}
-
-void VisualProcessor::render_vis2(Camera camera) {
-    // unimplemented
-}
+//void VisualProcessor::render_vis2(Camera camera) {
+//    // unimplemented
+//}
 
 // getter
 // vis1
 vector<int>* VisualProcessor::get_vis1_types()
 {
-
+    return &vis1_types;
 }
 
 vector<double>* VisualProcessor::get_vis1_sqr_depths()
 {
-
+    return &vis1_sqr_dists;
 }
+
+vector<vector<Vector2d>*> VisualProcessor::get_vis1_endpoints() {
+    vector<vector<Vector2d>*> vis1_endpoints;
+    vis1_endpoints.push_back(&vis1_endpoints_a);
+    vis1_endpoints.push_back(&vis1_endpoints_b);
+
+    return vis1_endpoints;
+}
+
+int VisualProcessor::get_vis_type() {
+    return VisualProcessor::vis_type;
+}
+

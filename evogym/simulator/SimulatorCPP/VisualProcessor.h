@@ -24,7 +24,7 @@ private:
     // hyper params
     int vis_type;
     double vis_lim_len;
-    bool is_enable_renderer;
+//    bool is_enable_renderer;
 
     // environment reference
     vector<SimObject*>* objects;
@@ -44,6 +44,7 @@ private:
     vector<double> vis1_sqr_dists;
     vector<Vector2d> vis1_endpoints_a;
     vector<Vector2d> vis1_endpoints_b;
+//    vector<vector<Vector2d>> vis1_endpoints;
 
     // functions
     static double calc_determinant(Vector2d pi, Vector2d pj, Vector2d pk);
@@ -53,8 +54,8 @@ private:
     void update_vis_surfaces();
     void update_vis1();
     void update_vis2();
-    void render_vis1(Camera camera);
-    void render_vis2(Camera camera);
+//    void render_vis1(Camera camera);
+//    void render_vis2(Camera camera);
 
 public:
     VisualProcessor();
@@ -66,21 +67,22 @@ public:
         double vis_lim_len,
         vector<SimObject*>* objects,
         vector<Edge>* edges,
-        Matrix<double, 2, Dynamic>* pos);
+        Matrix<double, 2, Dynamic>* pos
+//        ,bool is_enable_render
+        );
 
     void update_configuration();
     void update_for_timestep();
-    void render(Camera camera);
-
-    void get_objects_list();
+//    void render(Camera camera);
 
     // getter
     // vis1
+    int get_vis_type();
     vector<int>* get_vis1_types();
     vector<double>* get_vis1_sqr_depths();
 //    vector<Vector2d>* get_vis1_endpoints_a();
 //    vector<Vector2d>* get_vis1_endpoints_b();
-
+    vector<vector<Vector2d>*> get_vis1_endpoints();
 
 };
 
