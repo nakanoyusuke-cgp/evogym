@@ -22,18 +22,18 @@ using namespace Eigen;
 class VisualProcessor {
 private:
     // hyper params
-    int vis_type{};
-    double vis_lim_len{};
+    int vis_type;
+    double vis_lim_len;
 //    bool is_enable_renderer;
 
     // environment reference
-    vector<SimObject*>* objects{};
-    vector<Edge>* edges{};
-    Matrix<double, 2, Dynamic>* pos{};
+    vector<SimObject*>* objects;
+    vector<Edge>* edges;
+    Matrix<double, 2, Dynamic>* pos;
 
     // common
     map<int, int> surfaces_to_type;
-    int num_vis_surfaces{};
+    int num_vis_surfaces;
     vector<int> vis_surfaces_edge;
     vector<int> vis_surfaces_edge_a;
     vector<int> vis_surfaces_edge_b;

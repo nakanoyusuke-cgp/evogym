@@ -122,9 +122,10 @@ public:
     double ground_on_robot(string above, string under);
 
     // visual perception
-    const int &get_vis_type();
-    vector<int> *get_vis1_cell_types();
-    vector<vector<Vector2d>*> get_vis1_endpoints();
+//    const int &get_vis_type();
+//    vector<int> *get_vis1_cell_types();
+//    vector<vector<Vector2d>*> get_vis1_endpoints();
+    VisualProcessor* get_visual_processor();
 };
 
 #endif // !ENVIRONMENT_H

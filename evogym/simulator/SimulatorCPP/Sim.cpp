@@ -13,6 +13,9 @@ Sim::Sim()
 
 	//OBJECTS
 	creator = ObjectCreator(&environment);
+
+    //VIS PROC
+    environment.get_visual_processor()->update_configuration();
 	
 	//SIM VARIABLES
 	sim_time = 0;
@@ -25,12 +28,14 @@ Sim::Sim()
 
 void Sim::init(int x, int y) {
 	creator.init_grid(Vector2d(x,y));
+    environment.get_visual_processor()->update_configuration();
 }
 
 bool Sim::read_object_from_file(string file_name, string object_name,  double x, double y) {
 	
 	if (creator.read_object_from_file(file_name, object_name, Vector2d(x, y), false)) {
 		environment.save_snapshot(0);
+        environment.get_visual_processor()->update_configuration();
 		return true;
 	}
 	return false;
@@ -67,6 +72,7 @@ bool Sim::read_object_from_array(Matrix <double, Dynamic, Dynamic> grid, Matrix 
 
 	if (creator.read_object_from_array(object_name, flat, connections, Vector2d(grid_width, grid_height), Vector2d(x, y), false)) {
 		environment.save_snapshot(0);
+        environment.get_visual_processor()->update_configuration();
 		return true;
 	}
 	return false;
@@ -93,6 +99,7 @@ bool Sim::read_robot_from_array(Matrix <double, Dynamic, Dynamic> grid, Matrix <
 	if (creator.read_object_from_array(robot_name, flat, connections, Vector2d(grid_width, grid_height), Vector2d(x, y), true)) {
 		environment.init_robot(robot_name);
 		environment.save_snapshot(0);
+        environment.get_visual_processor()->update_configuration();
 		return true;
 	}
 	return false;
@@ -284,13 +291,13 @@ double Sim::ground_on_robot(string above, string under) {
 //	}
 //}
 
-void Sim::get_objects_list(){
-    environment.get_objects_list();
-}
+//void Sim::get_objects_list(){
+//    environment.get_objects_list();
+//}
 
-void Sim::init_map_surface_to_type() {
-    environment.init_surface_to_type();
-}
+//void Sim::init_map_surface_to_type() {
+//    environment.get_visual_processor().
+//}
 
 Sim::~Sim()
 {

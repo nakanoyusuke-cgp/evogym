@@ -21,9 +21,12 @@ void Environment::init(){
     // perception
     visualProcessor = VisualProcessor();
     visualProcessor.init(
-
+            1,
+            1,
+            &objects,
+            &edges,
+            &points_pos
         );
-    visualProcessor.update_configuration();
 
 	num_points = 0;
 }
@@ -594,15 +597,18 @@ double Environment::ground_on_robot(string above, string under) {
     return result_min;
 }
 
-const int &Environment::get_vis_type(){
-    return visualProcessor.get_vis_type();
-}
+//const int &Environment::get_vis_type(){
+//    return visualProcessor.get_vis_type();
+//}
+//
+//vector<int> *Environment::get_vis1_cell_types(){
+//    return visualProcessor.get_vis1_types();
+//}
+//
+//vector<vector<Vector2d>*> Environment::get_vis1_endpoints(){
+//    return visualProcessor.get_vis1_endpoints();
+//}
 
-vector<int> *Environment::get_vis1_cell_types(){
-    return visualProcessor.get_vis1_types();
+VisualProcessor* Environment::get_visual_processor() {
+    return &visualProcessor;
 }
-
-vector<vector<Vector2d>*> Environment::get_vis1_endpoints(){
-    return visualProcessor.get_vis1_endpoints();
-}
-

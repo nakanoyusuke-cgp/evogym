@@ -66,8 +66,8 @@ public:
     double ground_on_robot(string above, string under);
 
 //	py::tuple get_vis(string object_name, int vis_type, int resolution);
-    void get_objects_list();
-    void init_map_surface_to_type();
+//    void get_objects_list();
+//    void init_map_surface_to_type();
 
 	~Sim();
 };

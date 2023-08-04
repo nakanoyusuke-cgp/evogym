@@ -37,10 +37,10 @@ private:
 	vector <bool>* point_is_colliding;
 
     // - vision perception
-    int& vis_type;
     vector <int>* vis1_cell_types;
     vector <Vector2d>* vis1_endpoint_a;
     vector <Vector2d>* vis1_endpoint_b;
+    VisualProcessor* visualProcessor;
 
 	//COLORS
 	struct color_byte {
@@ -64,6 +64,7 @@ private:
 	void render_encoded_boxels(Camera camera);
     void render_vis_lines(Camera camera);
 
+    vector<double> get_vis_color(int cell_type);
 
 public:
 

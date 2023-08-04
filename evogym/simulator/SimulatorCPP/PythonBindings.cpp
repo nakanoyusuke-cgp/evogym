@@ -50,8 +50,9 @@ PYBIND11_MODULE(simulator_cpp, m) {
         .def("set_object_velocity", &Sim::set_object_velocity, "")
         .def("get_surface_edges", &Sim::get_surface_edges, "")
         .def("ground_on_robot", &Sim::ground_on_robot, "")
-        .def("get_objects_list", &Sim::get_objects_list, "")
-        .def("init_map_surface_to_type", &Sim::init_map_surface_to_type, "");
+//        .def("get_objects_list", &Sim::get_objects_list, "")
+//        .def("init_map_surface_to_type", &Sim::init_map_surface_to_type, "")
+        ;
 
 	py::class_<Camera>(m, "Camera")
 		.def(py::init<bool>())

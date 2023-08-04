@@ -7,7 +7,9 @@ import numpy as np
 
 if __name__ == '__main__':
 
-    body, connections = sample_robot((5,5), limits=np.array([-1, -1, -1, -1, -1, 0, 0, 0]))
+    body, connections = sample_robot((5,5),
+                                     pd=np.array([3, 1, 1, 1, 1, 0, 0, 0, 1]),
+                                     limits=np.array([-1, -1, -1, -1, -1, 0, 0, 0, 3]))
     env = gym.make('Walker-v0', body=body)
     env.reset()
 

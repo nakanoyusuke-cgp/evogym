@@ -43,9 +43,10 @@ Interface::Interface(Sim* sim)
 	Interface::point_is_colliding = &(sim->environment.point_is_colliding);
 
     // visual perception
-    Interface::vis_type = sim->environment.get_vis_type();
-    Interface::vis1_cell_types = sim->environment.get_vis1_cell_types();
-    auto vis1_endpoints = sim->environment.get_vis1_endpoints();
+    Interface::visualProcessor = sim->environment.get_visual_processor();
+
+    Interface::vis1_cell_types = visualProcessor->get_vis1_types();
+    auto vis1_endpoints = visualProcessor->get_vis1_endpoints();
     Interface::vis1_endpoint_a = vis1_endpoints[0];
     Interface::vis1_endpoint_b = vis1_endpoints[1];
 }
@@ -567,11 +568,13 @@ void Interface::render_encoded_boxels(Camera camera){
 }
 
 void Interface::render_vis_lines(Camera camera) {
+    auto vis_type = visualProcessor->get_vis_type();
     if (vis_type == 1){
-        for (int i = 0; i < vis1_cell_types->size(); i++) {
+        for (int i = 0; i < visualProcessor->get_vis1_types()->size(); i++) {
             glBegin(GL_LINES);
 
-            glColor3f(0.3, 0.3, 1);
+            vector<double> c = get_vis_color(vis1_cell_types->at(i));
+            glColor3f(c[0], c[1], c[2]);
 
             Vector2d start = camera.world_to_camera(vis1_endpoint_a->at(i));
             Vector2d end = camera.world_to_camera(vis1_endpoint_b->at(i));
@@ -587,6 +590,29 @@ void Interface::render_vis_lines(Camera camera) {
     else{
         cout << "vis type is not exist:" << vis_type << endl;
     }
+}
+
+vector<double> Interface::get_vis_color(int cell_type) {
+    vector<double> res = {0.0, 0.0, 0.0};
+
+    if (cell_type==CELL_FIXED)
+        res = {0.15, 0.15, 0.15};
+    if (cell_type==CELL_RIGID)
+        res = {0.15, 0.15, 0.15};
+    if (cell_type==CELL_SOFT)
+        res = {0.75, 0.75, 0.75};
+    if (cell_type==CELL_ACT_H)
+        res = {orange[49][0], orange[49][1], orange[49][2]};
+    if (cell_type==CELL_ACT_V)
+        res = {blue[49][0], blue[49][1], blue[49][2]};
+    if (cell_type==CELL_PRED)
+        res = {0.10, 0.90, 0.70};
+    if (cell_type==CELL_PREY)
+        res = {0.70, 0.90, 0.10};
+    if (cell_type==CELL_VIS)
+        res = {0.70, 0.10, 0.80};
+
+    return res;
 }
 
 Interface::color_byte Interface::get_encoded_color(int cell_type) {

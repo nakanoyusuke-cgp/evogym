@@ -13,7 +13,8 @@ VOXEL_TYPES = {
     'V_ACT': 4,
     'FIXED': 5,
     'PRED': 6,
-    'PREY': 7
+    'PREY': 7,
+    'VIS': 8,
 }
 
 BASELINE_ENV_NAMES = [
@@ -116,6 +117,7 @@ def sample_robot(
             pd_copy[VOXEL_TYPES['FIXED']] = 0.0
             pd_copy[VOXEL_TYPES['PREY']] = 0.0
             pd_copy[VOXEL_TYPES['PRED']] = 0.0
+            pd_copy[VOXEL_TYPES['VIS']] = 0.0
             pd_copy[VOXEL_TYPES['EMPTY']] = 3.0 / (len(VOXEL_TYPES) - 1)
         else:
             pd_copy = pd.copy()
