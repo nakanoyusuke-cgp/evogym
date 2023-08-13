@@ -278,26 +278,36 @@ double Sim::ground_on_robot(string above, string under) {
     return environment.ground_on_robot(above, under);
 }
 
-//tuple Sim::get_vis(string object_name, int vis_type, int resolution=-1){
-//	if (vis_type == 1){
-//		return environment.get_vis_type1(object_name);
-//	}
-//	else if (vis_type == 2){
-//		return environment.get_vis_type2(object_name, resolution);
-//	}
-//	else{
-//		std::cout << "vis_type:" << vis_type << "dose not exist" << std::endl;
-//		return py::none();
-//	}
-//}
+Ref <VectorXi> Sim::get_vis1_types(){
+    auto* vp = environment.get_visual_processor();
+    if (vp->get_vis_type() != 1){
+        cout << "Error! Method get_vis1_types, which is not available for the current vis_type(" << vp->get_vis_type() << "), was called." << endl;
+        Vector<int, 1> empty;
+        empty << 1;
+        return empty;
+    }
 
-//void Sim::get_objects_list(){
-//    environment.get_objects_list();
-//}
+    return Map<Vector<int, Dynamic>>(
+            vp->get_vis1_types()->data(),
+            vp->get_vis1_types()->size()
+            );
+}
 
-//void Sim::init_map_surface_to_type() {
-//    environment.get_visual_processor().
-//}
+Ref <VectorXd> Sim::get_vis1_sqr_dists(){
+    auto* vp = environment.get_visual_processor();
+    if (vp->get_vis_type() != 1){
+        cout << "Error! Method get_vis1_sqr_dists, which is not available for the current vis_type(" << vp->get_vis_type() << "), was called." << endl;
+        Vector<double, 1> empty;
+        empty << 1;
+        return empty;
+    }
+
+    return Map<Vector<double, Dynamic>>(
+            vp->get_vis1_sqr_depths()->data(),
+            vp->get_vis1_sqr_depths()->size()
+    );
+
+}
 
 Sim::~Sim()
 {
