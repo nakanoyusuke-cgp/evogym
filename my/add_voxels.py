@@ -38,6 +38,8 @@ def step(env, n=1, verbose=False, verbose_interval=1):
     for i in range(n):
         action = env.action_space.sample() - 1
         ob, reward, done, info = env.step(action)
+        print(env.sim.get_vis1_types())
+        print(env.sim.get_vis1_sqr_dists() ** 0.5)
         if verbose and ((i + 1) % verbose_interval == 0):
             print("reward:", reward)
             print("info:", info)

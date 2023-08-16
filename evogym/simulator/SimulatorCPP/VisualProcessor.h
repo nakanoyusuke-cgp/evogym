@@ -46,6 +46,10 @@ private:
     vector<Vector2d> vis1_endpoints_b;
 //    vector<vector<Vector2d>> vis1_endpoints;
 
+    // vis2
+    vector<VectorXi> vis2_types;
+    vector<VectorXd> vis2_sqr_dists;
+
     // functions
     static double calc_determinant(Vector2d pi, Vector2d pj, Vector2d pk);
 
@@ -83,6 +87,10 @@ public:
 //    vector<Vector2d>* get_vis1_endpoints_a();
 //    vector<Vector2d>* get_vis1_endpoints_b();
     vector<vector<Vector2d>*> get_vis1_endpoints();
+
+    // vis2
+    vector<VectorXi>* get_vis2_types();
+    vector<VectorXd>* get_vis2_sqr_depths();
 
 };
 

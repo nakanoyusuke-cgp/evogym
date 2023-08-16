@@ -166,6 +166,7 @@ void VisualProcessor::update_vis1()
 void VisualProcessor::update_vis2()
 {
     // unimplemented
+
 }
 
 // public methods
@@ -187,40 +188,6 @@ void VisualProcessor::update_for_timestep()
         cout << "[Error] unexpected vis_type:" << vis_type << endl;
     }
 }
-
-//void VisualProcessor::render(Camera camera)
-//{
-//    if (is_enable_renderer){
-//        if (vis_type == 1){
-//            render_vis1(camera);
-//        }
-//        else if(vis_type == 2){
-//            render_vis2(camera);
-//        }
-//        else{
-//            cout << "[Error] unexpected vis_type:" << vis_type << endl;
-//        }
-//    }
-//
-//}
-
-//void VisualProcessor::render_vis1(Camera camera) {
-//    for (int i = 0; i < vis_type->size(); i++) {
-//        glBegin(GL_LINES);
-//
-//        glColor3f(0.3, 0.3, 1);
-//        auto start = camera.world_to_camera(vis_endpoint_a->at(i));
-//        auto end = camera.world_to_camera(vis_endpoint_b->at(i));
-//        glVertex2f(start.x(), start.y());
-//        glVertex2f(end.x(), end.y());
-//
-//        glEnd();
-//    }
-//}
-
-//void VisualProcessor::render_vis2(Camera camera) {
-//    // unimplemented
-//}
 
 // getter
 // vis1
@@ -246,3 +213,11 @@ const int &VisualProcessor::get_vis_type() {
     return VisualProcessor::vis_type;
 }
 
+// vis2
+vector<VectorXi>* VisualProcessor::get_vis2_types(){
+    return &vis2_types;
+}
+
+vector<VectorXd>* VisualProcessor::get_vis2_sqr_depths(){
+    return &vis2_sqr_dists;
+}
