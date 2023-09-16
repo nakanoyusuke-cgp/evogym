@@ -14,20 +14,20 @@ VisualProcessor::~VisualProcessor() {
 }
 
 void VisualProcessor::init(
-        int vis_type,
-        double vis_lim_len,
-        vector<SimObject *> *objects,
-        vector <Edge> *edges,
-        Matrix<double, 2, Dynamic>* pos
-//        ,bool is_enable_render
+        int _vis_type,
+        double _vis_lim_len,
+        vector<SimObject *> *_objects,
+        vector <Edge> *_edges,
+        Matrix<double, 2, Dynamic>* _pos,
+        int _vis2_resolution
         ) {
 
-    VisualProcessor::vis_type = vis_type;
-    VisualProcessor::vis_lim_len = vis_lim_len;
-    VisualProcessor::objects = objects;
-    VisualProcessor::edges = edges;
-    VisualProcessor::pos = pos;
-//    VisualProcessor::is_enable_renderer = is_enable_render;
+    VisualProcessor::vis_type = _vis_type;
+    VisualProcessor::vis_lim_len = _vis_lim_len;
+    VisualProcessor::vis2_resolution = _vis2_resolution;
+    VisualProcessor::objects = _objects;
+    VisualProcessor::edges = _edges;
+    VisualProcessor::pos = _pos;
 }
 
 
@@ -64,7 +64,8 @@ void VisualProcessor::update_vis_surfaces()
     vis_surfaces_edge.clear();
     vis_surfaces_edge_a.clear();
     vis_surfaces_edge_b.clear();
-    vis_robot_own_idc.clear();
+    vis_voxel_points.clear();
+//    vis_robot_own_idc.clear();
 
     for (int s_idx = 0; s_idx < objects->size(); s_idx++){
         auto& s = (*objects)[s_idx];
@@ -87,8 +88,9 @@ void VisualProcessor::update_vis_surfaces()
                             vis_surfaces_edge_a.push_back(e.b_index);
                             vis_surfaces_edge_b.push_back(e.a_index);
                         }
+                        vis_voxel_points.push_back(v.points);
                         vis_surfaces_edge.push_back(e_idx);
-                        vis_robot_own_idc.push_back(s_idx);
+//                        vis_robot_own_idc.push_back(s_idx);
                         num_vis_surfaces++;
                     }
                 }
@@ -165,7 +167,83 @@ void VisualProcessor::update_vis1()
 
 void VisualProcessor::update_vis2()
 {
-    // unimplemented
+    vis2_types.clear();
+    vis2_sqr_dists.clear();
+
+    double sqr_l = vis_lim_len * vis_lim_len;
+
+    for (int i = 0; i < num_vis_surfaces; i++) {
+        VectorXi types_buf;
+        VectorXd sqr_dists_buf;
+        types_buf.resize(vis2_resolution);
+        sqr_dists_buf.resize(vis2_resolution);
+
+        auto a = (*pos).col(vis_surfaces_edge_a[i]);
+        auto b = (*pos).col(vis_surfaces_edge_b[i]);
+        auto e_idx = vis_surfaces_edge[i];
+        auto c = (*pos)(Eigen::all, vis_voxel_points[i]).rowwise().sum() / 4.0f;
+
+        for (int k = 0; k < edges->size(); k++){  // 自身以外のボクセル辺に対する処理
+            if (k == e_idx) { continue; }
+            // E1
+
+            auto& e = (*edges)[k];  // 観測対象の辺
+            if (!e.isOnSurface) { continue; }
+
+            auto e1 = (*pos).col(e.a_index);
+            auto e2 = (*pos).col(e.b_index);
+
+            if((calc_determinant(c, a, e1) >= 0 && calc_determinant(c, b, e1) <= 0) ||
+                    (calc_determinant(c, a, e2) >= 0 && calc_determinant(c, b, e2) <= 0)){
+                // E2
+
+                auto diff_e1_c = e1 - c;
+                auto diff_e2_c = e2 - c;
+                double sqr_re1 = diff_e1_c.squaredNorm();
+                double sqr_re2 = diff_e2_c.squaredNorm();
+                if (sqr_re1 <= sqr_l || sqr_re2 <= sqr_l){
+                    // E3
+
+                    double theta_e1 = atan2(diff_e1_c.y(), diff_e1_c.x());
+                    double theta_e2 = atan2(diff_e2_c.y(), diff_e2_c.x());
+
+                    auto diff_ep1_c = a - c;
+                    auto diff_ep2_c = b - c;
+                    double theta_ep1 = atan2(diff_ep1_c.y(), diff_ep1_c.x());
+                    double theta_ep2 = atan2(diff_ep2_c.y(), diff_ep2_c.x());
+                    // E4
+
+                    double theta_e1_nrm = (theta_e1 - theta_ep1) / (theta_ep2 - theta_ep1);
+                    double theta_e2_nrm = (theta_e2 - theta_ep1) / (theta_ep2 - theta_ep1);
+                    //E5
+
+                    // sampling
+
+                }
+
+            }
+
+        }
+    }
+}
+
+void VisualProcessor::render(Camera camera) {
+    if (vis_type == 1){
+        render_vis1(camera);
+    }
+    else if(vis_type == 2){
+        render_vis2(camera);
+    }
+    else{
+        cout << "[Error] unexpected vis_type:" << vis_type << endl;
+    }
+}
+
+void VisualProcessor::render_vis1(Camera camera) {
+
+}
+
+void VisualProcessor::render_vis2(Camera camera) {
 
 }
 

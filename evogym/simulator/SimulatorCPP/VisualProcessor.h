@@ -19,25 +19,28 @@ using namespace std;
 using namespace Eigen;
 
 
+
 class VisualProcessor {
 private:
     // hyper params
-    int vis_type;
-    double vis_lim_len;
+    int vis_type{};
+    double vis_lim_len{};
+    int vis2_resolution{};
 //    bool is_enable_renderer;
 
     // environment reference
-    vector<SimObject*>* objects;
-    vector<Edge>* edges;
-    Matrix<double, 2, Dynamic>* pos;
+    vector<SimObject*>* objects{};
+    vector<Edge>* edges{};
+    Matrix<double, 2, Dynamic>* pos{};
 
     // common
     map<int, int> surfaces_to_type;
-    int num_vis_surfaces;
+    int num_vis_surfaces{};
     vector<int> vis_surfaces_edge;
     vector<int> vis_surfaces_edge_a;
     vector<int> vis_surfaces_edge_b;
-    vector<int> vis_robot_own_idc;
+    vector<Vector4f> vis_voxel_points;
+//    vector<int> vis_robot_own_idc;
 
     // vis1
     vector<int> vis1_types;
@@ -58,26 +61,19 @@ private:
     void update_vis_surfaces();
     void update_vis1();
     void update_vis2();
-//    void render_vis1(Camera camera);
-//    void render_vis2(Camera camera);
+    void render_vis1(Camera camera);
+    void render_vis2(Camera camera);
 
 public:
     VisualProcessor();
     ~VisualProcessor();
 
     // methods
-    void init(
-        int vis_type,
-        double vis_lim_len,
-        vector<SimObject*>* objects,
-        vector<Edge>* edges,
-        Matrix<double, 2, Dynamic>* pos
-//        ,bool is_enable_render
-        );
+    void init(int _vis_type, double _vis_lim_len, vector<SimObject*>* _objects, vector<Edge>* _edges,Matrix<double, 2, Dynamic>* _pos,int _vis2_resolution);
 
     void update_configuration();
     void update_for_timestep();
-//    void render(Camera camera);
+    void render(Camera camera);
 
     // getter
     // vis1
