@@ -170,40 +170,50 @@ void VisualProcessor::update_vis2()
     vis2_types.clear();
     vis2_sqr_dists.clear();
 
+    // 視覚距離2乗
     double sqr_l = vis_lim_len * vis_lim_len;
 
+    // 視覚ボクセル表面単位で視野を生成
     for (int i = 0; i < num_vis_surfaces; i++) {
+        // 生成した視野を一次的に格納するバッファ
         VectorXi types_buf;
         VectorXd sqr_dists_buf;
         types_buf.resize(vis2_resolution);
         sqr_dists_buf.resize(vis2_resolution);
 
+        // 視覚ボクセル辺端点など(a->b->cがleft turn)
         auto a = (*pos).col(vis_surfaces_edge_a[i]);
         auto b = (*pos).col(vis_surfaces_edge_b[i]);
         auto e_idx = vis_surfaces_edge[i];
         auto c = (*pos)(Eigen::all, vis_voxel_points[i]).rowwise().sum() / 4.0f;
 
-        for (int k = 0; k < edges->size(); k++){  // 自身以外のボクセル辺に対する処理
+        // 全てのボクセル辺に対する処理
+        for (int k = 0; k < edges->size(); k++){
+            // [E1]: 始点となる視覚ボクセル辺は除外
             if (k == e_idx) { continue; }
-            // E1
 
             auto& e = (*edges)[k];  // 観測対象の辺
+            // ボクセル表面辺以外は除外
             if (!e.isOnSurface) { continue; }
 
+            // 処理対象辺の端点
             auto e1 = (*pos).col(e.a_index);
             auto e2 = (*pos).col(e.b_index);
 
+            // [E2]: 処理対象辺eの端点の内少なくとも片方が視野角の範囲に入っていることを確認
             if((calc_determinant(c, a, e1) >= 0 && calc_determinant(c, b, e1) <= 0) ||
                     (calc_determinant(c, a, e2) >= 0 && calc_determinant(c, b, e2) <= 0)){
-                // E2
 
                 auto diff_e1_c = e1 - c;
                 auto diff_e2_c = e2 - c;
                 double sqr_re1 = diff_e1_c.squaredNorm();
                 double sqr_re2 = diff_e2_c.squaredNorm();
-                if (sqr_re1 <= sqr_l || sqr_re2 <= sqr_l){
-                    // E3
 
+                // [E3]: 処理対象辺eの端点の内片方が視覚距離範囲内
+                if (sqr_re1 <= sqr_l || sqr_re2 <= sqr_l){
+
+                    // [E4]: 各辺の端点をcを中心として極座標変換
+                    //      {(sqr_re1^(1/2), theta_e1), (sqr_re2^(1/2), theta_e2)}
                     double theta_e1 = atan2(diff_e1_c.y(), diff_e1_c.x());
                     double theta_e2 = atan2(diff_e2_c.y(), diff_e2_c.x());
 
@@ -211,11 +221,10 @@ void VisualProcessor::update_vis2()
                     auto diff_ep2_c = b - c;
                     double theta_ep1 = atan2(diff_ep1_c.y(), diff_ep1_c.x());
                     double theta_ep2 = atan2(diff_ep2_c.y(), diff_ep2_c.x());
-                    // E4
 
+                    // [E5]: 処理対象辺e端点の角度を正規化：視覚ボクセル辺端点aと同じなら0, bと同じなら1
                     double theta_e1_nrm = (theta_e1 - theta_ep1) / (theta_ep2 - theta_ep1);
                     double theta_e2_nrm = (theta_e2 - theta_ep1) / (theta_ep2 - theta_ep1);
-                    //E5
 
                     // sampling
 

@@ -25,7 +25,8 @@ void Environment::init(){
             1,
             &objects,
             &edges,
-            &points_pos
+            &points_pos,
+            16
         );
 
 	num_points = 0;
