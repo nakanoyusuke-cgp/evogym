@@ -14,6 +14,7 @@
 #include "Environment.h"
 #include "SimObject.h"
 #include "Camera.h"
+#include "VisualProcessor.h"
 
 #include "Edge.h"
 
@@ -79,6 +80,9 @@ public:
 	vector<int> get_debug_window_pos();
 
 	GLFWwindow* get_debug_window_ref();
+
+    void set_vis_proc(VisualProcessor* vis_proc);
+    bool has_vis_proc();
 };
 
 #endif // !INTERFACE_H

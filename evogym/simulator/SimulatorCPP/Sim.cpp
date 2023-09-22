@@ -14,9 +14,6 @@ Sim::Sim()
 	//OBJECTS
 	creator = ObjectCreator(&environment);
 
-    //VIS PROC
-    environment.get_visual_processor()->update_configuration();
-	
 	//SIM VARIABLES
 	sim_time = 0;
 	Sim::is_rendering_enabled = is_rendering_enabled;
@@ -28,14 +25,12 @@ Sim::Sim()
 
 void Sim::init(int x, int y) {
 	creator.init_grid(Vector2d(x,y));
-    environment.get_visual_processor()->update_configuration();
 }
 
 bool Sim::read_object_from_file(string file_name, string object_name,  double x, double y) {
 	
 	if (creator.read_object_from_file(file_name, object_name, Vector2d(x, y), false)) {
 		environment.save_snapshot(0);
-        environment.get_visual_processor()->update_configuration();
 		return true;
 	}
 	return false;
@@ -72,7 +67,6 @@ bool Sim::read_object_from_array(Matrix <double, Dynamic, Dynamic> grid, Matrix 
 
 	if (creator.read_object_from_array(object_name, flat, connections, Vector2d(grid_width, grid_height), Vector2d(x, y), false)) {
 		environment.save_snapshot(0);
-        environment.get_visual_processor()->update_configuration();
 		return true;
 	}
 	return false;
@@ -99,7 +93,6 @@ bool Sim::read_robot_from_array(Matrix <double, Dynamic, Dynamic> grid, Matrix <
 	if (creator.read_object_from_array(robot_name, flat, connections, Vector2d(grid_width, grid_height), Vector2d(x, y), true)) {
 		environment.init_robot(robot_name);
 		environment.save_snapshot(0);
-        environment.get_visual_processor()->update_configuration();
 		return true;
 	}
 	return false;
@@ -278,36 +271,36 @@ double Sim::ground_on_robot(string above, string under) {
     return environment.ground_on_robot(above, under);
 }
 
-Ref <VectorXi> Sim::get_vis1_types(){
-    auto* vp = environment.get_visual_processor();
-    if (vp->get_vis_type() != 1){
-        cout << "Error! Method get_vis1_types, which is not available for the current vis_type(" << vp->get_vis_type() << "), was called." << endl;
-        Vector<int, 1> empty;
-        empty << 1;
-        return empty;
-    }
-
-    return Map<Vector<int, Dynamic>>(
-            vp->get_vis1_types()->data(),
-            vp->get_vis1_types()->size()
-            );
-}
-
-Ref <VectorXd> Sim::get_vis1_sqr_dists(){
-    auto* vp = environment.get_visual_processor();
-    if (vp->get_vis_type() != 1){
-        cout << "Error! Method get_vis1_sqr_dists, which is not available for the current vis_type(" << vp->get_vis_type() << "), was called." << endl;
-        Vector<double, 1> empty;
-        empty << 1;
-        return empty;
-    }
-
-    return Map<Vector<double, Dynamic>>(
-            vp->get_vis1_sqr_depths()->data(),
-            vp->get_vis1_sqr_depths()->size()
-    );
-
-}
+//Ref <VectorXi> Sim::get_vis1_types(){
+//    auto* vp = environment.get_visual_processor();
+//    if (vp->get_vis_type() != 1){
+//        cout << "Error! Method get_vis1_types, which is not available for the current vis_type(" << vp->get_vis_type() << "), was called." << endl;
+//        Vector<int, 1> empty;
+//        empty << 1;
+//        return empty;
+//    }
+//
+//    return Map<Vector<int, Dynamic>>(
+//            vp->get_vis1_types()->data(),
+//            vp->get_vis1_types()->size()
+//            );
+//}
+//
+//Ref <VectorXd> Sim::get_vis1_sqr_dists(){
+//    auto* vp = environment.get_visual_processor();
+//    if (vp->get_vis_type() != 1){
+//        cout << "Error! Method get_vis1_sqr_dists, which is not available for the current vis_type(" << vp->get_vis_type() << "), was called." << endl;
+//        Vector<double, 1> empty;
+//        empty << 1;
+//        return empty;
+//    }
+//
+//    return Map<Vector<double, Dynamic>>(
+//            vp->get_vis1_sqr_depths()->data(),
+//            vp->get_vis1_sqr_depths()->size()
+//    );
+//
+//}
 
 Sim::~Sim()
 {

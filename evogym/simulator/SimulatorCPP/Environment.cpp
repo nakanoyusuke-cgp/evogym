@@ -19,15 +19,15 @@ void Environment::init(){
 	physics_handler.point_is_colliding = &point_is_colliding;
 
     // perception
-    visualProcessor = VisualProcessor();
-    visualProcessor.init(
-            1,
-            1,
-            &objects,
-            &edges,
-            &points_pos,
-            16
-        );
+//    visualProcessor = VisualProcessor();
+//    visualProcessor.init(
+//            1,
+//            1,
+//            &objects,
+//            &edges,
+//            &points_pos,
+//            16
+//        );
 
 	num_points = 0;
 }
@@ -205,10 +205,10 @@ bool Environment::step() {
 	physics_handler.resolve_edge_constraints();
 	physics_handler.update_true_vel(0.0001);
 
-    // perception handler process begin
-    visualProcessor.update_for_timestep();
-
-    // perception handler process end
+//    // perception handler process begin
+//    visualProcessor.update_for_timestep();
+//
+//    // perception handler process end
 
 
 	return physics_handler.is_any_robot_self_colliding();
@@ -610,6 +610,6 @@ double Environment::ground_on_robot(string above, string under) {
 //    return visualProcessor.get_vis1_endpoints();
 //}
 
-VisualProcessor* Environment::get_visual_processor() {
-    return &visualProcessor;
-}
+//VisualProcessor* Environment::get_visual_processor() {
+//    return &visualProcessor;
+//}

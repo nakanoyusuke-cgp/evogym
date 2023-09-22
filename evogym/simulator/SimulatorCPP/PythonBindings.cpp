@@ -3,6 +3,7 @@
 #include "Interface.h"
 #include "Sim.h"
 #include "Camera.h"
+#include "VisualProcessor.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -50,8 +51,8 @@ PYBIND11_MODULE(simulator_cpp, m) {
         .def("set_object_velocity", &Sim::set_object_velocity, "")
         .def("get_surface_edges", &Sim::get_surface_edges, "")
         .def("ground_on_robot", &Sim::ground_on_robot, "")
-        .def("get_vis1_types", &Sim::get_vis1_types, "")
-        .def("get_vis1_sqr_dists", &Sim::get_vis1_sqr_dists, "")
+//        .def("get_vis1_types", &Sim::get_vis1_types, "")
+//        .def("get_vis1_sqr_dists", &Sim::get_vis1_sqr_dists, "")
         ;
 
 	py::class_<Camera>(m, "Camera")
@@ -67,5 +68,16 @@ PYBIND11_MODULE(simulator_cpp, m) {
 				c.get_image_data_size()						// buffer size
 			);
 		});
+
+    py::class_<VisualProcessor>(m, "VisualProcessor")
+        .def(py::init<int, Sim*, double, int>())
+        .def("update_configuration", &VisualProcessor::update_configuration, "")
+        .def("update_for_timestep", &VisualProcessor::update_for_timestep, "")
+        .def("get_vis_type", &VisualProcessor::get_vis_type, "")
+        .def("get_vis1_types", &VisualProcessor::get_vis1_types, "")
+        .def("get_vis1_sqr_depths", &VisualProcessor::get_vis1_sqr_depths, "")
+        .def("get_vis2_types", &VisualProcessor::get_vis2_types, "")
+        .def("get_vis2_sqr_depths", &VisualProcessor::get_vis2_sqr_depths, "")
+        ;
 }
 

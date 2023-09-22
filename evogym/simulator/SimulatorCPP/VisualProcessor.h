@@ -14,10 +14,10 @@
 #include "SimObject.h"
 #include "Edge.h"
 #include "Camera.h"
+#include "Sim.h"
 
 using namespace std;
 using namespace Eigen;
-
 
 
 class VisualProcessor {
@@ -61,33 +61,24 @@ private:
     void update_vis_surfaces();
     void update_vis1();
     void update_vis2();
-    void render_vis1(Camera camera);
-    void render_vis2(Camera camera);
 
 public:
-    VisualProcessor();
+    VisualProcessor(int _vis_type, Sim* sim, double _vis_lim_len, int _vis2_resolution);
     ~VisualProcessor();
-
-    // methods
-    void init(int _vis_type, double _vis_lim_len, vector<SimObject*>* _objects, vector<Edge>* _edges,Matrix<double, 2, Dynamic>* _pos,int _vis2_resolution);
 
     void update_configuration();
     void update_for_timestep();
-    void render(Camera camera);
 
     // getter
     // vis1
     const int &get_vis_type();
     vector<int>* get_vis1_types();
     vector<double>* get_vis1_sqr_depths();
-//    vector<Vector2d>* get_vis1_endpoints_a();
-//    vector<Vector2d>* get_vis1_endpoints_b();
     vector<vector<Vector2d>*> get_vis1_endpoints();
 
     // vis2
     vector<VectorXi>* get_vis2_types();
     vector<VectorXd>* get_vis2_sqr_depths();
-
 };
 
 

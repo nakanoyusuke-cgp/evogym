@@ -5,30 +5,40 @@
 #include "VisualProcessor.h"
 
 
-VisualProcessor::VisualProcessor(){
-
+VisualProcessor::VisualProcessor(
+        int _vis_type,
+        Sim* sim,
+        double _vis_lim_len,
+        int _vis2_resolution
+        ){
+    VisualProcessor::vis_type = _vis_type;
+    VisualProcessor::vis_lim_len = _vis_lim_len;
+    VisualProcessor::vis2_resolution = _vis2_resolution;
+//    VisualProcessor::objects = sim->environment.get_objects();
+//    VisualProcessor::edges = sim->environment.get_edges();
+//    VisualProcessor::pos = sim->environment.get_pos();
 }
 
 VisualProcessor::~VisualProcessor() {
 
 }
 
-void VisualProcessor::init(
-        int _vis_type,
-        double _vis_lim_len,
-        vector<SimObject *> *_objects,
-        vector <Edge> *_edges,
-        Matrix<double, 2, Dynamic>* _pos,
-        int _vis2_resolution
-        ) {
-
-    VisualProcessor::vis_type = _vis_type;
-    VisualProcessor::vis_lim_len = _vis_lim_len;
-    VisualProcessor::vis2_resolution = _vis2_resolution;
-    VisualProcessor::objects = _objects;
-    VisualProcessor::edges = _edges;
-    VisualProcessor::pos = _pos;
-}
+//void VisualProcessor::init(
+//        int _vis_type,
+//        double _vis_lim_len,
+//        vector<SimObject *> *_objects,
+//        vector <Edge> *_edges,
+//        Matrix<double, 2, Dynamic>* _pos,
+//        int _vis2_resolution
+//        ) {
+//
+//    VisualProcessor::vis_type = _vis_type;
+//    VisualProcessor::vis_lim_len = _vis_lim_len;
+//    VisualProcessor::vis2_resolution = _vis2_resolution;
+//    VisualProcessor::objects = _objects;
+//    VisualProcessor::edges = _edges;
+//    VisualProcessor::pos = _pos;
+//}
 
 
 // functions
@@ -234,26 +244,6 @@ void VisualProcessor::update_vis2()
 
         }
     }
-}
-
-void VisualProcessor::render(Camera camera) {
-    if (vis_type == 1){
-        render_vis1(camera);
-    }
-    else if(vis_type == 2){
-        render_vis2(camera);
-    }
-    else{
-        cout << "[Error] unexpected vis_type:" << vis_type << endl;
-    }
-}
-
-void VisualProcessor::render_vis1(Camera camera) {
-
-}
-
-void VisualProcessor::render_vis2(Camera camera) {
-
 }
 
 // public methods

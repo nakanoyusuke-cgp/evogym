@@ -41,14 +41,6 @@ Interface::Interface(Sim* sim)
 	Interface::objects = sim->environment.get_objects();
 
 	Interface::point_is_colliding = &(sim->environment.point_is_colliding);
-
-    // visual perception
-    Interface::visualProcessor = sim->environment.get_visual_processor();
-
-    Interface::vis1_cell_types = visualProcessor->get_vis1_types();
-    auto vis1_endpoints = visualProcessor->get_vis1_endpoints();
-    Interface::vis1_endpoint_a = vis1_endpoints[0];
-    Interface::vis1_endpoint_b = vis1_endpoints[1];
 }
 
 void Interface::init() {
@@ -136,8 +128,8 @@ void Interface::render(Camera camera, bool hide_background, bool hide_grid, bool
 		if (!hide_edges)
 			render_edges(camera);
 
-//        if (!hide_vis_lines)
-        render_vis_lines(camera);
+        if (/*!hide_vis_lines && */has_vis_proc())
+            render_vis_lines(camera);
 
 		glFlush();
 		glFinish();
@@ -570,7 +562,7 @@ void Interface::render_encoded_boxels(Camera camera){
 void Interface::render_vis_lines(Camera camera) {
     auto vis_type = visualProcessor->get_vis_type();
     if (vis_type == 1){
-        for (int i = 0; i < visualProcessor->get_vis1_types()->size(); i++) {
+        for (int i = 0; i < vis1_cell_types->size(); i++) {
             glBegin(GL_LINES);
 
             vector<double> c = get_vis_color(vis1_cell_types->at(i));
@@ -655,6 +647,23 @@ vector<int> Interface::get_debug_window_pos() {
 
 	vector<int> out = { xpos, ypos };
 	return out;
+}
+
+void Interface::set_vis_proc(VisualProcessor *vis_proc) {
+    Interface::visualProcessor = vis_proc;
+
+    // vis1
+    Interface::vis1_cell_types = visualProcessor->get_vis1_types();
+    auto vis1_endpoints = visualProcessor->get_vis1_endpoints();
+    Interface::vis1_endpoint_a = vis1_endpoints[0];
+    Interface::vis1_endpoint_b = vis1_endpoints[1];
+
+    // vis2
+
+}
+
+bool Interface::has_vis_proc() {
+    return Interface::visualProcessor != nullptr;
 }
 
 Interface::~Interface()
