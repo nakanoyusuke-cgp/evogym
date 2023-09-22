@@ -42,6 +42,8 @@ class HuntCreeper(HuntingBase):
         self.ESCAPE_VELOCITY = config["ESCAPE_VELOCITY"]
         self.HOPPING = config["HOPPING"]
 
+        print("hunt creeper change config")
+
     def step(self, action: np.ndarray):
         # step
         done = super().step({'robot': action})
