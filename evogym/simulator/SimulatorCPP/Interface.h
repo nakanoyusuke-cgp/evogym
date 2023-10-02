@@ -42,6 +42,7 @@ private:
     vector <Vector2d>* vis1_endpoint_a;
     vector <Vector2d>* vis1_endpoint_b;
     VisualProcessor* visualProcessor;
+    bool _has_vis_proc;
 
 	//COLORS
 	struct color_byte {

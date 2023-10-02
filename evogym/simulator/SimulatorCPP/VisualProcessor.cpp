@@ -14,9 +14,10 @@ VisualProcessor::VisualProcessor(
     VisualProcessor::vis_type = _vis_type;
     VisualProcessor::vis_lim_len = _vis_lim_len;
     VisualProcessor::vis2_resolution = _vis2_resolution;
-//    VisualProcessor::objects = sim->environment.get_objects();
-//    VisualProcessor::edges = sim->environment.get_edges();
-//    VisualProcessor::pos = sim->environment.get_pos();
+
+    VisualProcessor::objects = sim->environment.get_objects();
+    VisualProcessor::edges = sim->environment.get_edges();
+    VisualProcessor::pos = sim->environment.get_pos();
 }
 
 VisualProcessor::~VisualProcessor() {

@@ -70,7 +70,7 @@ PYBIND11_MODULE(simulator_cpp, m) {
 		});
 
     py::class_<VisualProcessor>(m, "VisualProcessor")
-        .def(py::init<int, Sim*, double, int>())
+        .def(py::init<int, Sim*, double, int>(), py::arg("vis_type"), py::arg("sim"), py::arg("vis_lim_len"), py::arg("vis2_resolution"))
         .def("update_configuration", &VisualProcessor::update_configuration, "")
         .def("update_for_timestep", &VisualProcessor::update_for_timestep, "")
         .def("get_vis_type", &VisualProcessor::get_vis_type, "")

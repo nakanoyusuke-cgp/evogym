@@ -10,7 +10,7 @@ import random
 # random.seed(seed)
 # np.random.seed(seed)
 
-pd = np.array([3./6, 1/6, 1/6, 1/6, 1/6, 0., 1/6, 0.])
+pd = np.array([3., 1., 1., 1., 1., 0., 1., 0., 1.])
 body, connections = sample_robot((5, 5), pd=pd)
 
 # body = np.array([
@@ -22,7 +22,7 @@ body, connections = sample_robot((5, 5), pd=pd)
 # ])
 # print(body)
 
-env_idx = 2
+env_idx = 0
 
 if env_idx == 0:
     env = gym.make('HuntCreeper-v0', body=body)
@@ -34,10 +34,10 @@ else:
     exit(1)
 
 obs = env.reset()
-env.render()
-
-print(obs)
-print(obs.size)
+# env.render()
+#
+# print(obs)
+# print(obs.size)
 
 
 state = None
@@ -82,3 +82,8 @@ def print_state(env):
     print(tmp1)
     print(tmp2)
     print(tmp1[:, tmp2 == 6])
+
+# ---
+
+
+# step(env, 100)

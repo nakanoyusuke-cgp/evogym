@@ -41,6 +41,9 @@ Interface::Interface(Sim* sim)
 	Interface::objects = sim->environment.get_objects();
 
 	Interface::point_is_colliding = &(sim->environment.point_is_colliding);
+
+    //Vis proc
+    _has_vis_proc = false;
 }
 
 void Interface::init() {
@@ -85,7 +88,13 @@ void Interface::render(Camera camera, bool hide_background, bool hide_grid, bool
 			render_edges(camera);
 		//render_object_points(camera);
 		//render_edge_normals(camera);
-        render_vis_lines(camera);
+
+        if (/*!hide_vis_lines && */has_vis_proc()){
+            std::cout << "has_vis_proc" << std::endl;
+            render_vis_lines(camera);
+        }
+        else
+            std::cout << "not_has_vis_proc" << std::endl;
 
 
 		// Render now
@@ -128,8 +137,12 @@ void Interface::render(Camera camera, bool hide_background, bool hide_grid, bool
 		if (!hide_edges)
 			render_edges(camera);
 
-        if (/*!hide_vis_lines && */has_vis_proc())
+        if (/*!hide_vis_lines && */has_vis_proc()) {
+            std::cout << "has_vis_proc" << std::endl;
             render_vis_lines(camera);
+        }
+        else
+            std::cout << "not_has_vis_proc" << std::endl;
 
 		glFlush();
 		glFinish();
@@ -660,10 +673,11 @@ void Interface::set_vis_proc(VisualProcessor *vis_proc) {
 
     // vis2
 
+    _has_vis_proc = true;
 }
 
 bool Interface::has_vis_proc() {
-    return Interface::visualProcessor != nullptr;
+    return _has_vis_proc;
 }
 
 Interface::~Interface()
