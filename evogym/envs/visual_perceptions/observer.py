@@ -57,25 +57,58 @@ class ObserverVis1(BenchmarkBase):
         print("hunt creeper vis1, change config")
 
     def step(self, action: np.ndarray):
-        obs, reward, done, info = super().step(action=action)
+
+        # step
+        done = super().step({"robot": action})
+        self.vis_proc.update_for_step()
+
+        # observation
+        vis_types = self.vis_proc.get_vis1_types()
+        vis_sqr_depths = self.vis_proc.get_vis1_sqr_depths()
+        vis_dists = np.clip(1 - (vis_sqr_depths ** 0.5 / self.VIS_LIMIT_LEN), 0., 1.)
 
         obs = np.concatenate((
-            np.mean(self.object_vel_at_time(self.get_time(), 'robot'), axis=1),
-            self.get_prey_pred_diffs().reshape(-1),
-            np.mean(self.object_vel_at_time(self.get_time(), 'prey'), axis=1),
+            vis_types,
+            vis_dists,
+            self.get_vel_com_obs("robot"),
             self.get_relative_pos_obs('robot'),
         ))
+
+        # compute reward
+        pos_r = np.mean(self.object_pos_at_time(self.get_time(), "robot"), 1)
+        pos_b = np.mean(self.object_pos_at_time(self.get_time(), "box"), 1)
+        robot_box_dist = np.linalg.norm(pos_b - pos_r)
+
+        if self.REWARD_DIST_BOT <= robot_box_dist <= self.REWARD_DIST_TOP:
+            reward = 1.
+        else:
+            reward = 0.
+
+        # error check unstable simulation
+        if done:
+            print("SIMULATION UNSTABLE... TERMINATING")
+            reward -= 3.0
+
+        # info
+        info = {
+            "vis_sqr_depths": vis_sqr_depths,
+        }
 
         return obs, reward, done, info
 
     def reset(self):
         super().reset()
 
+        # update vis configuration
+        self.vis_proc.update_configuration()
+        self.vis_proc.update_for_step()
+
         vis_types = self.vis_proc.get_vis1_types()
-        vis_sqr_dists = self.vis_proc.get_vis1_sqr_depths()
+        vis_dists = np.clip(1 - (self.vis_proc.get_vis1_sqr_depths() ** 0.5 / self.VIS_LIMIT_LEN), 0., 1.)
 
         obs = np.concatenate((
-            
+            vis_types,
+            vis_dists,
             self.get_vel_com_obs("robot"),
             self.get_relative_pos_obs('robot'),
         ))
