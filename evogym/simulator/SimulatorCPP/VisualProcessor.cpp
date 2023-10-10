@@ -168,7 +168,7 @@ void VisualProcessor::update_vis1()
             vis1_endpoints_b.push_back(min_d_ep);
         }
         else{
-            vis1_types.push_back(-1);
+            vis1_types.push_back(0);
             vis1_sqr_dists.push_back(vis_lim_len * vis_lim_len);
             vis1_endpoints_a.push_back(v1);
             vis1_endpoints_b.push_back(v2);
@@ -298,4 +298,8 @@ vector<VectorXi>* VisualProcessor::get_vis2_types(){
 
 vector<VectorXd>* VisualProcessor::get_vis2_sqr_depths(){
     return &vis2_sqr_dists;
+}
+
+int VisualProcessor::get_num_vis_surfaces(){
+    return vis_surfaces_edge.size();
 }

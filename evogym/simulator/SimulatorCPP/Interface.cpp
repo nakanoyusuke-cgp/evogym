@@ -90,12 +90,12 @@ void Interface::render(Camera camera, bool hide_background, bool hide_grid, bool
 		//render_edge_normals(camera);
 
         if (/*!hide_vis_lines && */has_vis_proc()){
-            std::cout << "has_vis_proc" << std::endl;
+//            std::cout << "has_vis_proc" << std::endl;
             render_vis_lines(camera);
         }
-        else
-            std::cout << "not_has_vis_proc" << std::endl;
-
+        else{
+//            std::cout << "not_has_vis_proc" << std::endl;
+        }
 
 		// Render now
 		glFlush();
@@ -138,11 +138,12 @@ void Interface::render(Camera camera, bool hide_background, bool hide_grid, bool
 			render_edges(camera);
 
         if (/*!hide_vis_lines && */has_vis_proc()) {
-            std::cout << "has_vis_proc" << std::endl;
+//            std::cout << "has_vis_proc" << std::endl;
             render_vis_lines(camera);
         }
-        else
-            std::cout << "not_has_vis_proc" << std::endl;
+        else{
+//            std::cout << "not_has_vis_proc" << std::endl;
+        }
 
 		glFlush();
 		glFinish();

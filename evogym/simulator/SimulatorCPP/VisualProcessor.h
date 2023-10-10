@@ -70,6 +70,8 @@ public:
     void update_for_timestep();
 
     // getter
+    int get_num_vis_surfaces();
+
     // vis1
     const int &get_vis_type();
     vector<int>* get_vis1_types();

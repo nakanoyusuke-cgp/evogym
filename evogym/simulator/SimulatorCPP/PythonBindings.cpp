@@ -22,7 +22,8 @@ PYBIND11_MODULE(simulator_cpp, m) {
 		.def("render", &Interface::render, py::arg("camera"), py::arg("hide_background") = false, py::arg("hide_grid") = false, py::arg("hide_edges") = false, py::arg("hide_boxels") = false, py::arg("dont_clear") = false)
 		.def("show_debug_window", &Interface::show_debug_window)
 		.def("hide_debug_window", &Interface::hide_debug_window)
-		.def("get_debug_window_pos", &Interface::get_debug_window_pos, py::return_value_policy::copy);
+		.def("get_debug_window_pos", &Interface::get_debug_window_pos, py::return_value_policy::copy)
+		.def("set_vis_proc", &Interface::set_vis_proc, py::arg("vis_proc"));
 
 	py::class_<Sim>(m, "Sim")
 		.def(py::init<>())
@@ -78,6 +79,7 @@ PYBIND11_MODULE(simulator_cpp, m) {
         .def("get_vis1_sqr_depths", &VisualProcessor::get_vis1_sqr_depths, "")
         .def("get_vis2_types", &VisualProcessor::get_vis2_types, "")
         .def("get_vis2_sqr_depths", &VisualProcessor::get_vis2_sqr_depths, "")
+        .def("get_num_vis_surfaces", &VisualProcessor::get_num_vis_surfaces, "")
         ;
 }
 
