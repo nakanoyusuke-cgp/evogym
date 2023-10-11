@@ -473,12 +473,7 @@ bool ObjectCreator::read_object_from_array(string object_name, Matrix <double, 1
             }
 
             if (current->cell_type == CELL_PREY) {
-                make_edge(current->point_top_right_index, current->point_bot_left_index, diagonal_edge_length, rigid_structural_edge_spring_const);
-                make_edge(current->point_top_left_index, current->point_bot_right_index, diagonal_edge_length, rigid_structural_edge_spring_const);
-                continue;
-            }
 
-            if (current->cell_type == CELL_VIS){
                 make_edge(current->point_top_right_index, current->point_bot_left_index, diagonal_edge_length, rigid_structural_edge_spring_const);
                 make_edge(current->point_top_left_index, current->point_bot_right_index, diagonal_edge_length, rigid_structural_edge_spring_const);
                 continue;

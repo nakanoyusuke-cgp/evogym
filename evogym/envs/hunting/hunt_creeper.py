@@ -9,18 +9,6 @@ import numpy as np
 import os
 
 
-DEFAULT_CONFIG = {
-    # task-specific config
-    "SENSING_RANGE": 1.0,
-    "ESCAPE_VELOCITY": 0.0015,
-    "HOPPING": 0.001,
-
-    # task-common config
-    "REWARD_RANGE": 0.7,
-    "PROGRESSIVE_REWARD": 0.05,
-}
-
-
 class HuntCreeper(HuntingBase):
     SENSING_RANGE = 1.0
     ESCAPE_VELOCITY = 0.0015
@@ -35,14 +23,12 @@ class HuntCreeper(HuntingBase):
         self.world.add_from_array('robot', body, 1, 1, connections=connections)
         self.world.add_from_array('prey', np.array([[7]]), 8, 1)
 
-        HuntingBase.__init__(self, world=self.world, config=config)
+        HuntingBase.__init__(self, world=self.world)
 
     def change_config(self, config: dict):
         self.SENSING_RANGE = config["SENSING_RANGE"]
         self.ESCAPE_VELOCITY = config["ESCAPE_VELOCITY"]
         self.HOPPING = config["HOPPING"]
-
-        print("hunt creeper change config")
 
     def step(self, action: np.ndarray):
         # step

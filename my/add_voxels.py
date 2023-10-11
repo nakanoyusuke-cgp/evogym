@@ -10,17 +10,17 @@ import random
 # random.seed(seed)
 # np.random.seed(seed)
 
-# pd = np.array([3./6, 1/6, 1/6, 1/6, 1/6, 0., 1/6, 0.])
-# body, connections = sample_robot((5, 5), pd=pd)
+pd = np.array([3./6, 1/6, 1/6, 1/6, 1/6, 0., 1/6, 0.])
+body, connections = sample_robot((5, 5), pd=pd)
 
-body = np.array([
-    [8, 3, 3, 3, 6],
-    [6, 3, 3, 3, 8],
-    [3, 3, 0, 3, 3],
-    [3, 3, 0, 3, 3],
-    [3, 3, 0, 3, 8],
-])
-print(body)
+# body = np.array([
+#     [6, 3, 3, 3, 6],
+#     [3, 3, 3, 3, 3],
+#     [3, 3, 0, 3, 3],
+#     [3, 0, 0, 0, 3],
+#     [3, 0, 0, 0, 3],
+# ])
+# print(body)
 
 # env_walker = gym.make('Walker-v0', body=body)
 env_hunting = gym.make('HuntCreeper-v0', body=body)
@@ -38,8 +38,6 @@ def step(env, n=1, verbose=False, verbose_interval=1):
     for i in range(n):
         action = env.action_space.sample() - 1
         ob, reward, done, info = env.step(action)
-        print(env.sim.get_vis1_types())
-        print(env.sim.get_vis1_sqr_dists() ** 0.5)
         if verbose and ((i + 1) % verbose_interval == 0):
             print("reward:", reward)
             print("info:", info)
@@ -56,6 +54,3 @@ def print_state(env):
     print(tmp1)
     print(tmp2)
     print(tmp1[:, tmp2 == 6])
-
-
-# step(env_hunting, n=300)

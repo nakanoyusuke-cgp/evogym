@@ -46,7 +46,7 @@ class TerminationCondition():
     def change_target(self, max_iters):
         self.max_iters = max_iters
 
-def mutate(child, mutation_rate=0.1, num_attempts=10, pd=None, limits=None, structure_requirement=None):
+def mutate(child, mutation_rate=0.1, num_attempts=10, limits=None, structure_requirement=None):
     if limits is None:
         limits_copy = -1 * np.ones(len(VOXEL_TYPES))
     else:
@@ -56,10 +56,9 @@ def mutate(child, mutation_rate=0.1, num_attempts=10, pd=None, limits=None, stru
         structure_requirement = lambda robot: True
 
     # generate pd/ FIXED_BOXEL
-    if pd is None:
-        pd = get_uniform(len(VOXEL_TYPES))
-        pd[VOXEL_TYPES['FIXED']] = 0.0
-        pd[VOXEL_TYPES['EMPTY']] = 3.0 / (len(VOXEL_TYPES) - 1)
+    pd = get_uniform(len(VOXEL_TYPES))
+    pd[VOXEL_TYPES['FIXED']] = 0.0
+    pd[VOXEL_TYPES['EMPTY']] = 3.0 / (len(VOXEL_TYPES) - 1)
 
     # pd = get_uniform(5)
     # pd[0] = 0.6 #it is 3X more likely for a cell to become empty

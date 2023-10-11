@@ -11,7 +11,6 @@ from evogym.envs.traverse import *
 from evogym.envs.walk import *
 
 from evogym.envs.hunting import *
-from evogym.envs.visual_perceptions import *
 
 from gym.envs.registration import register
 
@@ -213,7 +212,6 @@ register(
 )
 
 ### MY IMPLEMENTATIONS ###
-### HUNTING ###
 register(
     id = 'HuntCreeper-v0',
     entry_point = 'evogym.envs.hunting:HuntCreeper',
@@ -229,12 +227,5 @@ register(
 register(
     id = 'HuntFlyer-v0',
     entry_point = 'evogym.envs.hunting:HuntFlyer',
-    max_episode_steps=1000,
-)
-
-### VISUAL PERCEPTION ###
-register(
-    id = 'Observer_vis1-v0',
-    entry_point = 'evogym.envs.visual_perceptions:ObserverVis1',
     max_episode_steps=1000,
 )

@@ -22,6 +22,3 @@ build_scripts
 .DS_Store
 exported/
 req_ns.txt
-
-examples/plots
-evogym/simulator/cmake-build-debug

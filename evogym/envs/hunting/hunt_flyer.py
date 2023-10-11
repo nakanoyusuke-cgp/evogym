@@ -9,6 +9,7 @@ import numpy as np
 import os
 import random
 
+
 # X軸上の距離を頼りに飛び回る
 # 一定の高さを保つ
 # y>h以下ならはねる
@@ -16,33 +17,12 @@ import random
 # - no op
 # - 初速を得る（ロボットとの距離に応じてx軸上の初速を確定する, ランダム性を持つ, 確定性が必要）
 
-
-DEFAULT_CONFIG = {
-    # task-specific config
-    "SENSING_X_RANGE": 1.0,
-    "X_ACCELERATION": 0.35,
-    "Y_ACCELERATION": 12.0,
-    "X_ACCELERATION_DISPERSION": 0.1,
-    "Y_ACCELERATION_DISPERSION": 0.3,
-    "Y_FLAP_HEIGHT": 0.6,
-    "Y_FLAP_HEIGHT_DISPERSION": 0.05,
-    "FLAP_MIN_INTERVAL": 30.0,
-    "VELOCITY_SUPPRESSION_MULTIPLIER": 0.5,
-    "X_RANDOM_FLAP_RANGE": 0.3,
-    "ACCELERATION_STEP": 10,
-
-    # task-common config
-    "REWARD_RANGE": 0.7,
-    "PROGRESSIVE_REWARD": 0.05,
-}
-
-
 class HuntFlyer(HuntingBase):
     SENSING_X_RANGE = 1.0
-    X_ACCELERATION = 0.35
-    Y_ACCELERATION = 12.0
+    X_ACCELERATION = 0.6
+    Y_ACCELERATION = 13.0
     X_ACCELERATION_DISPERSION = 0.1
-    Y_ACCELERATION_DISPERSION = 0.3
+    Y_ACCELERATION_DISPERSION = 0.5
     Y_FLAP_HEIGHT = 0.6
     Y_FLAP_HEIGHT_DISPERSION = 0.05
     FLAP_MIN_INTERVAL = 30.0
@@ -55,7 +35,7 @@ class HuntFlyer(HuntingBase):
         self.X_ACCELERATION = config["X_ACCELERATION"]
         self.Y_ACCELERATION = config["Y_ACCELERATION"]
         self.X_ACCELERATION_DISPERSION = config["X_ACCELERATION_DISPERSION"]
-        self.Y_ACCELERATION_DISPERSION = config["Y_ACCELERATION_DISPERSION"]
+        self.Y_ACCELERATION_DISPERSION = config["Y_ACCELERATION_DIsPERSION"]
         self.Y_FLAP_HEIGHT = config["Y_FLAP_HEIGHT"]
         self.Y_FLAP_HEIGHT_DISPERSION = config["Y_FLAP_HEIGHT_DISPERSION"]
         self.FLAP_MIN_INTERVAL = config["FLAP_MIN_INTERVAL"]
@@ -66,14 +46,14 @@ class HuntFlyer(HuntingBase):
     def __init__(self, body: np.ndarray, connections=None, config=None):
         if config is not None:
             self.change_config(config)
-
+        
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
         self.world.add_from_array('robot', body, 1, 1, connections=connections)
-        self.world.add_from_array('prey', np.array([[7]]), 8, 7)
+        self.world.add_from_array('prey', np.array([[7]]), 7, 7)
         # self.world.add_from_array('prey', np.array([[7]]), 3, 10)
 
-        HuntingBase.__init__(self, world=self.world, config=config)
+        HuntingBase.__init__(self, world=self.world)
 
         self.flap_x_line = 0.0
         self.next_flap_y_height = 0.0
@@ -192,7 +172,7 @@ class HuntFlyer(HuntingBase):
 
         # the prey completely escaped from predatory robot
         prey_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'prey'), axis=1)
-        if prey_com_pos[0] > 99 * self.VOXEL_SIZE:
+        if prey_com_pos[0] > 99*self.VOXEL_SIZE:
             done = True
             reward = -1
             done_info = 'The simulation was terminated because the prey completely escaped from the predatory robot.'
