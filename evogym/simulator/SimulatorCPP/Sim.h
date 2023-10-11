@@ -65,6 +65,9 @@ public:
     py::array_t<int> get_surface_edges(string object_name);
     double ground_on_robot(string above, string under);
 
+//    Ref <VectorXi> get_vis1_types();
+//    Ref <VectorXd> get_vis1_sqr_dists();
+
 	~Sim();
 };
 

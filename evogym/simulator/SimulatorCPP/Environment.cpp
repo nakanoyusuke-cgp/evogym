@@ -18,6 +18,17 @@ void Environment::init(){
 		&edges, &objects);
 	physics_handler.point_is_colliding = &point_is_colliding;
 
+    // perception
+//    visualProcessor = VisualProcessor();
+//    visualProcessor.init(
+//            1,
+//            1,
+//            &objects,
+//            &edges,
+//            &points_pos,
+//            16
+//        );
+
 	num_points = 0;
 }
 
@@ -68,7 +79,7 @@ void Environment::create_points(vector <Vector2d>* pos, vector <Vector2d>* vel, 
 	// 		if (points_fixed(i, j)){
 	// 			continue;
 	// 		}
-		
+
 	// 		double randn = ((double)rand() / (RAND_MAX))/ 1e7;
 	// 		for (int f = 0; f < 12; f++){
 	// 			randn = 2.0 * ((double)rand() / (RAND_MAX)) / 1e7;
@@ -165,7 +176,6 @@ void Environment::print_poses(){
 }
 bool Environment::step() {
 
-
 	// for (int i = 0; i < points_pos.rows(); i++){
 	// 	for(int j = 0; j < points_pos.cols(); j++){
 	// 		if (points_fixed(i, j)){
@@ -195,7 +205,10 @@ bool Environment::step() {
 	physics_handler.resolve_edge_constraints();
 	physics_handler.update_true_vel(0.0001);
 
-
+//    // perception handler process begin
+//    visualProcessor.update_for_timestep();
+//
+//    // perception handler process end
 
 
 	return physics_handler.is_any_robot_self_colliding();
@@ -314,7 +327,8 @@ Ref <MatrixXd> Environment::object_vel_at_time(long int sim_time, string object_
 	int max_index = objects[object_index]->max_point_index;
 	return history[sim_time].points_vel(Eigen::all, Eigen::seq(min_index, max_index));
 
-}double Environment::object_orientation_at_time(long int sim_time, string object_name) {
+}
+double Environment::object_orientation_at_time(long int sim_time, string object_name) {
 
 	if (history.count(sim_time) <= 0 || object_name_to_index.count(object_name) <= 0) {
 		return 0;
@@ -583,3 +597,19 @@ double Environment::ground_on_robot(string above, string under) {
     }
     return result_min;
 }
+
+//const int &Environment::get_vis_type(){
+//    return visualProcessor.get_vis_type();
+//}
+//
+//vector<int> *Environment::get_vis1_cell_types(){
+//    return visualProcessor.get_vis1_types();
+//}
+//
+//vector<vector<Vector2d>*> Environment::get_vis1_endpoints(){
+//    return visualProcessor.get_vis1_endpoints();
+//}
+
+//VisualProcessor* Environment::get_visual_processor() {
+//    return &visualProcessor;
+//}

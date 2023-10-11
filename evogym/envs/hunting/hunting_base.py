@@ -12,7 +12,14 @@ class HuntingBase(BenchmarkBase):
     REWARD_RANGE = 0.7
     PROGRESSIVE_REWARD = 0.05
 
-    def __init__(self, world):
+    def change_config(self, config: dict):
+        self.REWARD_RANGE = config["REWARD_RANGE"]
+        self.PROGRESSIVE_REWARD = config["PROGRESSIVE_REWARD"]
+
+    def __init__(self, world, config):
+        if config is not None:
+            self.change_config(config=config)
+
         # init sim
         BenchmarkBase.__init__(self, world)
         self.default_viewer.track_objects('robot', 'prey')
