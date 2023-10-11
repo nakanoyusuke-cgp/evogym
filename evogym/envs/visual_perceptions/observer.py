@@ -14,9 +14,10 @@ DEFAULT_CONFIG = {
     "INIT_BOX_X": 20,
     "REWARD_DIST_BOT": 10.,
     "REWARD_DIST_TOP": 12.,
+    "PROGRESSIVE_REWARD": 0.05,
 
     # vis1 config
-    "VIS_LIMIT_LEN": 22.
+    "VIS_LIMIT_LEN": 22.,
 }
 
 
@@ -25,6 +26,7 @@ class ObserverVis1(BenchmarkBase):
     REWARD_DIST_BOT = 10.
     REWARD_DIST_TOP = 12.
     VIS_LIMIT_LEN = 22.
+    PROGRESSIVE_REWARD = 0.05
 
     def __init__(self, body: np.ndarray, connections=None, config=None):
         if config is not None:
@@ -59,6 +61,7 @@ class ObserverVis1(BenchmarkBase):
         self.REWARD_DIST_BOT = config["REWARD_DIST_BOT"]
         self.REWARD_DIST_TOP = config["REWARD_DIST_TOP"]
         self.VIS_LIMIT_LEN = config["VIS_LIMIT_LEN"]
+        self.PROGRESSIVE_REWARD = config["PROGRESSIVE_REWARD"]
         # print("hunt creeper vis1, change config")
 
     def step(self, action: np.ndarray):
@@ -80,14 +83,20 @@ class ObserverVis1(BenchmarkBase):
         ))
 
         # compute reward
-        pos_r = np.mean(self.object_pos_at_time(self.get_time(), "robot"), 1)
-        pos_b = np.mean(self.object_pos_at_time(self.get_time(), "box"), 1)
-        robot_box_dist = np.linalg.norm(pos_b - pos_r)
+        robot_box_dist = self.calc_dist_box_and_robot()
+
+        # 箱とロボットの距離が報酬区間の平均値からどれだけ離れているか
+        dist_diff = abs(robot_box_dist - (self.REWARD_DIST_BOT + self.REWARD_DIST_TOP) * self.VOXEL_SIZE / 2 )  
 
         if self.REWARD_DIST_BOT <= robot_box_dist / self.VOXEL_SIZE <= self.REWARD_DIST_TOP:
             reward = 1.
+        elif dist_diff < self.prev_dist_diff:
+            ## aggressive reward
+            reward = self.PROGRESSIVE_REWARD
         else:
-            reward = 0.
+            reward = 0
+
+        self.prev_dist_diff = dist_diff
 
         # error check unstable simulation
         if done:
@@ -118,4 +127,13 @@ class ObserverVis1(BenchmarkBase):
             self.get_relative_pos_obs('robot'),
         ))
 
+        self.prev_dist_diff = abs(self.calc_dist_box_and_robot() - (self.REWARD_DIST_BOT + self.REWARD_DIST_TOP) * self.VOXEL_SIZE / 2 )
+
         return obs
+
+    def calc_dist_box_and_robot(self):
+        pos_r = np.mean(self.object_pos_at_time(self.get_time(), "robot"), 1)
+        pos_b = np.mean(self.object_pos_at_time(self.get_time(), "box"), 1)
+        robot_box_dist = np.linalg.norm(pos_b - pos_r)
+
+        return robot_box_dist
