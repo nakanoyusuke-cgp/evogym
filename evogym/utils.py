@@ -13,7 +13,8 @@ VOXEL_TYPES = {
     'V_ACT': 4,
     'FIXED': 5,
     'PRED': 6,
-    'PREY': 7
+    'PREY': 7,
+    'VIS': 8,
 }
 
 BASELINE_ENV_NAMES = [
@@ -114,6 +115,9 @@ def sample_robot(
         if pd is None:
             pd_copy = get_uniform(len(VOXEL_TYPES))
             pd_copy[VOXEL_TYPES['FIXED']] = 0.0
+            pd_copy[VOXEL_TYPES['PREY']] = 0.0
+            pd_copy[VOXEL_TYPES['PRED']] = 0.0
+            pd_copy[VOXEL_TYPES['VIS']] = 0.0
             pd_copy[VOXEL_TYPES['EMPTY']] = 3.0 / (len(VOXEL_TYPES) - 1)
         else:
             pd_copy = pd.copy()
@@ -133,6 +137,8 @@ def sample_robot(
 
         if is_connected(robot) and has_actuator(robot) and structure_requirement(robot):
             done = True
+
+        # print(pd, is_connected(robot), has_actuator(robot), structure_requirement(robot))
 
     return robot, get_full_connectivity(robot)
 

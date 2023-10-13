@@ -10,12 +10,13 @@ if __name__ == "__main__":
     np.random.seed(seed)
     
     run_ga(
-        pop_size = 3,
+        pop_size = 25,
         structure_shape = (5,5),
-        experiment_name = "test_hunting_ga",
-        max_evaluations = 6,
-        train_iters = 50,
+        experiment_name = "ga_flyer",
+        max_evaluations = 1000,
+        train_iters = 1000,
         num_cores = 3,
+        voxels_pd=np.array([3/8, 1/8, 1/8, 1/8, 1/8, 0, 1/8, 0], np.float64),
         voxels_limits=np.array([-1, -1, -1, -1, -1, 0, 3, 0], np.int64),
         structure_requirement=lambda robot: np.any(robot==VOXEL_TYPES['PRED']),
     )

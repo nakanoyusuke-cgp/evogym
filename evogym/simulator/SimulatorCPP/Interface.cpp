@@ -41,11 +41,13 @@ Interface::Interface(Sim* sim)
 	Interface::objects = sim->environment.get_objects();
 
 	Interface::point_is_colliding = &(sim->environment.point_is_colliding);
+
+    //Vis proc
+    _has_vis_proc = false;
 }
 
 void Interface::init() {
 
-	
 }
 
 GLFWwindow* Interface::get_debug_window_ref(){
@@ -87,6 +89,13 @@ void Interface::render(Camera camera, bool hide_background, bool hide_grid, bool
 		//render_object_points(camera);
 		//render_edge_normals(camera);
 
+        if (/*!hide_vis_lines && */has_vis_proc()){
+//            std::cout << "has_vis_proc" << std::endl;
+            render_vis_lines(camera);
+        }
+        else{
+//            std::cout << "not_has_vis_proc" << std::endl;
+        }
 
 		// Render now
 		glFlush();
@@ -127,6 +136,14 @@ void Interface::render(Camera camera, bool hide_background, bool hide_grid, bool
 			render_boxels(camera);
 		if (!hide_edges)
 			render_edges(camera);
+
+        if (/*!hide_vis_lines && */has_vis_proc()) {
+//            std::cout << "has_vis_proc" << std::endl;
+            render_vis_lines(camera);
+        }
+        else{
+//            std::cout << "not_has_vis_proc" << std::endl;
+        }
 
 		glFlush();
 		glFinish();
@@ -432,6 +449,9 @@ void Interface::render_boxels(Camera camera) {
             if (current->cell_type == CELL_PREY)
                 glColor3f(0.70, 0.90, 0.10);
 
+            if (current->cell_type == CELL_VIS)
+                glColor3f(0.70, 0.10, 0.80);
+
 			if (current->cell_type == CELL_ACT_H) {
 				//glColor3f(0.55, 0.40, 0.25);
 				//glColor3f(255.0/255.0, 185.0/255.0, 56.0/255.0);
@@ -521,7 +541,7 @@ void Interface::render_boxels(Camera camera) {
 
 
 void Interface::render_encoded_boxels(Camera camera){
-	
+
 	Vector2d coord;
 	for (int i = 0; i < objects->size(); i++) {
 		for (int j = 0; j < objects->at(i)->boxels.size(); j++) {
@@ -551,6 +571,54 @@ void Interface::render_encoded_boxels(Camera camera){
 			glEnd();
 		}
 	}
+}
+
+void Interface::render_vis_lines(Camera camera) {
+    auto vis_type = visualProcessor->get_vis_type();
+    if (vis_type == 1){
+        for (int i = 0; i < vis1_cell_types->size(); i++) {
+            glBegin(GL_LINES);
+
+            vector<double> c = get_vis_color(vis1_cell_types->at(i));
+            glColor3f(c[0], c[1], c[2]);
+
+            Vector2d start = camera.world_to_camera(vis1_endpoint_a->at(i));
+            Vector2d end = camera.world_to_camera(vis1_endpoint_b->at(i));
+            glVertex2f(start.x(), start.y());
+            glVertex2f(end.x(), end.y());
+
+            glEnd();
+        }
+    }
+    else if(vis_type == 2){
+        cout << "vis type 2 is not implemented" << endl;
+    }
+    else{
+        cout << "vis type is not exist:" << vis_type << endl;
+    }
+}
+
+vector<double> Interface::get_vis_color(int cell_type) {
+    vector<double> res = {0.0, 0.0, 0.0};
+
+    if (cell_type==CELL_FIXED)
+        res = {0.15, 0.15, 0.15};
+    if (cell_type==CELL_RIGID)
+        res = {0.15, 0.15, 0.15};
+    if (cell_type==CELL_SOFT)
+        res = {0.75, 0.75, 0.75};
+    if (cell_type==CELL_ACT_H)
+        res = {orange[49][0], orange[49][1], orange[49][2]};
+    if (cell_type==CELL_ACT_V)
+        res = {blue[49][0], blue[49][1], blue[49][2]};
+    if (cell_type==CELL_PRED)
+        res = {0.10, 0.90, 0.70};
+    if (cell_type==CELL_PREY)
+        res = {0.70, 0.90, 0.10};
+    if (cell_type==CELL_VIS)
+        res = {0.70, 0.10, 0.80};
+
+    return res;
 }
 
 Interface::color_byte Interface::get_encoded_color(int cell_type) {
@@ -593,6 +661,24 @@ vector<int> Interface::get_debug_window_pos() {
 
 	vector<int> out = { xpos, ypos };
 	return out;
+}
+
+void Interface::set_vis_proc(VisualProcessor *vis_proc) {
+    Interface::visualProcessor = vis_proc;
+
+    // vis1
+    Interface::vis1_cell_types = visualProcessor->get_vis1_types();
+    auto vis1_endpoints = visualProcessor->get_vis1_endpoints();
+    Interface::vis1_endpoint_a = vis1_endpoints[0];
+    Interface::vis1_endpoint_b = vis1_endpoints[1];
+
+    // vis2
+
+    _has_vis_proc = true;
+}
+
+bool Interface::has_vis_proc() {
+    return _has_vis_proc;
 }
 
 Interface::~Interface()

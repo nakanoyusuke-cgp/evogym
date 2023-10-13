@@ -8,19 +8,35 @@ from evogym.envs.hunting.state_handler import StateHandler
 import numpy as np
 import os
 
+DEFAULT_CONFIG = {
+    # task-specific config
+    "SENSING_RANGE": 1.0,
+    "X_INIT_VELOCITY": 1.25,
+    "Y_INIT_VELOCITY": 9.0,
+    "INIT_WAIT_STEPS": 0.0,
+    "JUMP_INTERVAL_STEPS": 60.0,
+    "JUMP_ACCELERATION_STEPS": 10.0,
+    "LANDING_CONTROL_STEPS": 5.0,
+    "GROUND_THRESHOLD": 0.0075,
+
+    # task-common config
+    "REWARD_RANGE": 0.7,
+    "PROGRESSIVE_REWARD": 0.05,
+}
+
 
 class HuntHopper(HuntingBase):
-    SENSING_RANGE = 20.0
-    X_INIT_VELOCITY = 4.0
-    Y_INIT_VELOCITY = 10.0
-    INIT_WAIT_STEPS = 60.0
+    SENSING_RANGE = 1.0
+    X_INIT_VELOCITY = 1.25
+    Y_INIT_VELOCITY = 9.0
+    INIT_WAIT_STEPS = 0.0
     JUMP_INTERVAL_STEPS = 60.0
     JUMP_ACCELERATION_STEPS = 10.0
     LANDING_CONTROL_STEPS = 5.0
     GROUND_THRESHOLD = 0.0075
 
     def change_config(self, config: dict):
-        self.SENSING_X_RANGE = config["SENSING_RANGE"]
+        self.SENSING_RANGE = config["SENSING_RANGE"]
         self.X_INIT_VELOCITY = config["X_INIT_VELOCITY"]
         self.Y_INIT_VELOCITY = config["Y_INIT_VELOCITY"]
         self.INIT_WAIT_STEPS = config["INIT_WAIT_STEPS"]
@@ -39,7 +55,7 @@ class HuntHopper(HuntingBase):
         self.world.add_from_array('prey', np.array([[7]]), 8, 1)
         # self.world.add_from_array('prey', np.array([[7]]), 3, 10)
 
-        HuntingBase.__init__(self, world=self.world)
+        HuntingBase.__init__(self, world=self.world, config=config)
 
         self.state_handler = StateHandler()
 
@@ -109,7 +125,7 @@ class HuntHopper(HuntingBase):
 
         # the prey completely escaped from predatory robot
         prey_com_pos = np.mean(self.object_pos_at_time(self.get_time(), 'prey'), axis=1)
-        if prey_com_pos[0] > 99*self.VOXEL_SIZE:
+        if prey_com_pos[0] > 99 * self.VOXEL_SIZE:
             done = True
             reward = -1
             done_info = 'The simulation was terminated because the prey completely escaped from the predatory robot.'

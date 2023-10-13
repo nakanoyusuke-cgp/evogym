@@ -14,6 +14,7 @@
 #include "Environment.h"
 #include "SimObject.h"
 #include "Camera.h"
+#include "VisualProcessor.h"
 
 #include "Edge.h"
 
@@ -36,6 +37,13 @@ private:
 
 	vector <bool>* point_is_colliding;
 
+    // - vision perception
+    vector <int>* vis1_cell_types;
+    vector <Vector2d>* vis1_endpoint_a;
+    vector <Vector2d>* vis1_endpoint_b;
+    VisualProcessor* visualProcessor;
+    bool _has_vis_proc;
+
 	//COLORS
 	struct color_byte {
 
@@ -56,7 +64,9 @@ private:
 	void render_boxels(Camera camera);
 	void render_grid(Camera camera);
 	void render_encoded_boxels(Camera camera);
+    void render_vis_lines(Camera camera);
 
+    vector<double> get_vis_color(int cell_type);
 
 public:
 
@@ -71,6 +81,9 @@ public:
 	vector<int> get_debug_window_pos();
 
 	GLFWwindow* get_debug_window_ref();
+
+    void set_vis_proc(VisualProcessor* vis_proc);
+    bool has_vis_proc();
 };
 
 #endif // !INTERFACE_H

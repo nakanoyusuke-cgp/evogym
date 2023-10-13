@@ -31,7 +31,16 @@ using namespace Eigen;
 
 enum coord_identifier { VAL_X = 0, VAL_Y = 1 };
 enum direction { TOP = 0, BOT = 1, LEFT = 2, RIGHT = 3, TOP_LEFT = 4, TOP_RIGHT = 5, BOT_LEFT = 6, BOT_RIGHT = 7 };
-enum cell_type { CELL_EMPTY = 0, CELL_RIGID, CELL_SOFT, CELL_ACT_H, CELL_ACT_V, CELL_FIXED, CELL_PRED, CELL_PREY};
+enum cell_type {
+    CELL_EMPTY = 0,
+    CELL_RIGID,
+    CELL_SOFT,
+    CELL_ACT_H,
+    CELL_ACT_V,
+    CELL_FIXED,
+    CELL_PRED,
+    CELL_PREY,
+    CELL_VIS};
 
 const double F_ERROR_TOL = 0.0f;
 

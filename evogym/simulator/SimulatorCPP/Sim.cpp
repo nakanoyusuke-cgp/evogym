@@ -13,7 +13,7 @@ Sim::Sim()
 
 	//OBJECTS
 	creator = ObjectCreator(&environment);
-	
+
 	//SIM VARIABLES
 	sim_time = 0;
 	Sim::is_rendering_enabled = is_rendering_enabled;
@@ -271,7 +271,135 @@ double Sim::ground_on_robot(string above, string under) {
     return environment.ground_on_robot(above, under);
 }
 
+//Ref <VectorXi> Sim::get_vis1_types(){
+//    auto* vp = environment.get_visual_processor();
+//    if (vp->get_vis_type() != 1){
+//        cout << "Error! Method get_vis1_types, which is not available for the current vis_type(" << vp->get_vis_type() << "), was called." << endl;
+//        Vector<int, 1> empty;
+//        empty << 1;
+//        return empty;
+//    }
+//
+//    return Map<Vector<int, Dynamic>>(
+//            vp->get_vis1_types()->data(),
+//            vp->get_vis1_types()->size()
+//            );
+//}
+//
+//Ref <VectorXd> Sim::get_vis1_sqr_dists(){
+//    auto* vp = environment.get_visual_processor();
+//    if (vp->get_vis_type() != 1){
+//        cout << "Error! Method get_vis1_sqr_dists, which is not available for the current vis_type(" << vp->get_vis_type() << "), was called." << endl;
+//        Vector<double, 1> empty;
+//        empty << 1;
+//        return empty;
+//    }
+//
+//    return Map<Vector<double, Dynamic>>(
+//            vp->get_vis1_sqr_depths()->data(),
+//            vp->get_vis1_sqr_depths()->size()
+//    );
+//
+//}
+
+py::array_t<double> Sim::object_boxels_pos(string object_name) {
+    SimObject* obj = environment.get_object(std::move(object_name));
+    Matrix<double, 2, Dynamic>* posptr = environment.get_pos();
+    if (obj == nullptr){
+        cout << "not found object" << endl;
+        py::array_t<double> empty({2, 1});
+        *empty.mutable_data(0, 0) = 0.0;
+        *empty.mutable_data(1, 0) = 0.0;
+        return empty;
+    }
+    int num_boxels = (int)obj->boxels.size();
+    py::array_t<double> boxels_pos({2, num_boxels});
+    for (int i = 0; i < num_boxels; i++){
+        Boxel boxel = obj->boxels[i];
+
+        auto bl = (*posptr).col(boxel.point_bot_left_index);
+        auto br = (*posptr).col(boxel.point_bot_right_index);
+        auto tl = (*posptr).col(boxel.point_top_left_index);
+        auto tr = (*posptr).col(boxel.point_top_right_index);
+        auto center = (bl + br + tl + tr) / 4;
+
+//        auto center = ((*posptr)(all, {boxel.point_bot_left_index, boxel.point_bot_right_index,
+//                boxel.point_top_left_index, boxel.point_top_right_index})).rowwise().mean();
+
+        *boxels_pos.mutable_data(0, i) = center(0);
+        *boxels_pos.mutable_data(1, i) = center(1);
+    }
+    return boxels_pos;
+}
+
+py::array_t<int> Sim::object_boxels_type(string object_name) {
+    SimObject* obj = environment.get_object(std::move(object_name));
+    if (obj == nullptr){
+        cout << "not found object" << endl;
+        py::array_t<int> empty(1);
+        *empty.mutable_data(0) = 0;
+        return empty;
+    }
+    int num_boxels = (int)obj->boxels.size();
+    py::array_t<int> tmp_object_types(num_boxels);
+    for (int i = 0; i < num_boxels; i++){
+        *tmp_object_types.mutable_data(i) = obj->boxels[i].cell_type;
+    }
+    return tmp_object_types;
+}
+
+MatrixXd Sim::object_boxels_pos_eigen(string object_name) {
+    SimObject* obj = environment.get_object(std::move(object_name));
+    Matrix<double, 2, Dynamic> *pos = environment.get_pos();
+    if (obj == nullptr){
+        cout << "not found object" << endl;
+        MatrixXd empty = MatrixXd::Zero(2, 1);
+        empty << 0.0, 0.0;
+        return empty;
+    }
+
+    int num_boxels = (int)obj->boxels.size();
+    std::vector<Boxel> &boxels = obj->boxels;
+
+
+    Matrix<double, 2, Dynamic> res(2, num_boxels);
+    for (int i = 0; i < num_boxels; i++){
+        Boxel& boxel = boxels[i];
+//        res.col(i) = (*pos)(all, {boxel.point_top_left_index, boxel.point_top_right_index,
+//                                  boxel.point_bot_left_index, boxel.point_bot_right_index}).rowwise().mean();
+        auto bl = (*pos).col(boxel.point_bot_left_index);
+        auto br = (*pos).col(boxel.point_bot_right_index);
+        auto tl = (*pos).col(boxel.point_top_left_index);
+        auto tr = (*pos).col(boxel.point_top_right_index);
+//        auto center = (bl + br + tl + tr) / 4;
+        res.col(i) = (bl + br + tl + tr) / 4;
+    }
+
+    return res;
+}
+
+void Sim::add_object_velocity(double x, double y, string object_name){
+    environment.add_object_velocity(x, y, object_name);
+}
+
+void Sim::mul_object_velocity(double m, string object_name) {
+    environment.mul_object_velocity(m, object_name);
+}
+
+void Sim::set_object_velocity(double x, double y, string object_name) {
+    environment.set_object_velocity(x, y, object_name);
+}
+
+py::array_t<int> Sim::get_surface_edges(string object_name){
+    return environment.get_surface_edges(object_name);
+}
+
+double Sim::ground_on_robot(string above, string under) {
+    return environment.ground_on_robot(above, under);
+}
+
 Sim::~Sim()
 {
 }
+
 

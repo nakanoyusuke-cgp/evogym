@@ -14,6 +14,8 @@
 #include "Robot.h"
 #include "Edge.h"
 #include "Snapshot.h"
+//#include "VisualProcessor.h"
+
 
 using namespace std;
 using namespace Eigen;
@@ -57,6 +59,9 @@ private:
 
 	//HISTORY
 	map <long int, Snapshot> history;
+
+//    // VISUAL PERCEPTION
+//    VisualProcessor visualProcessor;
 
 public:
 	Environment();
@@ -104,7 +109,6 @@ public:
 
 	void print_poses();
 
-
 	//vector<Vector2d_old>* getPointsPos();
 	//vector<bool>* getPointsFixed();
 	//vector<double>* getMasses();
@@ -117,6 +121,12 @@ public:
 //    Matrix<int, 2, Dynamic> get_surface_edges(string object_name);
 
     double ground_on_robot(string above, string under);
+
+    // visual perception
+//    const int &get_vis_type();
+//    vector<int> *get_vis1_cell_types();
+//    vector<vector<Vector2d>*> get_vis1_endpoints();
+//    VisualProcessor* get_visual_processor();
 };
 
 #endif // !ENVIRONMENT_H
