@@ -245,6 +245,25 @@ class Job():
         #     group.add_job(save_robot_gif, gif_args, callback=dummy_callback)
         # group.run_jobs(NUM_PROC)
     
+# GIF_RESOLUTION = (1280/5, 720/5)
+# # NUM_PROC = 8
+# if __name__ == '__main__':
+#     exp_root = os.path.join('saved_data')
+#     save_dir = os.path.join(root_dir, 'saved_data', 'all_media')
+# 
+#     my_job = Job(
+#         name = 'test_ga',
+#         experiment_names= ['test_ga'],
+#         env_names = ['Walker-v0'],
+#         ranks = [i for i in range(3)],
+#         load_dir = exp_root,
+#         organize_by_experiment=False,
+#         organize_by_generation=True,
+#     )
+#     
+#     my_job.generate(load_dir=exp_root, save_dir=save_dir)
+
+
 GIF_RESOLUTION = (1280/5, 720/5)
 # NUM_PROC = 8
 if __name__ == '__main__':
@@ -252,13 +271,15 @@ if __name__ == '__main__':
     save_dir = os.path.join(root_dir, 'saved_data', 'all_media')
 
     my_job = Job(
-        name = 'test_ga',
-        experiment_names= ['test_ga'],
-        env_names = ['Walker-v0'],
-        ranks = [i for i in range(3)],
+        name = 'hunting_creeper_ga',
+        experiment_names= ['hunting_creeper_ga'],
+        env_names = ['HuntCreeper-v0'],
+        ranks = [i for i in range(10)],
         load_dir = exp_root,
+        generations = [0, 10, 20, 30, 40, 50, 60, 62],
         organize_by_experiment=False,
         organize_by_generation=True,
     )
-    
+
     my_job.generate(load_dir=exp_root, save_dir=save_dir)
+
