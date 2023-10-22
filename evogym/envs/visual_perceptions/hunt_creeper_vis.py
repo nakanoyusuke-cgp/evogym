@@ -28,7 +28,7 @@ DEFAULT_CONFIG = {
 
 
 class HuntCreeperVis1(HuntCreeper):
-    VIS_LIMIT_LEN = 22.0
+    VIS_LIMIT_LEN = 22.
 
     def __init__(self, body: np.ndarray, connections=None, config=None):
         if config is not None:
@@ -49,7 +49,7 @@ class HuntCreeperVis1(HuntCreeper):
         self.observation_space = spaces.Box(
             low=-100,
             high=100.0,
-            shape=(num_vis_voxels * 2 + num_robot_points,),
+            shape=(num_vis_voxels * 2 + 2 + num_robot_points,),
             dtype=np.float
         )
 
@@ -70,6 +70,7 @@ class HuntCreeperVis1(HuntCreeper):
         obs = np.concatenate((
             vis_types,
             vis_dists,
+            np.mean(self.object_vel_at_time(self.get_time(), 'robot'), axis=1),
             self.get_relative_pos_obs('robot'),
         ))
 
@@ -87,6 +88,7 @@ class HuntCreeperVis1(HuntCreeper):
         obs = np.concatenate((
             vis_types,
             vis_dists,
+            np.mean(self.object_vel_at_time(self.get_time(), 'robot'), axis=1),
             self.get_relative_pos_obs('robot'),
         ))
 
