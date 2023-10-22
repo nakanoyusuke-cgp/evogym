@@ -16,13 +16,13 @@ body, connections = sample_robot((5, 5), pd=pd)
 body = np.array([
     [2, 0, 0, 0, 2],
     [4, 2, 3, 2, 4],
-    [8, 3, 3, 3, 8],
+    [8, 3, 3, 3, 6],
     [4, 3, 0, 3, 4],
-    [8, 0, 0, 0, 8],
+    [6, 0, 0, 0, 8],
 ])
 # print(body)
 
-env_idx = 10
+env_idx = 11
 
 if env_idx == 0:
     env = gym.make('HuntCreeper-v0', body=body)
@@ -32,6 +32,8 @@ elif env_idx == 2:
     env = gym.make('HuntFlyer-v0', body=body)
 elif env_idx == 10:
     env = gym.make('Observer_vis1-v0', body=body)
+elif env_idx == 11:
+    env = gym.make('HuntCreeper_vis1-v0', body=body)
 else:
     exit(1)
 
