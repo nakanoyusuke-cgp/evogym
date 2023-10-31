@@ -244,3 +244,9 @@ register(
     entry_point = 'evogym.envs.visual_perceptions:HuntCreeperVis1',
     max_episode_steps=1000,
 )
+
+register(
+    id = 'HuntCreeper_vis1-v1',
+    entry_point = 'evogym.envs.visual_perceptions:HuntCreeperVis1_Hard',
+    max_episode_steps=1000,
+)

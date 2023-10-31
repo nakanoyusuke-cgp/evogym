@@ -1,2 +1,2 @@
 from evogym.envs.visual_perceptions.observer import ObserverVis1
-from evogym.envs.visual_perceptions.hunt_creeper_vis import HuntCreeperVis1
+from evogym.envs.visual_perceptions.hunt_creeper_vis import HuntCreeperVis1, HuntCreeperVis1_Hard

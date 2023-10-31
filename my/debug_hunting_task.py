@@ -34,6 +34,8 @@ elif env_idx == 10:
     env = gym.make('Observer_vis1-v0', body=body)
 elif env_idx == 11:
     env = gym.make('HuntCreeper_vis1-v0', body=body)
+elif env_idx == 112:
+    env = gym.make("HuntCreeper_vis1-v1", body=body)
 else:
     exit(1)
 
