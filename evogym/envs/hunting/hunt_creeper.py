@@ -14,6 +14,8 @@ DEFAULT_CONFIG = {
     "SENSING_RANGE": 1.0,
     "ESCAPE_VELOCITY": 0.0015,
     "HOPPING": 0.001,
+    "INIT_POS_X": 8,
+    "INIT_POS_Y": 1,
 
     # task-common config
     "REWARD_RANGE": 0.7,
@@ -25,6 +27,8 @@ class HuntCreeper(HuntingBase):
     SENSING_RANGE = 1.0
     ESCAPE_VELOCITY = 0.0015
     HOPPING = 0.001
+    INIT_POS_X = 8
+    INIT_POS_Y = 1
 
     def __init__(self, body: np.ndarray, connections=None, config=None):
         if config is not None:
@@ -33,7 +37,7 @@ class HuntCreeper(HuntingBase):
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
         self.world.add_from_array('robot', body, 1, 1, connections=connections)
-        self.world.add_from_array('prey', np.array([[7]]), 8, 1)
+        self.world.add_from_array('prey', np.array([[7]]), self.INIT_POS_X, self.INIT_POS_Y)
 
         HuntingBase.__init__(self, world=self.world, config=config)
 
@@ -41,6 +45,8 @@ class HuntCreeper(HuntingBase):
         self.SENSING_RANGE = config["SENSING_RANGE"]
         self.ESCAPE_VELOCITY = config["ESCAPE_VELOCITY"]
         self.HOPPING = config["HOPPING"]
+        self.INIT_POS_X = config["INIT_POS_X"]
+        self.INIT_POS_Y = config["INIT_POS_Y"]
 
         print("hunt creeper change config")
 

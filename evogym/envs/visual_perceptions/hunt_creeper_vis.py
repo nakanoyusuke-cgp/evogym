@@ -17,6 +17,8 @@ DEFAULT_CONFIG = {
     "SENSING_RANGE": 1.0,
     "ESCAPE_VELOCITY": 0.0015,
     "HOPPING": 0.001,
+    "INIT_POS_X": 8,
+    "INIT_POS_Y": 1,
 
     # task-common config
     "REWARD_RANGE": 0.7,
@@ -93,3 +95,9 @@ class HuntCreeperVis1(HuntCreeper):
         ))
 
         return obs
+
+
+class HuntCreeperVis1_Hard(HuntCreeperVis1):
+    def __init__(self, body: np.ndarray, connections=None, config=None):
+        self.INIT_POS_X = 18
+        HuntCreeperVis1.__init__(self, body=body, connections=connections, config=config)
