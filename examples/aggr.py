@@ -8,16 +8,23 @@ if __name__ == "__main__":
     median_fitnesses = []
     mean_fitnesses = []
 
-    expr_num = 2
+    # 0, 3, 4, 5
+    expr_num = 5
 
+    # [expr_name, graph_title]
     exprs = [
-        ["hunting_creeper_ga", "Creeper"],
+        ["hunting_creeper_ga", "HuntCreeper"],
         ["ga_hopper", "Hopper"],
         ["ga_flyer", "Flyer"],
+
+        ["obeserver-vis1", "Observer-vis"],
+        ["huntCreeper_vis1", "HuntCreeper-vis"],
+        ["huntCreeper_vis1-v1", "HuntCreeper-vis(distant)"],
     ]
 
     expr, title = exprs[expr_num]
 
+    
     for i in range(63):
         path = "saved_data/" + expr + "/generation_" + str(i) + "/output.txt"
         ary = np.loadtxt(path)[:, 1]
@@ -36,7 +43,7 @@ if __name__ == "__main__":
     plt.plot(x, y3, label="mean")
     plt.title(title)
     plt.ylim(0, 1000)
-    plt.ylabel("fitness", fontsize=16)
+    plt.ylabel("reward", fontsize=16)
     plt.xlabel("generation", fontsize=16)
     plt.legend(fontsize=16)
     plt.show()

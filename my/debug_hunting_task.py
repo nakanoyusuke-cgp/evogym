@@ -14,15 +14,15 @@ pd = np.array([3., 1., 1., 1., 1., 0., 1., 0., 1.])
 body, connections = sample_robot((5, 5), pd=pd)
 
 body = np.array([
-    [2, 0, 0, 0, 2],
-    [4, 2, 3, 2, 4],
-    [8, 3, 3, 3, 6],
-    [4, 3, 0, 3, 4],
-    [6, 0, 0, 0, 8],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0],
+    [1, 1, 3, 1, 0],
+    [4, 8, 2, 3, 4],
+    [3, 1, 0, 3, 6],
 ])
 # print(body)
 
-env_idx = 11
+env_idx = 10
 
 if env_idx == 0:
     env = gym.make('HuntCreeper-v0', body=body)
