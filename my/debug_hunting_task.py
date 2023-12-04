@@ -22,7 +22,7 @@ body = np.array([
 ])
 # print(body)
 
-env_idx = 10
+env_idx = 12
 
 if env_idx == 0:
     env = gym.make('HuntCreeper-v0', body=body)
@@ -36,6 +36,8 @@ elif env_idx == 11:
     env = gym.make('HuntCreeper_vis1-v0', body=body)
 elif env_idx == 112:
     env = gym.make("HuntCreeper_vis1-v1", body=body)
+elif env_idx == 12:
+    env = gym.make("HuntHugeCreeper_vis1-v0", body=body)
 else:
     exit(1)
 
@@ -56,7 +58,7 @@ def tmp_debug(env):
 def step(env, n=1, verbose=False, verbose_interval=1):
     global state
     for i in range(n):
-        action = env.action_space.sample() - 1
+        action = env.action_space.sample() * 0.0
         ob, reward, done, info = env.step(action)
         env.render()
 
@@ -81,6 +83,18 @@ def step(env, n=1, verbose=False, verbose_interval=1):
 
     return ob
 
+
+def check_hunt_rewards(env, n=1):
+    global state
+    for i in range(n):
+        action = env.action_space.sample() * 0.0
+        ob, reward, done, info = env.step(action)
+        env.render()
+
+        print("reward:", reward)
+        # print("info:", info)
+        if done:
+            env.reset()
 
 def print_state(env):
     tmp1 = env.sim.object_boxels_pos('robot')
