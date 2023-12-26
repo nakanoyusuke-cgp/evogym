@@ -8,21 +8,21 @@ from evogym.envs.hunting.state_handler import StateHandler
 import numpy as np
 import os
 
-DEFAULT_CONFIG = {
-    # task-specific config
-    "SENSING_RANGE": 1.0,
-    "X_INIT_VELOCITY": 1.25,
-    "Y_INIT_VELOCITY": 9.0,
-    "INIT_WAIT_STEPS": 0.0,
-    "JUMP_INTERVAL_STEPS": 60.0,
-    "JUMP_ACCELERATION_STEPS": 10.0,
-    "LANDING_CONTROL_STEPS": 5.0,
-    "GROUND_THRESHOLD": 0.0075,
+# DEFAULT_CONFIG = {
+#     # task-specific config
+#     "SENSING_RANGE": 1.0,
+#     "X_INIT_VELOCITY": 1.25,
+#     "Y_INIT_VELOCITY": 9.0,
+#     "INIT_WAIT_STEPS": 0.0,
+#     "JUMP_INTERVAL_STEPS": 60.0,
+#     "JUMP_ACCELERATION_STEPS": 10.0,
+#     "LANDING_CONTROL_STEPS": 5.0,
+#     "GROUND_THRESHOLD": 0.0075,
 
-    # task-common config
-    "REWARD_RANGE": 0.7,
-    "PROGRESSIVE_REWARD": 0.05,
-}
+#     # task-common config
+#     "REWARD_RANGE": 0.7,
+#     "PROGRESSIVE_REWARD": 0.05,
+# }
 
 
 class HuntHopper(HuntingBase):
@@ -35,19 +35,20 @@ class HuntHopper(HuntingBase):
     LANDING_CONTROL_STEPS = 5.0
     GROUND_THRESHOLD = 0.0075
 
-    def change_config(self, config: dict):
-        self.SENSING_RANGE = config["SENSING_RANGE"]
-        self.X_INIT_VELOCITY = config["X_INIT_VELOCITY"]
-        self.Y_INIT_VELOCITY = config["Y_INIT_VELOCITY"]
-        self.INIT_WAIT_STEPS = config["INIT_WAIT_STEPS"]
-        self.JUMP_INTERVAL_STEPS = config["JUMP_INTERVAL_STEPS"]
-        self.JUMP_ACCELERATION_STEPS = config["JUMP_ACCELERATION_STEPS"]
-        self.LANDING_CONTROL_STEPS = config["LANDING_CONTROL_STEPS"]
-        self.GROUND_THRESHOLD = config["GROUND_THRESHOLD"]
+    # def change_config(self, config: dict):
+    #     self.SENSING_RANGE = config["SENSING_RANGE"]
+    #     self.X_INIT_VELOCITY = config["X_INIT_VELOCITY"]
+    #     self.Y_INIT_VELOCITY = config["Y_INIT_VELOCITY"]
+    #     self.INIT_WAIT_STEPS = config["INIT_WAIT_STEPS"]
+    #     self.JUMP_INTERVAL_STEPS = config["JUMP_INTERVAL_STEPS"]
+    #     self.JUMP_ACCELERATION_STEPS = config["JUMP_ACCELERATION_STEPS"]
+    #     self.LANDING_CONTROL_STEPS = config["LANDING_CONTROL_STEPS"]
+    #     self.GROUND_THRESHOLD = config["GROUND_THRESHOLD"]
 
-    def __init__(self, body: np.ndarray, connections=None, config=None):
-        if config is not None:
-            self.change_config(config)
+    def __init__(self, body: np.ndarray, connections=None):
+    # def __init__(self, body: np.ndarray, connections=None, config=None):
+    #     if config is not None:
+    #         self.change_config(config)
 
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
@@ -55,7 +56,8 @@ class HuntHopper(HuntingBase):
         self.world.add_from_array('prey', np.array([[7]]), 8, 1)
         # self.world.add_from_array('prey', np.array([[7]]), 3, 10)
 
-        HuntingBase.__init__(self, world=self.world, config=config)
+        HuntingBase.__init__(self, world=self.world)
+        # HuntingBase.__init__(self, world=self.world, config=config)
 
         self.state_handler = StateHandler()
 

@@ -11,17 +11,26 @@ import os
 class HuntingBase(BenchmarkBase):
     REWARD_RANGE = 0.7
     PROGRESSIVE_REWARD = 0.05
+    ROBOT_POS = [1, 1]
+    PREY_POS = [1, 1]
+    PREY_STRUCTURE = [[7]]
 
-    def change_config(self, config: dict):
-        self.REWARD_RANGE = config["REWARD_RANGE"]
-        self.PROGRESSIVE_REWARD = config["PROGRESSIVE_REWARD"]
+    # def change_config(self, config: dict):
+    #     self.REWARD_RANGE = config["REWARD_RANGE"]
+    #     self.PROGRESSIVE_REWARD = config["PROGRESSIVE_REWARD"]
 
-    def __init__(self, world, config):
-        if config is not None:
-            self.change_config(config=config)
+    def __init__(self, body: np.ndarray, connections=None):
+    # def __init__(self, world, config):
+        # if config is not None:
+        #     self.change_config(config=config)
+
+        # make world
+        self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
+        self.world.add_from_array('robot', body, 1, 1, connections=connections)
+        self.world.add_from_array('prey', np.array([[7]]), self.INIT_POS_X, self.INIT_POS_Y)
 
         # init sim
-        BenchmarkBase.__init__(self, world)
+        BenchmarkBase.__init__(self, self.world)
         self.default_viewer.track_objects('robot', 'prey')
         # self.default_viewer.track_objects(('robot',), ('prey',))
 
