@@ -26,8 +26,10 @@ class HuntingBase(BenchmarkBase):
 
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
-        self.world.add_from_array('robot', body, 1, 1, connections=connections)
-        self.world.add_from_array('prey', np.array([[7]]), self.INIT_POS_X, self.INIT_POS_Y)
+        self.world.add_from_array('robot', body, self.ROBOT_POS[0], self.ROBOT_POS[1], connections=connections)
+        self.world.add_from_array('prey', np.array(self.PREY_STRUCTURE), self.PREY_POS[0], self.PREY_POS[1])
+        # self.world.add_from_array('robot', body, 1, 1, connections=connections)
+        # self.world.add_from_array('prey', np.array([[7]]), self.INIT_POS_X, self.INIT_POS_Y)
 
         # init sim
         BenchmarkBase.__init__(self, self.world)
