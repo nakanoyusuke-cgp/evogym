@@ -51,12 +51,15 @@ class HuntHopper(HuntingBase):
     #         self.change_config(config)
 
         # make world
-        self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
-        self.world.add_from_array('robot', body, 1, 1, connections=connections)
-        self.world.add_from_array('prey', np.array([[7]]), 8, 1)
+        # self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
+        # self.world.add_from_array('robot', body, 1, 1, connections=connections)
+        # self.world.add_from_array('prey', np.array([[7]]), 8, 1)
         # self.world.add_from_array('prey', np.array([[7]]), 3, 10)
 
-        HuntingBase.__init__(self, world=self.world)
+        self.PREY_POS = [8, 1]
+
+        HuntingBase.__init__(self, body=body, connections=connections)
+        # HuntingBase.__init__(self, world=self.world)
         # HuntingBase.__init__(self, world=self.world, config=config)
 
         self.state_handler = StateHandler()
