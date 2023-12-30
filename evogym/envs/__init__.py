@@ -232,20 +232,21 @@ register(
     max_episode_steps=1000,
 )
 
+# baselines
 register(
-    id = 'HuntCreeper-v1.0',
+    id = 'HuntCreeperBaseline-v0',
     entry_point = 'evogym.envs.hunting:HuntCreeperBaseline',
     max_episode_steps = 500,
 )
 
 register(
-    id = 'HuntHopper-v1.0',
+    id = 'HuntHopperBaseline-v0',
     entry_point = 'evogym.envs.hunting:HuntHopperBaseline',
     max_episode_steps = 500,
 )
 
 register(
-    id = 'HuntFlyer-v1.0',
+    id = 'HuntFlyerBaseline-v0',
     entry_point = 'evogym.envs.hunting:HuntFlyerBaseline',
     max_episode_steps = 500,
 )

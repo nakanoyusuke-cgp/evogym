@@ -22,7 +22,7 @@ body = np.array([
 ])
 # print(body)
 
-env_idx = 12
+env_idx = 100
 
 if env_idx == 0:
     env = gym.make('HuntCreeper-v0', body=body)
@@ -41,11 +41,11 @@ elif env_idx == 12:
 
 # baselines
 elif env_idx == 100:
-    env = gym.make("HuntCreeper-v1.0", body=body)
+    env = gym.make("HuntCreeperBaseline-v0", body=body)
 elif env_idx == 101:
-    env = gym.make("HuntHopper-v1.0", body=body)
+    env = gym.make("HuntHopperBaseline-v0", body=body)
 elif env_idx == 102:
-    env = gym.make("HuntFlyer-v1.0", body=body)
+    env = gym.make("HuntFlyerBaseline-v0", body=body)
 else:
     exit(1)
 
