@@ -12,15 +12,17 @@ import os
 
 class HuntCreeperBaseline(HuntCreeper):
     def __init__(self, body: np.ndarray, connections=None):
-        super().__init__(self, body=body, connections=connections)
+        super().__init__(body=body, connections=connections)
 
     def change_params(self):
+        # common
         self.REWARD_RANGE = 0.7
         self.PROGRESSIVE_REWARD = 0.05
         self.ROBOT_POS = [1, 1]
-        self.PREY_POS = [8, 1]
+        self.PREY_POS = [15, 1]
         self.PREY_STRUCTURE = [[7, 7], [7, 7]]
 
+        # task specific
         self.SENSING_RANGE = 1.0
-        self.ESCAPE_VELOCITY = 0.0015
+        self.ESCAPE_VELOCITY = 0.0021
         self.HOPPING = 0.001
