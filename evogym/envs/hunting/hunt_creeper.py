@@ -35,8 +35,6 @@ class HuntCreeper(HuntingBase):
         # if config is not None:
         #     self.change_config(config)
 
-        self.PREY_POS = [8, 1]
-
         # # make world
         # self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
         # self.world.add_from_array('robot', body, 1, 1, connections=connections)
@@ -44,6 +42,10 @@ class HuntCreeper(HuntingBase):
 
         HuntingBase.__init__(self, body=body, connections=connections)
         # HuntingBase.__init__(self, world=self.world, config=config)
+
+    def change_params(self):
+        self.PREY_POS = [8, 1]
+
 
     # def change_config(self, config: dict):
     #     self.SENSING_RANGE = config["SENSING_RANGE"]

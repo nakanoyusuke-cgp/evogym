@@ -24,6 +24,8 @@ class HuntingBase(BenchmarkBase):
         # if config is not None:
         #     self.change_config(config=config)
 
+        self.change_params()
+
         # make world
         self.world = EvoWorld.from_json(os.path.join(self.DATA_PATH, 'Walker-v0.json'))
         self.world.add_from_array('robot', body, self.ROBOT_POS[0], self.ROBOT_POS[1], connections=connections)
@@ -47,6 +49,9 @@ class HuntingBase(BenchmarkBase):
             low=-100, high=100.0, shape=(2 + 2 * num_pred_voxels + 2 + num_robot_points, ), dtype=np.float)
 
         self._sqr_dist_prev = None
+
+    def change_params(self):
+        pass
 
     def reset(self):
         super().reset()

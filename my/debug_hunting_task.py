@@ -38,6 +38,14 @@ elif env_idx == 112:
     env = gym.make("HuntCreeper_vis1-v1", body=body)
 elif env_idx == 12:
     env = gym.make("HuntHugeCreeper_vis1-v0", body=body)
+
+# baselines
+elif env_idx == 100:
+    env = gym.make("HuntCreeper-v1.0", body=body)
+elif env_idx == 101:
+    env = gym.make("HuntHopper-v1.0", body=body)
+elif env_idx == 102:
+    env = gym.make("HuntFlyer-v1.0", body=body)
 else:
     exit(1)
 
