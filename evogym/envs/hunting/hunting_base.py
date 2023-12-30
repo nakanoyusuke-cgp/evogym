@@ -34,9 +34,12 @@ class HuntingBase(BenchmarkBase):
         # self.world.add_from_array('prey', np.array([[7]]), self.INIT_POS_X, self.INIT_POS_Y)
 
         # init sim
-        BenchmarkBase.__init__(self, self.world)
+        self._sim = EvoSim(self.world)
+        self._default_viewer = self.generate_viewer()
         self.default_viewer.track_objects('robot', 'prey')
-        # self.default_viewer.track_objects(('robot',), ('prey',))
+        # BenchmarkBase.__init__(self, self.world)
+        # self.default_viewer.track_objects('robot', 'prey')
+        # # self.default_viewer.track_objects(('robot',), ('prey',))
 
         # set action space and observation space
         num_actuators = self.get_actuator_indices('robot').size
@@ -49,6 +52,9 @@ class HuntingBase(BenchmarkBase):
             low=-100, high=100.0, shape=(2 + 2 * num_pred_voxels + 2 + num_robot_points, ), dtype=np.float)
 
         self._sqr_dist_prev = None
+
+    def generate_viewer(self):
+        return EvoViewer(self._sim)
 
     def change_params(self):
         pass
