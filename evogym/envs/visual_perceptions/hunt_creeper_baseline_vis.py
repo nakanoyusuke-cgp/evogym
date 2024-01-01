@@ -15,7 +15,7 @@ import os
 
 
 class HuntCreeperBaselineVis(HuntCreeperBaseline):
-    VIS_LIMIT_LEN = 22.
+    VIS_LIMIT_LEN = 17.
 
     def __init__(self, body: np.ndarray, connections=None):
         super().__init__(body=body, connections=connections)
@@ -24,7 +24,7 @@ class HuntCreeperBaselineVis(HuntCreeperBaseline):
         # - the action space inherits from "hunting_base"
         # - the observation space has "vis_proc" observations instead prey's positions and velocities
         num_robot_points = self.object_pos_at_time(self.get_time(), "robot").size
-        num_pred_voxels = np.sum((self.object_voxels_type('robot') == VOXEL_TYPES['PRED']), dtype=np.int64)
+        # num_pred_voxels = np.sum((self.object_voxels_type('robot') == VOXEL_TYPES['PRED']), dtype=np.int64)
         self.vis_proc.update_configuration()
         num_vis_voxels = self.vis_proc.get_num_vis_surfaces()
 
@@ -41,9 +41,8 @@ class HuntCreeperBaselineVis(HuntCreeperBaseline):
 
     def generate_viewer(self):
         self.vis_proc = VisualProcessor(1, self.sim, self.VIS_LIMIT_LEN * self.VOXEL_SIZE, -1)
-        self._default_viewer = VisLineViewer(vis_proc=self.vis_proc, sim_to_view=self._sim)
-        self.default_viewer.track_objects('robot', 'prey')
-
+        return VisLineViewer(vis_proc=self.vis_proc, sim_to_view=self._sim)
+        
     def step(self, action: np.ndarray):
         obs, reward, done, info = super().step(action=action)
 
@@ -60,6 +59,9 @@ class HuntCreeperBaselineVis(HuntCreeperBaseline):
             np.mean(self.object_vel_at_time(self.get_time(), 'robot'), axis=1),
             self.get_relative_pos_obs('robot'),
         ))
+
+        info["vis_types"] = vis_types
+        info["vis_dists"] = vis_dists
 
         return obs, reward, done, info
 
@@ -81,14 +83,3 @@ class HuntCreeperBaselineVis(HuntCreeperBaseline):
 
         return obs
         
-    # 1.5**2 + 0.5**2 = 2.5
-    def get_reward(self, prey_pred_diffs, sqr_dist_prev):
-        reward = 0
-        sqr_dist = np.min(np.sum((prey_pred_diffs * prey_pred_diffs), axis=0))
-        if sqr_dist < (self.REWARD_RANGE ** 2):
-            # reward += 0.01 / sqr_dist
-            reward += 0.025 / sqr_dist
-        if sqr_dist < sqr_dist_prev:
-            reward += self.PROGRESSIVE_REWARD
-
-        return np.clip(reward, 0., 1.), sqr_dist

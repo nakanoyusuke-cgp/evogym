@@ -16,7 +16,7 @@ class HuntCreeperBaseline(HuntCreeper):
 
     def change_params(self):
         # common
-        self.REWARD_RANGE = 0.7
+        self.REWARD_RANGE = 0.5
         self.PROGRESSIVE_REWARD = 0.05
         self.ROBOT_POS = [1, 1]
         self.PREY_POS = [15, 1]
@@ -26,3 +26,15 @@ class HuntCreeperBaseline(HuntCreeper):
         self.SENSING_RANGE = 1.0
         self.ESCAPE_VELOCITY = 0.0021
         self.HOPPING = 0.001
+
+    # 1.5**2 + 0.5**2 = 2.5
+    def get_reward(self, prey_pred_diffs, sqr_dist_prev):
+        reward = 0
+        sqr_dist = np.min(np.sum((prey_pred_diffs * prey_pred_diffs), axis=0))
+        if sqr_dist < (self.REWARD_RANGE ** 2):
+            # reward += 0.01 / sqr_dist
+            reward += 0.025 / sqr_dist
+        if sqr_dist < sqr_dist_prev:
+            reward += self.PROGRESSIVE_REWARD
+
+        return np.clip(reward, 0., 1.), sqr_dist

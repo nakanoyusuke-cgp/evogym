@@ -275,3 +275,10 @@ register(
     entry_point = 'evogym.envs.visual_perceptions:HuntHugeCreeperVis1',
     max_episode_steps=1000,
 )
+
+# baselines
+register(
+    id = 'HuntCreeperBaselineVis-v0',
+    entry_point = 'evogym.envs.visual_perceptions:HuntCreeperBaselineVis',
+    max_episode_steps = 500,
+)

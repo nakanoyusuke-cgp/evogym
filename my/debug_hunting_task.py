@@ -16,13 +16,13 @@ body, connections = sample_robot((5, 5), pd=pd)
 body = np.array([
     [0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0],
-    [1, 1, 3, 1, 0],
-    [4, 8, 2, 3, 4],
-    [3, 1, 0, 3, 6],
+    [6, 6, 3, 1, 0],
+    [4, 1, 2, 3, 8],
+    [3, 8, 0, 3, 6],
 ])
 # print(body)
 
-env_idx = 100
+env_idx = 101
 
 if env_idx == 0:
     env = gym.make('HuntCreeper-v0', body=body)
@@ -42,10 +42,18 @@ elif env_idx == 12:
 # baselines
 elif env_idx == 100:
     env = gym.make("HuntCreeperBaseline-v0", body=body)
-elif env_idx == 101:
+elif env_idx == 110:
     env = gym.make("HuntHopperBaseline-v0", body=body)
-elif env_idx == 102:
+elif env_idx == 120:
     env = gym.make("HuntFlyerBaseline-v0", body=body)
+
+elif env_idx == 101:
+    env = gym.make("HuntCreeperBaselineVis-v0", body=body)
+elif env_idx == 111:
+    env = gym.make("HuntHopperBaselineVis-v0", body=body)
+elif env_idx == 121:
+    env = gym.make("HuntFlyerBaselineVis-v0", body=body)
+
 else:
     exit(1)
 
@@ -66,7 +74,8 @@ def tmp_debug(env):
 def step(env, n=1, verbose=False, verbose_interval=1):
     global state
     for i in range(n):
-        action = env.action_space.sample() * 0.0
+        # action = env.action_space.sample() * 0.0
+        action = env.action_space.sample() - 1
         ob, reward, done, info = env.step(action)
         env.render()
 
@@ -96,11 +105,12 @@ def check_hunt_rewards(env, n=1):
     global state
     for i in range(n):
         action = env.action_space.sample() * 0.0
+        # action = env.action_space.sample() -1.0
         ob, reward, done, info = env.step(action)
         env.render()
 
         print("reward:", reward)
-        # print("info:", info)
+        print("info:", info)
         if done:
             env.reset()
 
