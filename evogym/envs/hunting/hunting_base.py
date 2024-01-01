@@ -89,7 +89,9 @@ class HuntingBase(BenchmarkBase):
     def get_prey_pred_diffs(self):
         robot_boxels_pos = self.object_voxels_pos('robot')
         robot_boxels_type = self.object_voxels_type('robot')
-        prey_boxels_pos = self.object_voxels_pos('prey')
+        # prey_boxels_pos = self.object_voxels_pos('prey')
+
+        prey_boxels_pos = self.get_pos_com_obs('prey')[:, np.newaxis]
         pred_boxels_pos = robot_boxels_pos[:, robot_boxels_type == VOXEL_TYPES['PRED']]
         return prey_boxels_pos - pred_boxels_pos
 
