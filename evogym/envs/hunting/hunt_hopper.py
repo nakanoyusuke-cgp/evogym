@@ -78,7 +78,10 @@ class HuntHopper(HuntingBase):
         def jumping_callback(s):
             # ジャンプ
             if s == 0:
-                self.sim.add_object_velocity(self.X_INIT_VELOCITY, self.Y_INIT_VELOCITY, 'prey')
+                if self.get_robot_prey_diff()[0] > 0:
+                    self.sim.add_object_velocity(self.X_INIT_VELOCITY, self.Y_INIT_VELOCITY, 'prey')
+                else:
+                    self.sim.add_object_velocity(-self.X_INIT_VELOCITY, self.Y_INIT_VELOCITY, 'prey')
             else:
                 if s > self.JUMP_ACCELERATION_STEPS and self.is_on_grounding():  # 着地
                     # 着地硬直に移行
