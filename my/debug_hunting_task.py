@@ -14,15 +14,15 @@ pd = np.array([3., 1., 1., 1., 1., 0., 1., 0., 1.])
 body, connections = sample_robot((5, 5), pd=pd)
 
 body = np.array([
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [6, 6, 3, 1, 0],
+    [2, 2, 2, 2, 2],
+    [2, 0, 0, 0, 2],
+    [6, 6, 3, 1, 2],
     [4, 1, 2, 3, 8],
     [3, 8, 0, 3, 6],
 ])
 # print(body)
 
-env_idx = 101
+env_idx = 110
 
 if env_idx == 0:
     env = gym.make('HuntCreeper-v0', body=body)
@@ -74,8 +74,8 @@ def tmp_debug(env):
 def step(env, n=1, verbose=False, verbose_interval=1):
     global state
     for i in range(n):
-        # action = env.action_space.sample() * 0.0
-        action = env.action_space.sample() - 1
+        action = env.action_space.sample() * 0.0
+        # action = env.action_space.sample() - 1
         ob, reward, done, info = env.step(action)
         env.render()
 
