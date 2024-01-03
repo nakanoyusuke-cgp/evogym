@@ -22,7 +22,7 @@ body = np.array([
 ])
 # print(body)
 
-env_idx = 110
+env_idx = 120
 
 if env_idx == 0:
     env = gym.make('HuntCreeper-v0', body=body)
