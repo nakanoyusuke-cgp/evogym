@@ -16,15 +16,17 @@ class HuntFlyerBaseline(HuntFlyer):
         # super().__init__(body, connections)
         HuntingBase.__init__(self, body=body, connections=connections)
 
-        self.INIT_WAIT = 20
+        self.INIT_WAIT = 10
+        # self.INIT_WAIT = 0
         self.SENSING_RANGE = 1.0
+        # self.SENSING_RANGE = 100.0
         self.HOP_ACC_STEP = 10
-        self.X_HOP_ACC = 1.
-        self.Y_HOP_ACC = 13.
+        self.X_HOP_ACC = 0.65
+        self.Y_HOP_ACC = 12.
         self.FLAP_ACC_STEP = 10
-        self.X_FLAP_ACC = 1.
-        self.Y_FLAP_ACC = 13.
-        self.Y_FLAP_HEIGHT = 0.6
+        self.X_FLAP_ACC = 0.65
+        self.Y_FLAP_ACC = 12.
+        self.Y_FLAP_HEIGHT = 0.4
         self.FLAP_MIN_INTERVAL = 30
         self.VELOCITY_SUPPRESSION_MULTIPLIER = 0.2
         self.GROUND_THRESHOLD = 0.0075
@@ -120,21 +122,8 @@ class HuntFlyerBaseline(HuntFlyer):
         self.REWARD_RANGE = 0.5
         self.PROGRESSIVE_REWARD = 0.05
         self.ROBOT_POS = [1, 1]
-        self.PREY_POS = [15, 7]
+        self.PREY_POS = [15, 6]
         self.PREY_STRUCTURE = [[7, 7], [7, 7]]
-
-        # # task specific
-        # SENSING_X_RANGE = 1.0
-        # X_ACCELERATION = 0.35
-        # Y_ACCELERATION = 12.0
-        # X_ACCELERATION_DISPERSION = 0.1
-        # Y_ACCELERATION_DISPERSION = 0.3
-        # Y_FLAP_HEIGHT = 0.6
-        # Y_FLAP_HEIGHT_DISPERSION = 0.05
-        # FLAP_MIN_INTERVAL = 30.0
-        # VELOCITY_SUPPRESSION_MULTIPLIER = 0.5
-        # X_RANDOM_FLAP_RANGE = 0.3
-        # ACCELERATION_STEP = 10
 
     # 1.5**2 + 0.5**2 = 2.5
     def get_reward(self, prey_pred_diffs, sqr_dist_prev):
