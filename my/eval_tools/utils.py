@@ -1,5 +1,14 @@
 import numpy as np
+import pandas as pd
 import base64
+import os, sys
+
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.join(curr_dir, '../../examples/save_data/')
+sys.path.insert(0, root_dir)
+
+expr_name = ""
+env_name = ""
 
 
 def to_genecode(body: np.array) -> str:
@@ -12,11 +21,26 @@ def to_genecode(body: np.array) -> str:
         str_n += str(e)
     return base64.b64encode(int(str_n, 7).to_bytes(9, "big")).decode()
 
-def to_body(genecode: str) -> np.array:
-    pass
+def make_df():
+    # column: [generation, genecode, rank, fitness, n_empty_voxel, n_soft_voxels, n_hard_voxels, n_h_act_voxels, n_v_act_voxels, n_pred_voxels, n_vis_voxels]
+    generations = []
+    genecodes = []
+    ranks = []
+    fitnesses = []
+    bodies = []
+    n_empty_voxels = []
+    n_soft_voxels = []
+    n_hard_voxels = []
+    n_h_act_voxels = []
+    n_v_act_voxels = []
+    n_pred_voxels = []
+    n_vis_voxels = []
 
-def to_bit():
-    pass
+    
+    n_generations = 
+    
+
+    df = pd.DataFrame()
 
 
 if __name__ == "__main__":
