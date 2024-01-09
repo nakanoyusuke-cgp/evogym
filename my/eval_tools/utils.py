@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import base64
 import os, sys
 
@@ -47,6 +48,26 @@ def get_exp_gen_data(exp_name, load_dir, gen):
         robot_data.append((int(line.split()[0]), float(line.split()[1])))
     return robot_data
 
+def get_n_vis_lines(body: np.ndarray):
+    result = 0
+    padded_body = np.pad(body, 1)
+    for i, e in enumerate(body.reshape(-1)):
+        if e != 6:
+            continue
+        x = i % 5 + 1
+        y = i // 5 + 1
+
+        if padded_body[y][x+1] == 0:
+            result += 1
+        if padded_body[y+1][x] == 0:
+            result += 1
+        if padded_body[y-1][x] == 0:
+            result += 1
+        if padded_body[y][x-1] == 0:
+            result += 1
+
+    return result
+
 def make_df():
     # column: [generation, genecode, rank, fitness, n_empty_voxel, n_soft_voxels, n_hard_voxels, n_h_act_voxels, n_v_act_voxels, n_pred_voxels, n_vis_voxels]
     generations = []
@@ -56,17 +77,18 @@ def make_df():
     fitnesses = []
     bodies = []
     n_empty_voxels = []
+    n_rigid_voxels = []
     n_soft_voxels = []
-    n_hard_voxels = []
     n_h_act_voxels = []
     n_v_act_voxels = []
     n_pred_voxels = []
     n_vis_voxels = []
+    n_vis_lines = []
 
     # gen_list = os.listdir(os.path.join(load_dir, expr_name))
     gen_list = get_generations(load_dir=load_dir, exp_name=expr_name)
-    gen_list = [0]
-    
+    # gen_list = [0]
+
     # print(get_generations(load_dir=load_dir, exp_name=expr_name))
     # print(get_exp_gen_data(exp_name=expr_name, load_dir=load_dir, gen=0))
 
@@ -90,15 +112,25 @@ def make_df():
                 -1,  # PREY
                 6,   # VIS
             ]
-            body_for_genecode = body
+            f = np.frompyfunc(lambda x: _map[np.int64(x)], 1, 1)
+
+            body_for_genecode = f(body)
             # -1 check
             genecode = to_genecode(body=body_for_genecode)
             
-            
-            # for debug
-            print(rank, idx, reward)
-            print(body)
-            print(genecode)
+            n_voxel_types = [0] * 7
+            for e in body_for_genecode.reshape(-1):
+                n_voxel_types[e] += 1
+
+            n_vis_line = get_n_vis_lines(body=body_for_genecode)
+
+            # # for debug
+            # print(rank, idx, reward)
+            # print(body)
+            # print(body_for_genecode)
+            # print(genecode)
+            # print(n_voxel_types)
+            # print(n_vis_line)
 
             generations += [g]
             genecodes += [genecode]
@@ -106,36 +138,107 @@ def make_df():
             ranks += [rank]
             fitnesses += [reward]
             bodies += [body]
-            n_empty_voxels += []
-            n_soft_voxels += []
-            n_hard_voxels += []
-            n_h_act_voxels += []
-            n_v_act_voxels += []
-            n_pred_voxels += []
-            n_vis_voxels += []
-
+            n_empty_voxels += [n_voxel_types[0]]
+            n_rigid_voxels += [n_voxel_types[1]]
+            n_soft_voxels += [n_voxel_types[2]]
+            n_h_act_voxels += [n_voxel_types[3]]
+            n_v_act_voxels += [n_voxel_types[4]]
+            n_pred_voxels += [n_voxel_types[5]]
+            n_vis_voxels += [n_voxel_types[6]]
+            n_vis_lines += [n_vis_line]
     
-    # print(curr_dir)
-    # print(os.path.join(curr_dir, ".."))
-    # print(os.path.abspath(os.path.join(curr_dir, "../..")))
-    # print(root_dir)
+    df = pd.DataFrame({
+        'generation': generations,
+        'genecode': genecodes,
+        'index': indices,
+        'rank': ranks,
+        'fitness': fitnesses,
+        'body': bodies,
+        'n_empty_voxels': n_empty_voxels,
+        'n_rigid_voxels': n_rigid_voxels,
+        'n_soft_voxels': n_soft_voxels,
+        'n_h_act_voxels': n_h_act_voxels,
+        'n_v_act_voxels': n_v_act_voxels,
+        'n_pred_voxels': n_pred_voxels,
+        'n_vis_voxels': n_vis_voxels,
+        'n_vis_lines': n_vis_lines,
+    })
 
+    return df
 
+def add_column_survive_terms(df: pd.DataFrame):
+    df['survive_terms'] = 0
+    for index, items in df.iterrows():
+        # df.loc[index, 'survive_terms'] = 1
+        # 世代を抽出, 前の世代で同じコードの個体があればsurvivetermを加算
+        # 同じ個体が複数いた場合は一旦エラー
 
-    n_generations = None
+        generation = items['generation']
+        if generation == 0:
+            continue
+        
+        m = df[(df['generation'] == generation - 1)]
+        m = m[m['genecode'] == items['genecode']]
+        # m = df[(df['generation'] == generation - 1) & df['genecode'] == items['genecode']]
+        if len(m) > 1:
+            print("error: utils.py l.184")
 
+        if len(m) == 1:
+            df.loc[index, 'survive_terms'] = m['survive_terms'].values[0] + 1
 
+def reward_graph(df):
+    pass
 
-    # for g in range(n_generations):
-    #     pass
+def reward_scatter(df, title):
+    x1 = df[df['survive_terms']>0]['generation']
+    y1 = df[df['survive_terms']>0]['fitness']
+    x2 = df[df['survive_terms']<=0]['generation']
+    y2 = df[df['survive_terms']<=0]['fitness']
+    plt.scatter(x1, y1, c='blue', linewidths=0.01)
+    plt.scatter(x2, y2, c='orange', linewidths=0.01)
+    plt.title(title)
+    plt.ylim(0, 1000)
+    plt.ylabel("reward", fontsize=16)
+    plt.xlabel("generation", fontsize=16)
+    plt.show()
+
+def vis_lines_scatter(df, title):
+    x1 = df[df['survive_terms']>0]['generation']
+    y1 = df[df['survive_terms']>0]['n_vis_lines']
+    x2 = df[df['survive_terms']<=0]['generation']
+    y2 = df[df['survive_terms']<=0]['n_vis_lines']
+    plt.scatter(x1, y1, c='blue', linewidths=0.01)
+    plt.scatter(x2, y2, c='orange', linewidths=0.01)
+    plt.title(title)
+    plt.ylim(0, 13)
+    plt.ylabel("number of vis-lines", fontsize=16)
+    plt.xlabel("generation", fontsize=16)
+    plt.show()
     
-    # df = pd.DataFrame()
+def survive_hist(df, title):
+    x = df['generation']
+    y = df['survive_terms']
+    plt.bar(x, y, width=1.0)
+    plt.title(title)
+    # plt.ylim(0, 13)
+    plt.ylabel("survive_terms", fontsize=16)
+    plt.xlabel("survive_terms", fontsize=16)
+    plt.show()
+
 
 
 if __name__ == "__main__":
-    # for i in range(50):
-    #     body =  np.random.randint(0, 7, (5,5))
-    #     gc = to_genecode(body)
-    #     print(gc)
+    df = make_df()
+    add_column_survive_terms(df=df)
 
-    make_df()
+    # 報酬グラフ作成
+
+
+    # 報酬散布図作成
+    reward_scatter(df, 'test')
+
+    # 視線数散布図
+    vis_lines_scatter(df, 'test')
+
+    # 生存期間ダイアグラム
+
