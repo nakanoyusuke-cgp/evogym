@@ -17,12 +17,12 @@ body = np.array([
     [2, 2, 2, 2, 2],
     [2, 0, 0, 0, 2],
     [6, 6, 3, 1, 2],
-    [4, 1, 2, 3, 8],
-    [3, 8, 0, 3, 6],
+    [4, 1, 0, 3, 8],
+    [6, 8, 0, 3, 6],
 ])
 # print(body)
 
-env_idx = 120
+env_idx = 102
 
 if env_idx == 0:
     env = gym.make('HuntCreeper-v0', body=body)
@@ -53,6 +53,9 @@ elif env_idx == 111:
     env = gym.make("HuntHopperBaselineVis-v0", body=body)
 elif env_idx == 121:
     env = gym.make("HuntFlyerBaselineVis-v0", body=body)
+
+elif env_idx == 102:
+    env = gym.make("HuntCreeperBaselineVis-v1", body=body)
 
 else:
     exit(1)
@@ -110,7 +113,7 @@ def check_hunt_rewards(env, n=1):
         env.render()
 
         print("reward:", reward)
-        print("info:", info)
+        # print("info:", info)
         if done:
             env.reset()
 
@@ -122,6 +125,14 @@ def print_state(env):
     print(tmp1[:, tmp2 == 6])
 
 # ---
-
+#
+# env = gym.make("HuntCreeperBaselineVis-v1", body=body)
+# for i in range(1):
+#     env.seed(1)
+#     l = []
+#     for i in range(1):
+#         env.reset()
+#         l += [env.init_prey_x_pos]
+#     print(l)
 
 # step(env, 100)

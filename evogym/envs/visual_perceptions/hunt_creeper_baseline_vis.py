@@ -1,4 +1,5 @@
 from gym import spaces
+from gym.utils import seeding
 
 from evogym import *
 from evogym import np
@@ -83,3 +84,44 @@ class HuntCreeperBaselineVis(HuntCreeperBaseline):
 
         return obs
         
+
+class HuntCreeperBaselineVisRandomPop(HuntCreeperBaselineVis):
+    PREY_X_POS_LIST = [61, 36]
+
+    def __init__(self, body: np.ndarray, connections=None):
+        self.body = body
+        self.connections = connections
+
+        super().__init__(body=body, connections=connections)
+
+        self.init_prey_x_pos = None
+        self.generator = None
+        self._seed = None
+        self.seed()
+
+    def seed(self, seed=None):
+        self.generator, self._seed = seeding.np_random(seed)
+        return [self._seed]
+
+    def get_seed(self):
+        return self._seed
+
+    def change_params(self):
+        super().change_params()
+        self.ROBOT_POS = [47, 1]
+        self.PREY_POS = [0, 1]
+
+    def randomize_prey_position(self):
+        pos_idx = self.generator.choice([0, 1])
+        self.init_prey_x_pos = self.PREY_X_POS_LIST[pos_idx]
+        self.world.move_object("prey", self.init_prey_x_pos, 1)
+
+        # init sim
+        self._sim = EvoSim(self.world)
+        self._default_viewer = self.generate_viewer()
+        self.default_viewer.track_objects('robot', 'prey')
+
+    def reset(self):
+        self.default_viewer.hide_debug_window()
+        self.randomize_prey_position()
+        return super().reset()
