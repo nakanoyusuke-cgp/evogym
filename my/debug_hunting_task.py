@@ -5,10 +5,9 @@ import evogym.envs
 from evogym import sample_robot
 import numpy as np
 import random
+import os
+import sys
 
-# seed = 3
-# random.seed(seed)
-# np.random.seed(seed)
 
 pd = np.array([3., 1., 1., 1., 1., 0., 1., 0., 1.])
 body, connections = sample_robot((5, 5), pd=pd)
