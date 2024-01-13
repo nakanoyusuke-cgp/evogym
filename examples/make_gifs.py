@@ -264,12 +264,12 @@ class Job():
 #     my_job.generate(load_dir=exp_root, save_dir=save_dir)
 
 
-# GIF_RESOLUTION = (1280/5, 720/5)
-GIF_RESOLUTION = (1280, 720)
+GIF_RESOLUTION = (1280/5, 720/5)
+# GIF_RESOLUTION = (1280, 720)
 # NUM_PROC = 8
 if __name__ == '__main__':
     exp_root = os.path.join('saved_data')
-    save_dir = os.path.join(root_dir, 'saved_data', 'all_media')
+    save_dir = os.path.join(root_dir, 'saved_data', 'all_media/baselines')
 
     # my_job = Job(
     #     name = 'huntCreeper_vis1-v1',

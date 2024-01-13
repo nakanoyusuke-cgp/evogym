@@ -28,6 +28,7 @@ def to_genecode(body: np.array) -> str:
         str_n += str(e)
     return base64.b64encode(int(str_n, 7).to_bytes(9, "big")).decode()
 
+
 def get_generations(load_dir, exp_name):
     gen_list = os.listdir(os.path.join(load_dir, exp_name))
     gen_count = 0
@@ -40,6 +41,7 @@ def get_generations(load_dir, exp_name):
         gen_count += 1
     return [i for i in range(gen_count)]
 
+
 def get_exp_gen_data(exp_name, load_dir, gen):
     robot_data = []
     gen_data_path = os.path.join(load_dir, exp_name, f"generation_{gen}", "output.txt")
@@ -47,6 +49,7 @@ def get_exp_gen_data(exp_name, load_dir, gen):
     for line in f:
         robot_data.append((int(line.split()[0]), float(line.split()[1])))
     return robot_data
+
 
 def get_n_vis_lines(body: np.ndarray):
     result = 0
@@ -67,6 +70,7 @@ def get_n_vis_lines(body: np.ndarray):
             result += 1
 
     return result
+
 
 def make_df():
     # column: [generation, genecode, rank, fitness, n_empty_voxel, n_soft_voxels, n_hard_voxels, n_h_act_voxels, n_v_act_voxels, n_pred_voxels, n_vis_voxels]
@@ -166,6 +170,7 @@ def make_df():
 
     return df
 
+
 def add_column_survive_terms(df: pd.DataFrame):
     df['survive_terms'] = 0
     for index, items in df.iterrows():
@@ -186,14 +191,30 @@ def add_column_survive_terms(df: pd.DataFrame):
         if len(m) == 1:
             df.loc[index, 'survive_terms'] = m['survive_terms'].values[0] + 1
 
-def reward_graph(df):
-    pass
+
+def reward_graph(df, title):
+    y_mean = df.groupby('generation')['fitness'].mean()
+    y_max = df.groupby('generation')['fitness'].max()
+    y_median = df.groupby('generation')['fitness'].median()
+    x = np.arange(len(y_mean))
+    
+    plt.plot(x, y_max, label="max")
+    plt.plot(x, y_median, label="median")
+    plt.plot(x, y_mean, label="mean")
+    plt.title(title)
+    plt.ylim(0, 1000)
+    plt.ylabel("reward", fontsize=16)
+    plt.xlabel("generation", fontsize=16)
+    plt.legend(fontsize=16)
+    plt.show()
+
 
 def reward_scatter(df, title):
     x1 = df[df['survive_terms']>0]['generation']
     y1 = df[df['survive_terms']>0]['fitness']
     x2 = df[df['survive_terms']<=0]['generation']
     y2 = df[df['survive_terms']<=0]['fitness']
+
     plt.scatter(x1, y1, c='blue', linewidths=0.01)
     plt.scatter(x2, y2, c='orange', linewidths=0.01)
     plt.title(title)
@@ -202,11 +223,13 @@ def reward_scatter(df, title):
     plt.xlabel("generation", fontsize=16)
     plt.show()
 
+
 def vis_lines_scatter(df, title):
     x1 = df[df['survive_terms']>0]['generation']
     y1 = df[df['survive_terms']>0]['n_vis_lines']
     x2 = df[df['survive_terms']<=0]['generation']
     y2 = df[df['survive_terms']<=0]['n_vis_lines']
+
     plt.scatter(x1, y1, c='blue', linewidths=0.01)
     plt.scatter(x2, y2, c='orange', linewidths=0.01)
     plt.title(title)
@@ -214,7 +237,36 @@ def vis_lines_scatter(df, title):
     plt.ylabel("number of vis-lines", fontsize=16)
     plt.xlabel("generation", fontsize=16)
     plt.show()
-    
+
+
+def vis_lines_surface(df, title):
+    # 視線の数がどう変化するかをとらえる
+    df.groupby("generation")
+    df2 = df.groupby(['generation', 'n_vis_lines']).count()
+    df3 = df2.reset_index().pivot('generation', 'n_vis_lines', 'genecode').fillna(0)
+
+    x = df3.index
+    y = df3.values.T
+    labels = df3.columns
+
+    plt.stackplot(x, y, labels=labels)
+    plt.show()
+
+
+def vis_lines_hist(df, title):
+    # アルゴリズム改良によって視線ボクセルを使ったロボットが成熟することを示したい
+    pass
+
+
+def vis_line_graph(df, title):
+    # 視線ボクセルを使ったロボットが成熟することを示したい
+    # 折れ線グラフ
+    # 視線数の平均をプロット
+    # new-bornの平均が
+    # survivor, new-born, all
+    pass
+
+
 def survive_hist(df, title):
     x = df['generation']
     y = df['survive_terms']
@@ -226,19 +278,21 @@ def survive_hist(df, title):
     plt.show()
 
 
-
 if __name__ == "__main__":
     df = make_df()
     add_column_survive_terms(df=df)
 
-    # 報酬グラフ作成
+    # # 報酬グラフ作成
+    # reward_graph(df, 'test')
 
+    # # 報酬散布図作成
+    # reward_scatter(df, 'test')
 
-    # 報酬散布図作成
-    reward_scatter(df, 'test')
+    # # 視線数散布図
+    # vis_lines_scatter(df, 'test')
 
-    # 視線数散布図
-    vis_lines_scatter(df, 'test')
+    # 視線数面グラフ
+    vis_lines_surface(df, 'test')
 
-    # 生存期間ダイアグラム
+    # # 生存期間ダイアグラム
 
