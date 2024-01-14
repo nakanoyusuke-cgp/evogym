@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import japanize_matplotlib
 import matplotlib.pyplot as plt
 import base64
 import os, sys
@@ -13,9 +14,6 @@ sys.path.insert(1, load_dir)
 
 
 expr_name = "obeserver-vis1"
-env_name = ""
-
-save_dir = ""
 
 
 def to_genecode(body: np.array) -> str:
@@ -192,7 +190,7 @@ def add_column_survive_terms(df: pd.DataFrame):
             df.loc[index, 'survive_terms'] = m['survive_terms'].values[0] + 1
 
 
-def reward_graph(df, title):
+def reward_graph(df, title, save_path):
     y_mean = df.groupby('generation')['fitness'].mean()
     y_max = df.groupby('generation')['fitness'].max()
     y_median = df.groupby('generation')['fitness'].median()
@@ -201,98 +199,136 @@ def reward_graph(df, title):
     plt.plot(x, y_max, label="max")
     plt.plot(x, y_median, label="median")
     plt.plot(x, y_mean, label="mean")
-    plt.title(title)
+    plt.title(title, fontsize=18)
     plt.ylim(0, 1000)
     plt.ylabel("reward", fontsize=16)
     plt.xlabel("generation", fontsize=16)
     plt.legend(fontsize=16)
+    plt.savefig(save_path)
     plt.show()
 
 
-def reward_scatter(df, title):
+def reward_scatter(df, title, save_path):
     x1 = df[df['survive_terms']>0]['generation']
     y1 = df[df['survive_terms']>0]['fitness']
     x2 = df[df['survive_terms']<=0]['generation']
     y2 = df[df['survive_terms']<=0]['fitness']
 
-    plt.scatter(x1, y1, c='blue', linewidths=0.01)
-    plt.scatter(x2, y2, c='orange', linewidths=0.01)
-    plt.title(title)
+    plt.scatter(x1, y1, c='blue', linewidths=0.01, label='survivors')
+    plt.scatter(x2, y2, c='orange', linewidths=0.01, label='new-born')
+    plt.title(title, fontsize=18)
     plt.ylim(0, 1000)
     plt.ylabel("reward", fontsize=16)
     plt.xlabel("generation", fontsize=16)
+    plt.legend(fontsize=16)
+    plt.savefig(save_path)
     plt.show()
 
 
-def vis_lines_scatter(df, title):
-    x1 = df[df['survive_terms']>0]['generation']
-    y1 = df[df['survive_terms']>0]['n_vis_lines']
-    x2 = df[df['survive_terms']<=0]['generation']
-    y2 = df[df['survive_terms']<=0]['n_vis_lines']
-
-    plt.scatter(x1, y1, c='blue', linewidths=0.01)
-    plt.scatter(x2, y2, c='orange', linewidths=0.01)
-    plt.title(title)
-    plt.ylim(0, 13)
-    plt.ylabel("number of vis-lines", fontsize=16)
-    plt.xlabel("generation", fontsize=16)
-    plt.show()
-
-
-def vis_lines_surface(df, title):
-    # 視線の数がどう変化するかをとらえる
-    df.groupby("generation")
-    df2 = df.groupby(['generation', 'n_vis_lines']).count()
-    df3 = df2.reset_index().pivot('generation', 'n_vis_lines', 'genecode').fillna(0)
-
-    x = df3.index
-    y = df3.values.T
-    labels = df3.columns
-
-    plt.stackplot(x, y, labels=labels)
-    plt.show()
-
-
-def vis_lines_hist(df, title):
-    # アルゴリズム改良によって視線ボクセルを使ったロボットが成熟することを示したい
-    pass
-
-
-def vis_line_graph(df, title):
+def vis_line_graph(df, title, save_path):
     # 視線ボクセルを使ったロボットが成熟することを示したい
     # 折れ線グラフ
     # 視線数の平均をプロット
     # new-bornの平均が
     # survivor, new-born, all
-    pass
+    y_nb = df[df['survive_terms'] <= 0][['generation', 'n_vis_lines']].groupby('generation').mean()['n_vis_lines']
+    y_sv = df[df['survive_terms'] > 0][['generation', 'n_vis_lines']].groupby('generation').mean()['n_vis_lines']
+    y_all = df[['generation', 'n_vis_lines']].groupby('generation').mean()['n_vis_lines']
+    x_nb = np.arange(len(y_nb))
+    x_sv = np.arange(len(y_sv))
+    x_all = np.arange(len(y_all))
+    plt.plot(x_nb, y_nb, label='new-born')
+    plt.plot(x_sv, y_sv, label='survivors')
+    plt.plot(x_all, y_all, label='all')
+    plt.title(title, fontsize=18)
+    plt.ylabel("number of vis-lines", fontsize=16)
+    plt.xlabel("generation", fontsize=16)
+    plt.legend(fontsize=16)
+    plt.savefig(save_path)
+    plt.show()
 
 
-def survive_hist(df, title):
-    x = df['generation']
-    y = df['survive_terms']
+def survive_hist(df, title, save_path):
+    # x:term, y:pop
+
+    # エラー確認
+    if df.groupby(['genecode', 'survive_terms']).count()['generation'].max() != 1:
+        print("Error")
+        exit(1)
+
+    survive_terms = df[['genecode', 'survive_terms']].groupby('genecode').max()
+
+    x = []
+    y = []
+
+    # ---
+
+    for g in range(survive_terms.max()[0]+1):
+        x += [g]
+        y += [len(survive_terms[survive_terms['survive_terms']>=g])]
+
+    x = np.array(x)
+    y = np.array(y)
+
+    # ---
+
+    # st = survive_terms.reset_index()
+    # st = st.groupby('survive_terms').count()
+    # x = st.index
+    # y = st
+
+    # ---
+
     plt.bar(x, y, width=1.0)
-    plt.title(title)
+    plt.title(title, fontsize=18)
     # plt.ylim(0, 13)
-    plt.ylabel("survive_terms", fontsize=16)
-    plt.xlabel("survive_terms", fontsize=16)
+    plt.ylabel("population", fontsize=16)
+    plt.xlabel("survive_terms(accumulated)", fontsize=16)
+    plt.savefig(save_path)
     plt.show()
 
 
 if __name__ == "__main__":
-    df = make_df()
-    add_column_survive_terms(df=df)
 
-    # # 報酬グラフ作成
-    # reward_graph(df, 'test')
+    # N_EXPR = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    N_EXPR = [0]
 
-    # # 報酬散布図作成
-    # reward_scatter(df, 'test')
+    EXPR = [
+        # [expr_name, env_name, save_name,]
+        ["obeserver-vis1",          "Observer-vis"],        # 0
+        ["huntCreeperBaseline",     "HuntCreeper"],         # 1
+        ["huntCreeperBaselineVis",  "HuntCreeper-vis"],     # 2
+        ["huntHopperBaseline",      "HuntHopper"],          # 3
+        ["huntHopperBaselineVis",   "HuntHopper-vis"],      # 4
+        ["huntFlyerBaseline",       "HuntFlyer"],           # 5
+        ["huntFlyerBaselineVis",    "HuntFlyer-vis"],       # 6
+        ["huntCreeperBaselineVisRandomPop", "HuntCreeper-vis (Random Spawn)"],  # 7
+        ["huntCreeperBaselineVis-ms", "HuntCreeper-vis (More Survive)"],        # 8
+    ]
 
-    # # 視線数散布図
-    # vis_lines_scatter(df, 'test')
+    # ---
 
-    # 視線数面グラフ
-    vis_lines_surface(df, 'test')
+    for n_expr in N_EXPR:
+        expr_name = EXPR[n_expr][0]
+        expr_name_for_report = EXPR[n_expr][1]
 
-    # # 生存期間ダイアグラム
+        df = make_df()
+        add_column_survive_terms(df=df)
+
+        # 報酬グラフ作成
+        save_path = 'plots/reward_graph(' + expr_name + ').png'
+        reward_graph(df, '報酬値の統計量推移\n' + expr_name_for_report, save_path)
+
+        # 報酬散布図作成
+        save_path = 'plots/reward_scatter(' + expr_name + ').png'
+        reward_scatter(df, '報酬値散布図\n' + expr_name_for_report, save_path)
+
+        # 視線本数グラフ
+        save_path = 'plots/vis_line_graph(' + expr_name + ').png'
+        vis_line_graph(df, '平均視線本数の推移\n' + expr_name_for_report, save_path)
+
+        # 生存期間ヒストグラム
+        save_path = 'plots/survive_hist(' + expr_name + ').png'
+        survive_hist(df, '累積生存期間別の個体数\n' + expr_name_for_report, save_path)
+
 
