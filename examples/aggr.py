@@ -9,7 +9,7 @@ if __name__ == "__main__":
     mean_fitnesses = []
 
     # 0, 3, 4, 5
-    expr_num = 5
+    expr_num = 3
 
     # [expr_name, graph_title]
     exprs = [
