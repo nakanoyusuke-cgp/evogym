@@ -276,6 +276,18 @@ register(
     max_episode_steps=1000,
 )
 
+register(
+    id = 'HuntHopperVis-v0',
+    entry_point = 'evogym.envs.visual_perceptions:HuntHopperVis',
+    max_episode_steps=1000,
+)
+
+register(
+    id = 'HuntFlyerVis-v0',
+    entrypoint = 'evogym.envs.visual_perceptions:HuntFlyerVis',
+    max_episode_steps=1000,
+)
+
 # baselines
 register(
     id = 'HuntCreeperBaselineVis-v0',

@@ -1,5 +1,7 @@
 from evogym.envs.visual_perceptions.observer import ObserverVis1
 from evogym.envs.visual_perceptions.hunt_creeper_vis import HuntCreeperVis1, HuntCreeperVis1_Hard, HuntHugeCreeperVis1
+from evogym.envs.visual_perceptions.hunt_hopper_vis import HuntHopperVis
+from evogym.envs.visual_perceptions.hunt_flyer_vis import HuntFlyerVis
 from evogym.envs.visual_perceptions.hunt_creeper_baseline_vis import HuntCreeperBaselineVis, HuntCreeperBaselineVisRandomPop
 from evogym.envs.visual_perceptions.hunt_hopper_baseline_vis import HuntHopperBaselineVis
 from evogym.envs.visual_perceptions.hunt_flyer_baseline_vis import HuntFlyerBaselineVis

@@ -56,7 +56,7 @@ class HuntHopper(HuntingBase):
         # self.world.add_from_array('prey', np.array([[7]]), 8, 1)
         # self.world.add_from_array('prey', np.array([[7]]), 3, 10)
 
-        self.PREY_POS = [8, 1]
+        # self.PREY_POS = [8, 1]
 
         HuntingBase.__init__(self, body=body, connections=connections)
         # HuntingBase.__init__(self, world=self.world)
