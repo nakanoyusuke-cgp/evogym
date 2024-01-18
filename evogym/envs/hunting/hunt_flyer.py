@@ -163,6 +163,14 @@ class HuntFlyer(HuntingBase):
         self.state_handler.add_state(name="random_flap", callback=random_flap_callback)
         self.state_handler.set_state(name="free_fall")
 
+    def change_params(self):
+        super().change_params()
+        self.REWARD_RANGE = 0.7
+        self.PROGRESSIVE_REWARD = 0.05
+        self.ROBOT_POS = [1, 1]
+        self.PREY_POS = [8, 7]
+        self.PREY_STRUCTURE = [[7]]
+
     def step(self, action: np.ndarray):
         # step
         done = super().step({'robot': action})

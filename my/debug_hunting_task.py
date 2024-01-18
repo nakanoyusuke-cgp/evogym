@@ -21,22 +21,26 @@ body = np.array([
 ])
 # print(body)
 
-env_idx = 102
+env_idx = 31
 
-if env_idx == 0:
+if env_idx == 1:
     env = gym.make('HuntCreeper-v0', body=body)
-elif env_idx == 1:
-    env = gym.make('HuntHopper-v0', body=body)
 elif env_idx == 2:
+    env = gym.make('HuntHopper-v0', body=body)
+elif env_idx == 3:
     env = gym.make('HuntFlyer-v0', body=body)
-elif env_idx == 10:
+elif env_idx == 0:
     env = gym.make('Observer_vis1-v0', body=body)
 elif env_idx == 11:
     env = gym.make('HuntCreeper_vis1-v0', body=body)
-elif env_idx == 112:
-    env = gym.make("HuntCreeper_vis1-v1", body=body)
 elif env_idx == 12:
+    env = gym.make("HuntCreeper_vis1-v1", body=body)
+elif env_idx == 13:
     env = gym.make("HuntHugeCreeper_vis1-v0", body=body)
+elif env_idx == 21:
+    env = gym.make("HuntHopperVis-v0", body=body)
+elif env_idx == 31:
+    env = gym.make("HuntFlyerVis-v0", body=body)
 
 # baselines
 elif env_idx == 100:
