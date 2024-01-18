@@ -20,7 +20,7 @@ if __name__ == "__main__":
     run_ga(
         pop_size = 25,
         structure_shape = (5,5),
-        experiment_name = "huntCreeperBaselineVis",
+        experiment_name = "huntCreeperBaselineVis-ms",
         max_evaluations = 500,
         train_iters = 1000,
         num_cores = 3,

@@ -172,7 +172,7 @@ def pretty_print(list_org, max_name_length=30):
 def get_percent_survival_evals(curr_eval, max_evals):
     low = 0.0
     high = 0.6
-    return ((max_evals-curr_eval-1)/(max_evals-1)) * (high-low) + low
+    return ((max_evals-curr_eval-1)/(max_evals-1)) ** (1/3) * (high-low) + low
 
 def total_robots_explored_breakpoints_evals(pop_size, max_evals):
     
