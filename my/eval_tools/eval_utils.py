@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import time
 import japanize_matplotlib
 import matplotlib.pyplot as plt
 import base64
@@ -13,6 +14,9 @@ sys.path.insert(0, root_dir)
 sys.path.insert(1, load_dir)
 
 
+INTERVAL = 4.0
+
+
 expr_name = "obeserver-vis1"
 
 
@@ -24,7 +28,7 @@ def to_genecode(body: np.array) -> str:
     str_n = ''
     for e in body.astype(np.int64).reshape(-1):
         str_n += str(e)
-    return base64.b64encode(int(str_n, 7).to_bytes(9, "big")).decode()
+    return base64.b64encode(int(str_n, 7).to_bytes(9, "big"), altchars=b"+@").decode()
 
 
 def get_generations(load_dir, exp_name):
@@ -292,26 +296,57 @@ def survive_hist(df, title, save_path, limit_survive_terms):
 if __name__ == "__main__":
     exec_test = False
 
-    # N_EXPR = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-    N_EXPR = [0, 1, 2, 3, 4, 5, 6]
+    # N_EXPR = [
+    #     0,
+    #     1, 2, 3, 4, 5, 6, 7,
+    #     8, 9, 10, 11, 12, 13, 14, 15
+    # ]
 
-    limit_survive_terms = 40
+    N_EXPR = [
+        0,
+        1, 2, 3, 4, 6,
+        8, 9, 10, 11, 12, 13,
+        14, 15
+    ]
+
+    limit_survive_terms = 43
     nvl_y_lim = [0, 10]
 
     EXPR = [
         # [expr_name, save_name, episode_steps, is_vis_task]
-        ["obeserver-vis1",          "Observer-vis",     1000,   True,   ],  # 0
-        ["huntCreeperBaseline",     "HuntCreeper",      500,    False,  ],  # 1
-        ["huntCreeperBaselineVis",  "HuntCreeper-vis",  500,    True,   ],  # 2
-        ["huntHopperBaseline",      "HuntHopper",       500,    False,  ],  # 3
-        ["huntHopperBaselineVis",   "HuntHopper-vis",   500,    True,   ],  # 4
-        ["huntFlyerBaseline",       "HuntFlyer",        500,    False,  ],  # 5
-        ["huntFlyerBaselineVis",    "HuntFlyer-vis",    500,    True,   ],  # 6
-        ["huntCreeperBaselineVisRandomPop", "HuntCreeper-vis (Random Spawn)",   500,    True],  # 7
-        ["huntCreeperBaselineVis-ms", "HuntCreeper-vis (More Survive)", 500,    True],        # 8
+        ["obeserver-vis1",          "(a)Observer-vis",         1000,   True,   ],  # 0
+
+        ["hunting_creeper_ga",      "(b)HuntCreeper",          1000,   False,  ],  # 1
+        ["huntCreeper_vis1",        "(c)HuntCreeper-vis",      1000,   True,   ],  # 2
+        ["huntCreeper_vis1-v1", "(d)HuntCreeper-vis (Distant)",1000,   True,   ],  # 3
+        ["ga_hopper",               "(e)HuntHopper",           1000,   False,  ],  # 4
+        ["huntHopperVis",           "(f)HuntHopper-vis",       1000,   True,   ],  # 5
+        ["ga_flyer",                "(g)HuntFlyer",            1000,   False,  ],  # 6
+        ["huntFlyerVis",            "(h)HuntFlyer-vis",        1000,   True,   ],  # 7
+
+        ["huntCreeperBaseline",     "(i)HuntLargeCreeper",      500,    False, ],  # 8
+        ["huntCreeperBaselineVis",  "(j)HuntLargeCreeper-vis",  500,    True,  ],  # 9
+        ["huntHopperBaseline",      "(k)HuntLargeHopper",       500,    False, ],  # 10
+        ["huntHopperBaselineVis",   "(l)HuntLargeHopper-vis",   500,    True,  ],  # 11
+        ["huntFlyerBaseline",       "(m)HuntLargeFlyer",        500,    False, ],  # 12
+        ["huntFlyerBaselineVis",    "(n)HuntLargeFlyer-vis",    500,    True,  ],  # 13
+        ["huntCreeperBaselineVisRandom",
+                    "(o)HuntLargeCreeper-vis (Random Spawn)",   500,    True,  ],  # 14
+        ["huntCreeperBaselineVis-ms",
+                    "(p)HuntLargeCreeper-vis (More Survive)",   500,    True,  ],  # 15
     ]
 
     # ---
+
+    n_plots = 0
+    count_plot = 0
+    for n_expr in N_EXPR:
+        if EXPR[n_expr][3]:
+            n_plots += 4
+        else:
+            n_plots += 3
+
+    print("plot", n_plots, "graphs")
 
     for n_expr in N_EXPR:
         expr_name = EXPR[n_expr][0]
@@ -326,27 +361,36 @@ if __name__ == "__main__":
 
             # ---
 
-            print(df['n_vis_lines'].max())
+            print(expr_name, "v_vis_lines:", df['n_vis_lines'].max())
+            print(expr_name, "survive_terms:", df['survive_terms'].max())
 
             # ---
 
             continue
 
         # 報酬グラフ作成
+        count_plot += 1
+        print("plot:", expr_name, "reward_graph", f"({count_plot}/{n_plots})")
         save_path = 'plots/reward_graph(' + expr_name + ').png'
         reward_graph(df, '報酬値の統計量推移\n' + expr_name_for_report, save_path, ylim=episode_steps)
 
         # 報酬散布図作成
+        count_plot += 1
+        print("plot:", expr_name, "reward_scatter", f"({count_plot}/{n_plots})")
         save_path = 'plots/reward_scatter(' + expr_name + ').png'
         reward_scatter(df, '報酬値散布図\n' + expr_name_for_report, save_path, ylim=episode_steps)
 
         if is_vis_task:
             # 視線本数グラフ
+            count_plot += 1
+            print("plot:", expr_name, "vis_line_graph", f"({count_plot}/{n_plots})")
             save_path = 'plots/vis_line_graph(' + expr_name + ').png'
             vis_line_graph(df, '平均視線本数の推移\n' + expr_name_for_report, save_path, y_lim=nvl_y_lim)
 
         # 生存期間ヒストグラム
+        count_plot += 1
+        print("plot:", expr_name, "survive_hist", f"({count_plot}/{n_plots})")
         save_path = 'plots/survive_hist(' + expr_name + ').png'
-        survive_hist(df, '累積生存期間別の個体数\n' + expr_name_for_report, save_path, limit_survive_terms=limit_survive_terms)
+        survive_hist(df, '誕生後の経過世代数に対する生存個体数\n' + expr_name_for_report, save_path, limit_survive_terms=limit_survive_terms)
 
-
+        time.sleep(INTERVAL)
