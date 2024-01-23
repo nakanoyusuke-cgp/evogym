@@ -26,3 +26,6 @@ req_ns.txt
 examples/plots
 evogym/simulator/cmake-build-debug
 /my/eval_tools/plots/
+/my/eval_tools/designs/
+/my/eval_tools/media/
+/my/eval_tools/snapshots/
