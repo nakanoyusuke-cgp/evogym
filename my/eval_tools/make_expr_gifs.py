@@ -2,9 +2,11 @@ import os, sys
 
 # pycharmの設定でroot\examples\をpathに追加済み
 
-from make_gifs import Job, GIF_RESOLUTION
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+content_root = os.path.abspath(os.path.join(curr_dir, "../../"))
+examples = os.path.join(content_root, "examples")
 
-GIF_RESOLUTION = (1280/5, 720/5)
+sys.path.insert(0, examples)
 
 
 # 0(observer)は過去の出力を使う
@@ -13,7 +15,7 @@ N_EXPR = [
     # 1, 2, 3, 4, 5, 6, 7,
     # 8, 9, 10, 11, 12, 13,
     # 14, 15,
-    0, 1, 2, 3, 4, 6
+    1, 2, 3, 4, 6
 ]
 
 
@@ -25,7 +27,8 @@ RANKS = {
 GENERATIONS = {
 
     # -1: [i for i in range(31)],
-    -1: [i for i in range(63)],
+    # -1: [i for i in range(63)],
+    -1: [0, 10, 20, 30, 40, 50, 60, 62],
 }
 
 
@@ -56,6 +59,9 @@ EXPR = [
 
 
 if __name__ == '__main__':
+    import make_gifs
+    make_gifs.GIF_RESOLUTION = (1280/5, 720/5)
+
     curr_dir = os.path.dirname(os.path.abspath(__file__))
     load_dir = os.path.abspath(os.path.join(curr_dir, "../../examples/saved_data/"))
     save_dir = os.path.join(load_dir, 'all_media')
@@ -80,7 +86,7 @@ if __name__ == '__main__':
 
         # print("Gif resolution", GIF_RESOLUTION)
 
-        my_job = Job(
+        my_job = make_gifs.Job(
             name=EXPR[expr][2],
             experiment_names=[EXPR[expr][0]],
             env_names=[EXPR[expr][1]],

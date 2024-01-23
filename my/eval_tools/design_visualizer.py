@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 import eval_utils
-import make_expr_gifs
+from make_expr_gifs import EXPR as EXPR_LIST
 import make_snapshot
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -14,9 +14,9 @@ DEFAULT_IDC_F = [1, 100, 200, 300, 400, 498]
 
 
 def get_gif_save_dir(expr_name):
-    expr_dict = {e_name: s_dir for e_name, _, s_dir in make_expr_gifs.EXPR}
+    expr_dict = {e_name: s_dir for e_name, _, s_dir in EXPR_LIST}
     save_dir = expr_dict[expr_name]
-    return os.path.join(content_root, "examples/saved_data/all_media/baselines", save_dir)
+    return os.path.join(content_root, "examples/saved_data/all_media", save_dir)
 
 
 def create_tile_image_with_contours(array, color_map, cell_size=50):
@@ -138,20 +138,21 @@ if __name__ == "__main__":
 
     for expr in EXPR:
         if len(expr[1]) == 0:
+            print("skipped: ", expr[0])
             continue
 
         expr_name = expr[0]
         eval_utils.expr_name = expr_name
         df = eval_utils.make_df()
         for ind in expr[1]:
-            r = ind[0]
-            g = ind[1]
+            g = ind[0]
+            r = ind[1]
             idc_f = DEFAULT_IDC_F if len(ind) == 2 else ind[2]
 
             # robot designs
             robot = df[(df["generation"] == g) & (df["rank"] == r)]
             if len(robot) != 1:
-                print("error")
+                print("error, robots have same generation and rank or no robots, (g,r):", (g, r))
                 exit(1)
             genecode = robot["genecode"].values[0]
             arr = robot["body"].values[0]
@@ -160,7 +161,9 @@ if __name__ == "__main__":
             img.save(os.path.join(curr_dir, "designs", f"{expr_name}-g{g}r{r}-{genecode}.png"))
 
             # snapshots
-            expr_media_path = get_gif_save_dir(expr_name)
-            ss_save_path = os.path.join(curr_dir, "snapshors", f"{expr_name}-g{g}r{r}-{genecode}.png")
+            # expr_media_path = get_gif_save_dir(expr_name)
+            gif_dir = make_snapshot.expr_name_to_gif_path(expr_name)
+            expr_media_path = os.path.join(content_root, "examples/saved_data/all_media", gif_dir)
+            ss_save_path = os.path.join(curr_dir, "snapshots", f"{expr_name}-g{g}r{r}-{genecode}.png")
             ss = make_snapshot.make_snapshot(expr_media_path, generation=g, rank=r, indices_of_frame=idc_f)
             ss.save(ss_save_path)
