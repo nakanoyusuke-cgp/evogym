@@ -71,19 +71,19 @@ if __name__ == "__main__":
     EXPR = [
         # [expr_name, [gen, rank]]
         ["obeserver-vis1",[
-            # [60, 0], [0, 1], [30, 9]
+            [60, 0], [0, 1], [30, 9]
         ]],  # 0
 
         ["hunting_creeper_ga",[
-            # [20, 4], [60, 0]
+            [20, 4], [60, 0]
         ]],  # 1
 
         ["huntCreeper_vis1",[
-            # [60, 0], [60, 7]
+            [60, 0], [60, 7]
         ]],  # 2
 
         ["huntCreeper_vis1-v1",[
-            # [60, 0]
+            [60, 0]
         ]],  # 3
 
         ["ga_hopper",[
@@ -103,32 +103,32 @@ if __name__ == "__main__":
         ]],  # 7
 
         ["huntCreeperBaseline",[
-            # [30, 0], [30, 8]
+            [30, 0], [30, 8]
         ]],  # 8
 
         ["huntCreeperBaselineVis",[
-            # [30, 0]
+            [30, 0]
         ]],  # 9
 
         ["huntHopperBaseline",[
-            # [30, 0], [8, 2], [17, 4]
+            [30, 0], [8, 2], [17, 4]
         ]],  # 10
 
         ["huntHopperBaselineVis",[
-            # [30, 0], [17, 1], [11, 4]
+            [30, 0], [17, 1], [11, 4]
         ]],  # 11
 
         ["huntFlyerBaseline",[
-            # [23, 0]
+            [23, 0]
         ]],  # 12
 
         ["huntFlyerBaselineVis",[
-            # [29, 6], [28, 9], [22, 4]
+            [29, 6], [28, 9], [22, 4]
         ]],  # 13
 
         ["huntCreeperBaselineVisRandom",[
             [22, 1],
-            # [20, 2], [15, 8]
+            [20, 2], [15, 8]
         ]],  # 14
 
         ["huntCreeperBaselineVis-ms",[

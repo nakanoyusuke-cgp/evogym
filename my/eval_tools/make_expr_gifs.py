@@ -58,7 +58,7 @@ EXPR = [
 if __name__ == '__main__':
     curr_dir = os.path.dirname(os.path.abspath(__file__))
     load_dir = os.path.abspath(os.path.join(curr_dir, "../../examples/saved_data/"))
-    save_dir = os.path.join(load_dir, 'all_media/baselines')
+    save_dir = os.path.join(load_dir, 'all_media')
 
     for expr in N_EXPR:
         if RANKS.keys().__contains__(expr):

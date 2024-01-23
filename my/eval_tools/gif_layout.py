@@ -9,23 +9,22 @@ sys.path.insert(0, root_dir)
 media_root = os.path.join(root_dir, r"examples\saved_data\all_media")
 
 expr_media_paths = [
-    # [r"baselines\huntCreeperBaseline",      [i for i in range(31)],],
-    # [r"baselines\huntCreeperBaseline",      [i for i in range(31)],],
-    # [r"baselines\huntCreeperBaselineVis",  [i for i in range(31)],],
-    # [r"baselines\huntHopperBaseline",       [i for i in range(31)],],
-    # [r"baselines\huntHopperBaselineVis",   [i for i in range(31)],],
-    # [r"baselines\huntFlyerBaseline",        [i for i in range(31)],],
-    # [r"baselines\huntFlyerBaselineVis",    [i for i in range(31)],],
+    # [r"huntCreeperBaseline",      [i for i in range(31)],],
+    # [r"huntCreeperBaselineVis",  [i for i in range(31)],],
+    # [r"huntHopperBaseline",       [i for i in range(31)],],
+    # [r"huntHopperBaselineVis",   [i for i in range(31)],],
+    # [r"huntFlyerBaseline",        [i for i in range(31)],],
+    # [r"huntFlyerBaselineVis",    [i for i in range(31)],],
 
-    # [r"baselines\huntCreeperBaseline",      [i for i in range(31)],],
-    # [r"baselines\huntCreeperBaselineVis",  [i for i in range(31)],],
-    # [r"baselines\huntHopperBaseline",       [i for i in range(31)],],
-    # [r"baselines\huntHopperBaselineVis",   [i for i in range(31)],],
-    # [r"baselines\huntFlyerBaseline",        [i for i in range(31)],],
-    # [r"baselines\huntFlyerBaselineVis",    [i for i in range(31)],],
+    # [r"huntCreeperBaseline",      [i for i in range(31)],],
+    # [r"huntCreeperBaselineVis",  [i for i in range(31)],],
+    # [r"huntHopperBaseline",       [i for i in range(31)],],
+    # [r"huntHopperBaselineVis",   [i for i in range(31)],],
+    # [r"huntFlyerBaseline",        [i for i in range(31)],],
+    # [r"huntFlyerBaselineVis",    [i for i in range(31)],],
 
-    [r"baselines\HuntLargeCreeper-vis (Random Spawn) high res",    [i for i in range(31)],],
-    # [r"baselines\HuntLargeCreeper-vis (More Survive)",    [i for i in range(31)],],
+    [r"HuntLargeCreeper-vis (Random Spawn) high res",    [i for i in range(31)],],
+    # [r"HuntLargeCreeper-vis (More Survive)",    [i for i in range(31)],],
 ]
 
 # 結合したGIF画像を保存するフォルダのパスを指定します
