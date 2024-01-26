@@ -194,42 +194,44 @@ def add_column_survive_terms(df: pd.DataFrame):
             df.loc[index, 'survive_terms'] = m['survive_terms'].values[0] + 1
 
 
-def reward_graph(df, title, save_path, ylim):
+def reward_graph(df, title, ylim, layout_type):
     y_mean = df.groupby('generation')['fitness'].mean()
     y_max = df.groupby('generation')['fitness'].max()
     y_median = df.groupby('generation')['fitness'].median()
     x = np.arange(len(y_mean))
 
+    title_font_size = 18 if layout_type == 2 else 24
+    label_font_size = 16 if layout_type == 2 else 22
+
     plt.plot(x, y_max, label="max")
     plt.plot(x, y_median, label="median")
     plt.plot(x, y_mean, label="mean")
-    plt.title(title, fontsize=18)
+    plt.title(title, fontsize=title_font_size)
     plt.ylim(0, ylim)
-    plt.ylabel("reward", fontsize=16)
-    plt.xlabel("generation", fontsize=16)
+    plt.ylabel("reward", fontsize=label_font_size)
+    plt.xlabel("generation", fontsize=label_font_size)
     plt.legend(fontsize=16)
-    plt.savefig(save_path)
-    plt.show()
 
 
-def reward_scatter(df, title, save_path, ylim):
+def reward_scatter(df, title, ylim, layout_type):
     x1 = df[df['survive_terms']>0]['generation']
     y1 = df[df['survive_terms']>0]['fitness']
     x2 = df[df['survive_terms']<=0]['generation']
     y2 = df[df['survive_terms']<=0]['fitness']
 
+    title_font_size = 18 if layout_type == 2 else 24
+    label_font_size = 16 if layout_type == 2 else 22
+
     plt.scatter(x1, y1, c='blue', linewidths=0.01, label='survivors')
     plt.scatter(x2, y2, c='orange', linewidths=0.01, label='new-born')
-    plt.title(title, fontsize=18)
+    plt.title(title, fontsize=title_font_size)
     plt.ylim(0, ylim)
-    plt.ylabel("reward", fontsize=16)
-    plt.xlabel("generation", fontsize=16)
+    plt.ylabel("reward", fontsize=label_font_size)
+    plt.xlabel("generation", fontsize=label_font_size)
     plt.legend(fontsize=16)
-    plt.savefig(save_path)
-    plt.show()
 
 
-def vis_line_graph(df, title, save_path, y_lim):
+def vis_line_graph(df, title, y_lim, layout_type):
     # 視線ボクセルを使ったロボットが成熟することを示したい
     # 折れ線グラフ
     # 視線数の平均をプロット
@@ -241,19 +243,21 @@ def vis_line_graph(df, title, save_path, y_lim):
     x_nb = np.arange(len(y_nb))
     x_sv = np.arange(len(y_sv))
     x_all = np.arange(len(y_all))
+
+    title_font_size = 18 if layout_type == 2 else 24
+    label_font_size = 16 if layout_type == 2 else 22
+
     plt.plot(x_nb, y_nb, label='new-born')
     plt.plot(x_sv, y_sv, label='survivors')
     plt.plot(x_all, y_all, label='all')
-    plt.title(title, fontsize=18)
-    plt.ylabel("number of vis-lines", fontsize=16)
-    plt.xlabel("generation", fontsize=16)
+    plt.title(title, fontsize=title_font_size)
+    plt.ylabel("number of vis-lines", fontsize=label_font_size)
+    plt.xlabel("generation", fontsize=label_font_size)
     plt.ylim(y_lim)
     plt.legend(fontsize=16)
-    plt.savefig(save_path)
-    plt.show()
 
 
-def survive_hist(df, title, save_path, limit_survive_terms):
+def survive_hist(df, title, limit_survive_terms, layout_type):
     # x:term, y:pop
 
     # エラー確認
@@ -266,35 +270,26 @@ def survive_hist(df, title, save_path, limit_survive_terms):
     x = []
     y = []
 
-    # ---
-
     for g in range(survive_terms.max()[0]+1):
         x += [g]
-        y += [len(survive_terms[survive_terms['survive_terms']>=g])]
+        y += [len(survive_terms[survive_terms['survive_terms'] >= g])]
 
     x = np.array(x)
     y = np.array(y)
 
-    # ---
-
-    # st = survive_terms.reset_index()
-    # st = st.groupby('survive_terms').count()
-    # x = st.index
-    # y = st
-
-    # ---
+    title_font_size = 18 if layout_type == 2 else 24
+    label_font_size = 16 if layout_type == 2 else 22
 
     plt.bar(x, y, width=1.0)
-    plt.title(title, fontsize=18)
-    plt.ylabel("population", fontsize=16)
-    plt.xlabel("survive_terms(accumulated)", fontsize=16)
+    plt.title(title, fontsize=title_font_size)
+    plt.ylabel("population", fontsize=label_font_size)
+    plt.xlabel("survive_terms(accumulated)", fontsize=label_font_size)
     plt.xlim((0, limit_survive_terms))
-    plt.savefig(save_path)
-    plt.show()
 
 
 if __name__ == "__main__":
     exec_test = False
+    save_graph = False
 
     # N_EXPR = [
     #     0,
@@ -303,37 +298,41 @@ if __name__ == "__main__":
     # ]
 
     N_EXPR = [
-        0,
-        1, 2, 3, 4, 6,
-        8, 9, 10, 11, 12, 13,
-        14, 15
+        # 0,
+        # 1, 2, 3, 4, 5, 6,
+        # 7,
+        # 8, 9, 10, 11, 12, 13,
+        # 14,
+        2,
     ]
 
     limit_survive_terms = 43
     nvl_y_lim = [0, 10]
 
     EXPR = [
-        # [expr_name, save_name, episode_steps, is_vis_task]
-        ["obeserver-vis1",          "(a)Observer-vis",         1000,   True,   ],  # 0
+        # [index, expr_name, save_name, episode_steps, is_vis_task, layout_type]
+        ["1-1", "obeserver-vis1",          "(a)Observer-vis",         1000,   True,  2],  # 0
 
-        ["hunting_creeper_ga",      "(b)HuntCreeper",          1000,   False,  ],  # 1
-        ["huntCreeper_vis1",        "(c)HuntCreeper-vis",      1000,   True,   ],  # 2
-        ["huntCreeper_vis1-v1", "(d)HuntCreeper-vis (Distant)",1000,   True,   ],  # 3
-        ["ga_hopper",               "(e)HuntHopper",           1000,   False,  ],  # 4
-        ["huntHopperVis",           "(f)HuntHopper-vis",       1000,   True,   ],  # 5
-        ["ga_flyer",                "(g)HuntFlyer",            1000,   False,  ],  # 6
-        ["huntFlyerVis",            "(h)HuntFlyer-vis",        1000,   True,   ],  # 7
+        ["2-1", "hunting_creeper_ga",      "(b)HuntCreeper",          1000,   False, 3],  # 1
+        ["2-2", "huntCreeper_vis1",        "(c)HuntCreeper-vis",      1000,   True,  3],  # 2
+        ["2-3", "ga_hopper",               "(d)HuntHopper",           1000,   False, 3],  # 3
+        ["2-4", "huntHopperVis",           "(e)HuntHopper-vis",       1000,   True,  3],  # 4
+        ["2-5", "ga_flyer",                "(f)HuntFlyer",            1000,   False, 3],  # 5
+        ["2-6", "huntFlyerVis",            "(g)HuntFlyer-vis",        1000,   True,  3],  # 6
 
-        ["huntCreeperBaseline",     "(i)HuntLargeCreeper",      500,    False, ],  # 8
-        ["huntCreeperBaselineVis",  "(j)HuntLargeCreeper-vis",  500,    True,  ],  # 9
-        ["huntHopperBaseline",      "(k)HuntLargeHopper",       500,    False, ],  # 10
-        ["huntHopperBaselineVis",   "(l)HuntLargeHopper-vis",   500,    True,  ],  # 11
-        ["huntFlyerBaseline",       "(m)HuntLargeFlyer",        500,    False, ],  # 12
-        ["huntFlyerBaselineVis",    "(n)HuntLargeFlyer-vis",    500,    True,  ],  # 13
-        ["huntCreeperBaselineVisRandom",
-                    "(o)HuntLargeCreeper-vis (Random Spawn)",   500,    True,  ],  # 14
-        ["huntCreeperBaselineVis-ms",
-                    "(p)HuntLargeCreeper-vis (More Survive)",   500,    True,  ],  # 15
+        ["3-1", "huntCreeper_vis1-v1", "(h)HuntCreeper-vis (Distant)",1000,   True,  2],  # 7
+
+        ["4-1", "huntCreeperBaseline",     "(i)HuntLargeCreeper",      500,   False, 3],  # 8
+        ["4-2", "huntCreeperBaselineVis",  "(j)HuntLargeCreeper-vis",  500,   True,  3],  # 9
+        ["4-3", "huntHopperBaseline",      "(k)HuntLargeHopper",       500,   False, 3],  # 10
+        ["4-4", "huntHopperBaselineVis",   "(l)HuntLargeHopper-vis",   500,   True,  3],  # 11
+        ["4-5", "huntFlyerBaseline",       "(m)HuntLargeFlyer",        500,   False, 3],  # 12
+        ["4-6", "huntFlyerBaselineVis",    "(n)HuntLargeFlyer-vis",    500,   True,  3],  # 13
+
+        ["5-1", "huntCreeperBaselineVisRandom",
+                    "(o)HuntLargeCreeper-vis (Random Spawn)",   500,    True,  2],  # 14
+        ["5-2", "huntCreeperBaselineVis-ms",
+                    "(p)HuntLargeCreeper-vis (More Survive)",   500,    True,  2],  # 15
     ]
 
     # ---
@@ -341,7 +340,7 @@ if __name__ == "__main__":
     n_plots = 0
     count_plot = 0
     for n_expr in N_EXPR:
-        if EXPR[n_expr][3]:
+        if EXPR[n_expr][4]:
             n_plots += 4
         else:
             n_plots += 3
@@ -349,10 +348,12 @@ if __name__ == "__main__":
     print("plot", n_plots, "graphs")
 
     for n_expr in N_EXPR:
-        expr_name = EXPR[n_expr][0]
-        expr_name_for_report = EXPR[n_expr][1]
-        episode_steps = EXPR[n_expr][2]
-        is_vis_task = EXPR[n_expr][3]
+        index = EXPR[n_expr][0]
+        expr_name = EXPR[n_expr][1]
+        expr_name_for_report = EXPR[n_expr][2]
+        episode_steps = EXPR[n_expr][3]
+        is_vis_task = EXPR[n_expr][4]
+        layout_type = EXPR[n_expr][5]
 
         df = make_df()
         add_column_survive_terms(df=df)
@@ -371,26 +372,42 @@ if __name__ == "__main__":
         # 報酬グラフ作成
         count_plot += 1
         print("plot:", expr_name, "reward_graph", f"({count_plot}/{n_plots})")
-        save_path = 'plots/reward_graph(' + expr_name + ').png'
-        reward_graph(df, '報酬値の統計量推移\n' + expr_name_for_report, save_path, ylim=episode_steps)
+        save_path = 'plots/(a-' + index + ') reward_graph(' + expr_name + ').png'
+        title = ('報酬値の統計量推移\n' if layout_type == 2 else "") + expr_name_for_report
+        reward_graph(df, title, ylim=episode_steps, layout_type=layout_type)
+        if save_graph:
+            plt.savefig(save_path)
+        plt.show()
 
         # 報酬散布図作成
         count_plot += 1
         print("plot:", expr_name, "reward_scatter", f"({count_plot}/{n_plots})")
-        save_path = 'plots/reward_scatter(' + expr_name + ').png'
-        reward_scatter(df, '報酬値散布図\n' + expr_name_for_report, save_path, ylim=episode_steps)
+        save_path = 'plots/(b-' + index + ') reward_scatter(' + expr_name + ').png'
+        title = ('報酬値散布図\n' if layout_type == 2 else "") + expr_name_for_report
+        reward_scatter(df, title, ylim=episode_steps, layout_type=layout_type)
+        if save_graph:
+            plt.savefig(save_path)
+        plt.show()
 
         if is_vis_task:
             # 視線本数グラフ
             count_plot += 1
             print("plot:", expr_name, "vis_line_graph", f"({count_plot}/{n_plots})")
-            save_path = 'plots/vis_line_graph(' + expr_name + ').png'
-            vis_line_graph(df, '平均視線本数の推移\n' + expr_name_for_report, save_path, y_lim=nvl_y_lim)
+            save_path = 'plots/(c-' + index + ') vis_line_graph(' + expr_name + ').png'
+            title = ('平均視線本数の推移\n' if layout_type == 2 else "") + expr_name_for_report
+            vis_line_graph(df, title, y_lim=nvl_y_lim, layout_type=layout_type)
+            if save_graph:
+                plt.savefig(save_path)
+            plt.show()
 
         # 生存期間ヒストグラム
         count_plot += 1
         print("plot:", expr_name, "survive_hist", f"({count_plot}/{n_plots})")
-        save_path = 'plots/survive_hist(' + expr_name + ').png'
-        survive_hist(df, '誕生後の経過世代数に対する生存個体数\n' + expr_name_for_report, save_path, limit_survive_terms=limit_survive_terms)
+        save_path = 'plots/(d-' + index + ') survive_hist(' + expr_name + ').png'
+        title = ('誕生後の経過世代数に対する生存個体数\n' if layout_type == 2 else "") + expr_name_for_report
+        survive_hist(df, title, limit_survive_terms=limit_survive_terms, layout_type=layout_type)
+        if save_graph:
+            plt.savefig(save_path)
+        plt.show()
 
         time.sleep(INTERVAL)
