@@ -9,12 +9,12 @@ sys.path.insert(0, root_dir)
 media_root = os.path.join(root_dir, r"examples\saved_data\all_media")
 
 expr_media_paths = [
-    # [r"huntCreeperBaseline",      [i for i in range(31)],],
-    # [r"huntCreeperBaselineVis",  [i for i in range(31)],],
-    # [r"huntHopperBaseline",       [i for i in range(31)],],
-    # [r"huntHopperBaselineVis",   [i for i in range(31)],],
-    # [r"huntFlyerBaseline",        [i for i in range(31)],],
-    # [r"huntFlyerBaselineVis",    [i for i in range(31)],],
+    [r"huntCreeper",      [0, 10, 20, 30, 40, 50, 60, 62],],
+    [r"huntCreeper_vis1",  [0, 10, 20, 30, 40, 50, 60, 62],],
+    [r"ga_hopper",       [0, 10, 20, 30, 40, 50, 60, 62],],
+    # [r"huntHopper-vis",   [0, 10, 20, 30, 40, 50, 60, 62],],
+    [r"ga_flyer",        [0, 10, 20, 30, 40, 50, 60, 62],],
+    # [r"huntFlyer-vis",   [0, 10, 20, 30, 40, 50, 60, 62],],
 
     # [r"huntCreeperBaseline",      [i for i in range(31)],],
     # [r"huntCreeperBaselineVis",  [i for i in range(31)],],
@@ -23,7 +23,7 @@ expr_media_paths = [
     # [r"huntFlyerBaseline",        [i for i in range(31)],],
     # [r"huntFlyerBaselineVis",    [i for i in range(31)],],
 
-    [r"HuntLargeCreeper-vis (Random Spawn) high res",    [i for i in range(31)],],
+    # [r"HuntLargeCreeper-vis (Random Spawn) high res",    [i for i in range(31)],],
     # [r"HuntLargeCreeper-vis (More Survive)",    [i for i in range(31)],],
 ]
 
@@ -48,7 +48,7 @@ def create_montage(gen_dir, output_filename):
         elements_rgba = [e.convert("RGB") for e in elements]
         frame = Image.new('RGB', (width * 2, height * 5))
 
-        for i in range(10):
+        for i in range(len(elements_rgba)):
             x = i % 2
             y = i // 2
             frame.paste(elements_rgba[i], (x * width, y * height))
