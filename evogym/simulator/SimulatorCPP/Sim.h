@@ -50,6 +50,7 @@ public:
 	Ref <MatrixXd> object_vel_at_time(long int sim_time, string object_name);
 	double object_orientation_at_time(long int sim_time, string object_name);
 	void translate_object(double x, double y, string object_name);
+	void move_object(double x, double y, string object_name);
 	Ref <MatrixXi> get_actuator_indices(string robot_name);
 
 	//void show_debug_window();

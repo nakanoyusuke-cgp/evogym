@@ -150,6 +150,10 @@ void Sim::translate_object(double x, double y, string object_name) {
 	environment.save_snapshot(sim_time);
 }
 
+void Sim::move_object(double x, double y, string object_name){
+    environment.move_object(x, y, object_name);
+    environment.save_snapshot(sim_time);
+}
 
 Ref <MatrixXd> Sim::object_pos_at_time(long int sim_time, string object_name) {
 	return environment.object_pos_at_time(sim_time, object_name);

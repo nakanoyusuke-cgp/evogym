@@ -221,6 +221,18 @@ register(
 )
 
 register(
+    id = 'HuntMultiCreepers-v0',
+    entry_point = 'evogym.envs.hunting:HuntMultiCreepers',
+    max_episode_steps = 1000,
+)
+
+register(
+    id = 'HuntMultiCreepers-v1',
+    entry_point = 'evogym.envs.hunting:HuntMultiCreepersWithoutOuterInfo',
+    max_episode_steps = 1000,
+)
+
+register(
     id = 'HuntHopper-v0',
     entry_point = 'evogym.envs.hunting:HuntHopper',
     max_episode_steps=1000,
@@ -271,6 +283,12 @@ register(
 )
 
 register(
+    id = 'HuntMultiCreepersVis-v0',
+    entry_point = 'evogym.envs.visual_perceptions:HuntMultiCreepersVis',
+    max_episode_steps = 1000,
+)
+
+register(
     id = 'HuntHugeCreeper_vis1-v0',
     entry_point = 'evogym.envs.visual_perceptions:HuntHugeCreeperVis1',
     max_episode_steps=1000,
@@ -312,3 +330,4 @@ register(
     entry_point = 'evogym.envs.visual_perceptions:HuntCreeperBaselineVisRandomPop',
     max_episode_steps = 500,
 )
+

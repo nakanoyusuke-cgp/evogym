@@ -21,7 +21,7 @@ body = np.array([
 ])
 # print(body)
 
-env_idx = 31
+env_idx = 302
 
 if env_idx == 1:
     env = gym.make('HuntCreeper-v0', body=body)
@@ -60,6 +60,13 @@ elif env_idx == 121:
 elif env_idx == 102:
     env = gym.make("HuntCreeperBaselineVis-v1", body=body)
 
+elif env_idx == 300:
+    env = gym.make("HuntMultiCreepers-v0", body=body)
+elif env_idx == 301:
+    env = gym.make("HuntMultiCreepers-v1", body=body)
+elif env_idx == 302:
+    env = gym.make("HuntMultiCreepersVis-v0", body=body)
+
 else:
     exit(1)
 
@@ -72,12 +79,31 @@ obs = env.reset()
 
 state = None
 
+pos_x = [6., 5.9, 5.8, 5.7, 5.6, 5.5]
+# pos_x = list(reversed([6., 5.9, 5.8, 5.7, 5.6, 5.5]))
+# pos_x = [1., 1.1, 1.2, 1.3, 1.4, 1.5]
+# pos_x = list(reversed([1., 1.1, 1.2, 1.3, 1.4, 1.5]))
+
+
+def cb1(o, r, d, i, _i):
+    move(4.05, 0.16)
+    print(r)
+    print(d)
+    print(i)
+
+
+def cb2(o, r, d, i, _i):
+    move(3.44, 0.16)
+    print(r)
+    print(d)
+    print(i)
+
 
 def tmp_debug(env):
     print(env.get_robot_prey_diff())
 
 
-def step(env, n=1, verbose=False, verbose_interval=1):
+def step(env, n=1, verbose=False, verbose_interval=1, callback=None):
     global state
     for i in range(n):
         action = env.action_space.sample() * 0.0
@@ -98,13 +124,16 @@ def step(env, n=1, verbose=False, verbose_interval=1):
         #     if state == 'jumping':
         #         print(env.object_pos_at_time(env.get_time(), 'prey')[1], env.sim.ground_on_robot('prey', 'robot'))
 
+        if callback is not None:
+            callback(ob, reward, done, info, i)
+
         if verbose and ((i + 1) % verbose_interval == 0):
             print("reward:", reward)
             print("info:", info)
         if done:
             env.reset()
 
-    return ob
+    return ob, reward, done, info
 
 
 def check_hunt_rewards(env, n=1):
@@ -120,12 +149,22 @@ def check_hunt_rewards(env, n=1):
         if done:
             env.reset()
 
+
 def print_state(env):
     tmp1 = env.sim.object_boxels_pos('robot')
     tmp2 = env.sim.object_boxels_type('robot')
     print(tmp1)
     print(tmp2)
     print(tmp1[:, tmp2 == 6])
+
+
+def translate(x, y):
+    env.sim.translate_object(x, y, 'prey')
+
+
+def move(x, y):
+    env.sim.move_object(x, y, 'prey')
+
 
 # ---
 #
